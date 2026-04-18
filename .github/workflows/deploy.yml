@@ -30,7 +30,7 @@ jobs:
             echo "::warning::Set repo variable CLOUDFLARE_ACCOUNT_ID and repo secret CLOUDFLARE_API_TOKEN to enable production deploys for the mailatlas Pages project."
           fi
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         if: steps.config.outputs.ready == 'true'
       - uses: actions/setup-node@v6
         if: steps.config.outputs.ready == 'true'
