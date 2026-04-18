@@ -22,6 +22,14 @@ npm run dev
 npm run build
 ```
 
+## Screenshots
+
+Use `scripts/chrome_capture.sh` when you need a local headless Chrome screenshot of a docs page:
+
+```bash
+scripts/chrome_capture.sh /tmp/mailatlas-home.png http://localhost:4321
+```
+
 ## Deploy
 
 Production deploys are handled by GitHub Actions and Cloudflare Pages.
