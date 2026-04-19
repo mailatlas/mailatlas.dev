@@ -30,6 +30,8 @@ Create the OAuth client in Google Cloud Console:
 Then run:
 
 ```bash
+python -m pip install "mailatlas[keychain]"
+
 mailatlas auth gmail \
   --client-id "$MAILATLAS_GMAIL_CLIENT_ID" \
   --client-secret "$MAILATLAS_GMAIL_CLIENT_SECRET" \
@@ -37,8 +39,12 @@ mailatlas auth gmail \
 ```
 
 MailAtlas opens a browser, asks Google for the `gmail.send` scope, receives the OAuth callback on
-`127.0.0.1`, and stores the resulting token outside the MailAtlas workspace. It does not write Gmail
-OAuth tokens to `store.db`, raw snapshots, logs, or JSON send results.
+`127.0.0.1`, and stores the resulting token outside the MailAtlas workspace. When the `keychain`
+extra is installed, the local CLI stores Gmail OAuth token material in the operating system
+keychain by default. Without that extra, it falls back to a user config token file.
+
+MailAtlas does not write Gmail OAuth tokens to `store.db`, raw snapshots, logs, or JSON send
+results.
 
 Check local status:
 
@@ -79,12 +85,37 @@ mailatlas send \
   --idempotency-key gmail-api-test-1
 ```
 
-## Token file
+## Token storage
 
-By default, MailAtlas stores Gmail OAuth tokens outside the workspace:
+For local CLI usage, use the operating system keychain:
+
+```bash
+python -m pip install "mailatlas[keychain]"
+
+mailatlas auth gmail \
+  --client-id "$MAILATLAS_GMAIL_CLIENT_ID" \
+  --client-secret "$MAILATLAS_GMAIL_CLIENT_SECRET" \
+  --email user@gmail.com \
+  --token-store keychain
+```
+
+`--token-store auto` is the default. It uses keychain storage when the optional dependency is
+available, then falls back to a token file.
+
+Without keychain storage, MailAtlas stores Gmail OAuth tokens outside the workspace:
 
 - macOS: `~/Library/Application Support/MailAtlas/gmail-token.json`
 - Linux and other Unix-like systems: `~/.config/mailatlas/gmail-token.json`
+
+Force that path with:
+
+```bash
+mailatlas auth gmail \
+  --client-id "$MAILATLAS_GMAIL_CLIENT_ID" \
+  --client-secret "$MAILATLAS_GMAIL_CLIENT_SECRET" \
+  --email user@gmail.com \
+  --token-store file
+```
 
 For tests, use an explicit token path:
 
@@ -108,6 +139,14 @@ mailatlas send \
   --text "Sent with a test token file."
 ```
 
+`--token-file` and `--gmail-token-file` always use the explicit file path, even when
+`--token-store keychain` is set. This keeps throwaway local tests easy to inspect and delete.
+`MAILATLAS_GMAIL_TOKEN_FILE` also selects a file store when no token store is passed explicitly.
+
+Backend applications should not rely on the local CLI token store. Store Gmail refresh tokens in
+your own encrypted credential store, refresh them in your backend, and pass a short-lived access
+token to MailAtlas at send time with `gmail_access_token` or `MAILATLAS_GMAIL_ACCESS_TOKEN`.
+
 ## BCC behavior
 
 MailAtlas keeps local outbound raw snapshots free of `Bcc` headers. Gmail API sends use a
@@ -118,6 +157,8 @@ Bcc-free local audit snapshot.
 
 - If auth fails before the browser opens, confirm `--client-id` is set.
 - If Google rejects the redirect, use an OAuth desktop client and rerun `mailatlas auth gmail`.
+- If `--token-store keychain` fails before auth starts, install `mailatlas[keychain]` or use
+  `--token-store file` for a local test.
 - If send fails because of the From address, use the authenticated Gmail address or a Gmail
   send-as alias configured in Gmail.
 - If you used SMTP app passwords for earlier tests, revoke those app passwords after you move to

@@ -41,8 +41,11 @@ PDF export uses a local Chrome or Chromium process to render stored HTML. Set
   variables, CLI flags, or explicit Python `SendConfig` values. MailAtlas does not write those
   secrets to SQLite, raw snapshots, logs, or JSON output.
 - For personal Gmail, prefer Gmail API OAuth with the `gmail.send` scope over SMTP app passwords.
-  `mailatlas auth gmail` stores OAuth tokens outside the MailAtlas workspace by default and never in
-  `store.db`.
+  With `mailatlas[keychain]` installed, `mailatlas auth gmail` stores local CLI OAuth token material
+  in the operating system keychain. Without that extra, it uses a user config token file outside the
+  MailAtlas workspace. It never stores Gmail tokens in `store.db`.
+- For backend applications, store OAuth refresh tokens in your own encrypted credential store and
+  pass short-lived access tokens to MailAtlas at send time.
 - Review exported JSON, HTML, Markdown, and PDF artifacts before sending them outside your machine or repository.
 - Review outbound drafts and dry runs before sending generated or agent-authored email.
 - Use synthetic fixtures for demos when you do not want real inbox content in screenshots, examples, or tests.

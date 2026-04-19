@@ -220,12 +220,15 @@ Gmail API configuration:
 - `MAILATLAS_GMAIL_API_BASE`
 - `MAILATLAS_GMAIL_USER_ID`
 - `MAILATLAS_GMAIL_TOKEN_FILE`
+- `MAILATLAS_GMAIL_TOKEN_STORE`
 - `MAILATLAS_GMAIL_CLIENT_ID`
 - `MAILATLAS_GMAIL_CLIENT_SECRET`
 
 For personal Gmail addresses, use the Gmail API provider with OAuth:
 
 ```bash
+python -m pip install "mailatlas[keychain]"
+
 mailatlas auth gmail \
   --client-id "$MAILATLAS_GMAIL_CLIENT_ID" \
   --client-secret "$MAILATLAS_GMAIL_CLIENT_SECRET" \
@@ -240,12 +243,16 @@ mailatlas send \
 ```
 
 Use `mailatlas auth status gmail` to confirm local auth is configured, and
-`mailatlas auth logout gmail` to remove the stored token. Gmail SMTP app passwords remain available
-through `--provider smtp`, but they are a compatibility path rather than the recommended Gmail
-integration.
+`mailatlas auth logout gmail` to remove the stored token. `--token-store auto` uses operating-system
+keychain storage when `mailatlas[keychain]` is installed, then falls back to a user config token
+file. Use `--token-store keychain` to require keychain storage, `--token-store file` to force the
+config file, or `--token-file` for throwaway tests.
+
+Gmail SMTP app passwords remain available through `--provider smtp`, but they are a compatibility
+path rather than the recommended Gmail integration.
 
 Provider secrets and OAuth tokens are consumed at runtime from flags, environment variables, Python
-config, or the Gmail auth token file. They are not written to `store.db`, raw snapshots, logs, or
+config, or the Gmail auth token store. They are not written to `store.db`, raw snapshots, logs, or
 JSON send results.
 
 PDF export uses Chrome or Chromium. Set `MAILATLAS_PDF_BROWSER` if MailAtlas cannot find the

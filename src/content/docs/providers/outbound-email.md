@@ -44,7 +44,7 @@ Choose a provider with `--provider` or `MAILATLAS_SEND_PROVIDER`.
 | `gmail` | You want to send from a personal Gmail address or Gmail send-as alias. | Gmail API OAuth token with the `gmail.send` scope. |
 
 Provider credentials are read from flags, environment variables, Python config, or the Gmail token
-file at runtime. MailAtlas does not write SMTP passwords, Cloudflare API tokens, Gmail access
+store at runtime. MailAtlas does not write SMTP passwords, Cloudflare API tokens, Gmail access
 tokens, or Gmail refresh tokens into `store.db`, raw snapshots, logs, or JSON send results.
 
 ## SMTP
@@ -101,6 +101,8 @@ Use the Cloudflare API base override only for tests or provider-compatible gatew
 Use the Gmail provider for personal Gmail addresses:
 
 ```bash
+python -m pip install "mailatlas[keychain]"
+
 mailatlas auth gmail \
   --client-id "$MAILATLAS_GMAIL_CLIENT_ID" \
   --client-secret "$MAILATLAS_GMAIL_CLIENT_SECRET" \
@@ -115,8 +117,12 @@ mailatlas send \
 ```
 
 MailAtlas requests only the `https://www.googleapis.com/auth/gmail.send` scope. See
-[Gmail Provider](/docs/providers/gmail/) for the Google Cloud setup, token-file behavior, and
+[Gmail Provider](/docs/providers/gmail/) for the Google Cloud setup, token-store behavior, and
 troubleshooting steps.
+
+For backend applications, store Gmail refresh tokens in your own encrypted credential store and
+pass short-lived access tokens to MailAtlas at send time. The local CLI keychain is for local
+operator workflows, not multi-user backend credential storage.
 
 ## Attachments and headers
 

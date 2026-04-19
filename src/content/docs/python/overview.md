@@ -170,8 +170,10 @@ result = atlas.send_email(
 )
 ```
 
-The CLI can store and refresh Gmail OAuth tokens for local testing with `mailatlas auth gmail`.
-Library callers can also provide fresh access tokens directly through `SendConfig`.
+The CLI can store and refresh Gmail OAuth tokens for local testing with `mailatlas auth gmail`,
+using the operating-system keychain when `mailatlas[keychain]` is installed. Backend applications
+should store refresh tokens in their own encrypted credential store and pass fresh access tokens
+directly through `SendConfig`.
 
 PDF export uses Chrome or Chromium under the hood. Set `MAILATLAS_PDF_BROWSER` if the browser
 executable is not on the default path.

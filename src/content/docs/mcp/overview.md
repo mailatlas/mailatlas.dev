@@ -60,6 +60,12 @@ Use the same provider configuration as `mailatlas send`:
 Provider secrets and Gmail tokens are consumed at runtime. MailAtlas does not write them to
 `store.db`, raw snapshots, logs, or JSON send results.
 
+For local Gmail testing, install `mailatlas[keychain]` and run `mailatlas auth gmail` before
+starting the MCP server. The send tool can also receive `gmail_token_store` with `keychain`, `file`,
+`auto`, or a token-file path, and `gmail_token_file` for explicit throwaway test files. Backend MCP
+hosts should store provider credentials in their own secret store and pass short-lived
+`gmail_access_token` values to the tool.
+
 ## BCC
 
 Default outbound list views do not include BCC recipients. `mailatlas_get_outbound` accepts
