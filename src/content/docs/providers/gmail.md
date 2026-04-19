@@ -1,26 +1,26 @@
 ---
 title: Gmail Provider
-description: Configure MailAtlas to send email through the Gmail API with OAuth. Create a Google OAuth desktop client, authorize the local CLI, choose token storage, send a test message, and troubleshoot common errors.
+description: Configure MailAtlas to receive Gmail messages and send through the Gmail API with OAuth. Create a Google OAuth desktop client, choose capabilities, use local token storage, receive or send test messages, and troubleshoot common errors.
 slug: docs/providers/gmail
 ---
 
-Use the Gmail provider when you want MailAtlas to send from a personal Gmail address or a Gmail-configured send-as alias.
+Use the Gmail provider when you want MailAtlas to receive messages from a Gmail mailbox or send from a personal Gmail address or Gmail-configured send-as alias.
 
-MailAtlas uses the Gmail API with OAuth and the `https://www.googleapis.com/auth/gmail.send` scope by default.
+MailAtlas uses the Gmail API with OAuth. `mailatlas auth gmail` is send-focused by default for compatibility, but you can request receive or combined send/receive capabilities explicitly.
 
-This is the recommended Gmail path. Gmail SMTP app passwords can still work through `--provider smtp`, but they are a compatibility option for local testing, not the preferred integration.
+This is the recommended Gmail path. Gmail SMTP app passwords can still work through `--provider smtp` for outbound mail, but they are a compatibility option for local testing, not the preferred Gmail integration.
 
 ## Choose your Gmail workflow
 
 ### Local CLI workflow
 
-Use `mailatlas auth gmail` when a local operator wants to authorize Gmail once and reuse that local token for CLI sends.
+Use `mailatlas auth gmail` when a local operator wants to authorize Gmail once and reuse that local token for CLI receive or send commands.
 
 With `mailatlas[keychain]` installed, MailAtlas stores token material in the operating system keychain by default. Without the keychain extra, it falls back to a user config token file outside the MailAtlas workspace.
 
 ### Backend application workflow
 
-Backend applications should not rely on the local CLI token store. Store Gmail refresh tokens in your own encrypted credential store, refresh them in your backend, and pass short-lived access tokens to MailAtlas at send time with `gmail_access_token` or `MAILATLAS_GMAIL_ACCESS_TOKEN`.
+Backend applications should not rely on the local CLI token store. Store Gmail refresh tokens in your own encrypted credential store, refresh them in your backend, and pass short-lived access tokens to MailAtlas at receive or send time with `gmail_access_token` or `MAILATLAS_GMAIL_ACCESS_TOKEN`.
 
 ## What you need
 
@@ -30,7 +30,7 @@ You need:
 - Gmail API enabled for that project.
 - A Google OAuth desktop client ID.
 - A Google OAuth client secret if Google issued one for that client.
-- The Gmail address you want to send from.
+- The Gmail address you want to receive from or send from.
 
 ## Create the OAuth client
 
@@ -46,6 +46,8 @@ In Google Cloud Console:
 
 ## Authorize the local CLI
 
+Send-only auth is the default:
+
 ```bash
 python -m pip install "mailatlas[keychain]"
 
@@ -57,7 +59,34 @@ mailatlas auth gmail \
 
 MailAtlas opens a browser unless `--no-browser` is passed, asks Google for the `gmail.send` scope by default, receives the OAuth callback on `127.0.0.1`, and stores the resulting token outside the MailAtlas workspace.
 
-MailAtlas does not write Gmail OAuth tokens to `store.db`, raw snapshots, logs, or JSON send results.
+Receive-only auth asks for the read-only Gmail scope:
+
+```bash
+mailatlas auth gmail \
+  --client-id "$MAILATLAS_GMAIL_CLIENT_ID" \
+  --client-secret "$MAILATLAS_GMAIL_CLIENT_SECRET" \
+  --email user@gmail.com \
+  --capability receive
+```
+
+Use one token for both local receive and send:
+
+```bash
+mailatlas auth gmail \
+  --client-id "$MAILATLAS_GMAIL_CLIENT_ID" \
+  --client-secret "$MAILATLAS_GMAIL_CLIENT_SECRET" \
+  --email user@gmail.com \
+  --capability send,receive
+```
+
+Capability scopes:
+
+| Capability | Gmail scope |
+| --- | --- |
+| `send` | `https://www.googleapis.com/auth/gmail.send` |
+| `receive` | `https://www.googleapis.com/auth/gmail.readonly` |
+
+MailAtlas does not write Gmail OAuth tokens to `store.db`, raw snapshots, logs, or JSON receive/send results.
 
 Check local status:
 
@@ -70,6 +99,46 @@ Remove local Gmail auth:
 ```bash
 mailatlas auth logout gmail
 ```
+
+## Receive Gmail messages
+
+Run one bounded receive pass:
+
+```bash
+mailatlas receive \
+  --provider gmail \
+  --label INBOX \
+  --limit 50
+```
+
+Receive uses the Gmail API, decodes raw messages into RFC 2822 bytes, and stores them as regular MailAtlas documents under the local workspace. Provider metadata records Gmail message ID, thread ID, label IDs, history ID, internal date, and local receive account ID.
+
+Receive is read-only. MailAtlas does not mark Gmail messages read, archive them, delete them, or change labels.
+
+Use a Gmail search query when label-only receive is not precise enough:
+
+```bash
+mailatlas receive \
+  --query 'newer_than:7d' \
+  --limit 25
+```
+
+Run foreground polling:
+
+```bash
+mailatlas receive watch \
+  --provider gmail \
+  --label INBOX \
+  --interval 60
+```
+
+Inspect local receive state:
+
+```bash
+mailatlas receive status
+```
+
+The status output includes configured receive accounts, cursor state, recent runs, and the last error.
 
 ## Send a test email
 
@@ -149,6 +218,15 @@ mailatlas send \
   --text "Sent with a test token file."
 ```
 
+Receive with that token file:
+
+```bash
+mailatlas receive \
+  --token-file /tmp/mailatlas-gmail-token.json \
+  --label INBOX \
+  --limit 10
+```
+
 `--token-file` and `--gmail-token-file` always use the explicit file path. This keeps throwaway local tests easy to inspect and delete.
 
 `MAILATLAS_GMAIL_TOKEN_FILE` also selects a file store when no token store is passed explicitly.
@@ -165,9 +243,17 @@ Backend applications should:
 Python example:
 
 ```python
-from mailatlas import MailAtlas, OutboundMessage, SendConfig
+from mailatlas import MailAtlas, OutboundMessage, ReceiveConfig, SendConfig
 
 atlas = MailAtlas()
+
+receive_result = atlas.receive(
+    ReceiveConfig(
+        gmail_access_token="ya29...",
+        gmail_label="INBOX",
+        limit=50,
+    )
+)
 
 result = atlas.send_email(
     OutboundMessage(
@@ -206,6 +292,18 @@ Install `mailatlas[keychain]` or use `--token-store file` for a local test.
 ### Send fails because of the From address
 
 Use the authenticated Gmail address or a Gmail send-as alias configured in Gmail.
+
+### Receive fails because the token is send-only
+
+Run `mailatlas auth gmail --capability receive` or `mailatlas auth gmail --capability send,receive`, then try `mailatlas receive` again.
+
+### Receive reports `cursor_reset_required`
+
+Gmail no longer accepts the stored history cursor. Run an explicit full sync:
+
+```bash
+mailatlas receive --label INBOX --limit 50 --full-sync
+```
 
 ### You previously used SMTP app passwords
 

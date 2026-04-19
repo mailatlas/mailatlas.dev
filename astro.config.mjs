@@ -30,6 +30,7 @@ export default defineConfig({
             "docs/getting-started/installation",
             "docs/getting-started/quickstart",
             "docs/getting-started/manual-imap-sync",
+            "docs/examples/gmail-receive",
             {
               label: "When to Use MailAtlas",
               link: "/docs/marketing/why-not-connectors/",
@@ -93,6 +94,8 @@ export default defineConfig({
             "docs/examples/eml-ingest",
             "docs/examples/mbox-ingest",
             "docs/examples/imap-sync",
+            "docs/examples/gmail-receive",
+            "docs/examples/gmail-receive-watch",
             "docs/examples/gmail-oauth-send",
           ],
         },

@@ -1,6 +1,6 @@
 ---
 title: Workspace Model
-description: Understand the MailAtlas workspace root, including raw messages, HTML snapshots, extracted assets, exports, outbound audit files, SQLite metadata, dedupe, and IMAP sync state.
+description: Understand the MailAtlas workspace root, including raw messages, HTML snapshots, extracted assets, exports, outbound audit files, SQLite metadata, dedupe, Gmail receive state, and IMAP sync state.
 slug: docs/concepts/workspace-model
 ---
 
@@ -11,7 +11,7 @@ Think of the workspace as the durable boundary between MailAtlas and your applic
 The built-in workspace uses:
 
 - Files on disk for raw inbound messages, HTML snapshots, extracted assets, exports, and outbound audit artifacts.
-- SQLite for metadata, lookup, dedupe, run history, IMAP sync cursors, and outbound send records.
+- SQLite for metadata, lookup, dedupe, receive accounts, receive cursors, receive runs, IMAP sync cursors, and outbound send records.
 
 This is the default local storage layout. Applications can copy the resulting files and metadata into their own storage systems when needed.
 
@@ -33,7 +33,7 @@ This is the default local storage layout. Applications can copy the resulting fi
 
 | Path | Purpose |
 | --- | --- |
-| `store.db` | SQLite index for document metadata, lookup, dedupe, run history, IMAP sync cursors, and outbound records. |
+| `store.db` | SQLite index for document metadata, lookup, dedupe, receive account state, receive cursors, receive run history, IMAP sync cursors, and outbound records. |
 | `raw/` | Original inbound email bytes, usually stored as `.eml` files. |
 | `html/` | Normalized HTML body snapshots with local asset references when an inbound message contains HTML. |
 | `assets/` | Extracted inline images and regular file attachments from inbound messages. |
@@ -50,12 +50,12 @@ The workspace is designed to be inspectable:
 - You can inspect every stage of the pipeline.
 - Raw messages stay linked to parsed records.
 - Assets stay next to the documents that reference them.
-- SQLite is enough for document listing, lookup, dedupe, sync state, and send records.
+- SQLite is enough for document listing, lookup, dedupe, receive state, sync state, and send records.
 - Exported files are ordinary artifacts that can be reviewed, copied, archived, or indexed elsewhere.
 
 ## What MailAtlas stores
 
-MailAtlas can store raw email bytes, cleaned body text, normalized HTML, extracted inline files, extracted attachments, document metadata, parser notes, exported artifacts, IMAP sync cursor state, outbound records, copied outbound attachments, and BCC recipients in SQLite for audit.
+MailAtlas can store raw email bytes, cleaned body text, normalized HTML, extracted inline files, extracted attachments, document metadata, parser notes, exported artifacts, Gmail receive account state, Gmail receive cursor state, receive run history, IMAP sync cursor state, outbound records, copied outbound attachments, and BCC recipients in SQLite for audit.
 
 MailAtlas omits BCC from local raw MIME snapshots while preserving BCC in SQLite for audit.
 
@@ -78,6 +78,19 @@ MailAtlas omits BCC from local raw MIME snapshots while preserving BCC in SQLite
 3. It runs the same parsing and storage path as file ingest.
 4. It stores per-folder cursor state in SQLite.
 5. It does not store mailbox passwords or OAuth access tokens.
+
+### Gmail receive
+
+1. MailAtlas reads a short-lived Gmail access token from a flag, environment variable, or the local Gmail token store.
+2. It lists Gmail message candidates by label, query, or incremental history cursor.
+3. It fetches full raw messages through the Gmail API.
+4. It decodes Gmail raw payloads into RFC 2822 bytes.
+5. It runs the same parsing and storage path as file ingest.
+6. It stores Gmail provider metadata on the document, including message ID, thread ID, label IDs, history ID, internal date, and receive account ID.
+7. It updates the receive cursor after a successful pass.
+8. It stores receive account, cursor, and run records in SQLite.
+
+Receive is read-only. MailAtlas does not mark Gmail messages read, archive them, delete them, or change labels.
 
 ### Export
 

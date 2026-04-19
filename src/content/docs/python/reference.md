@@ -1,6 +1,6 @@
 ---
 title: API Reference
-description: Reference MailAtlas Python classes and functions including parse_eml, MailAtlas, ParserConfig, ImapSyncConfig, OutboundMessage, OutboundAttachment, SendConfig, and SendResult.
+description: Reference MailAtlas Python classes and functions including parse_eml, MailAtlas, ParserConfig, ReceiveConfig, ImapSyncConfig, OutboundMessage, OutboundAttachment, SendConfig, ReceiveResult, and SendResult.
 slug: docs/python/reference
 ---
 
@@ -31,6 +31,10 @@ Common methods:
 - `parse_eml(path, parser_config=None)`
 - `ingest_eml(paths, parser_config=None)`
 - `ingest_mbox(path, parser_config=None)`
+- `receive(config)`
+- `receive_status(account_id=None)`
+- `list_receive_accounts()`
+- `list_receive_runs(account_id=None, limit=20)`
 - `sync_imap(config)`
 - `get_document(document_id)`
 - `list_documents(query=None)`
@@ -54,6 +58,52 @@ ParserConfig(
 ```
 
 Controls parser cleaning for file ingest, IMAP sync, and parse-only calls.
+
+## `ReceiveConfig`
+
+```python
+ReceiveConfig(
+    provider: str = "gmail",
+    account_id: str | None = None,
+    gmail_access_token: str | None = None,
+    gmail_api_base: str | None = None,
+    gmail_user_id: str = "me",
+    gmail_label: str = "INBOX",
+    gmail_query: str | None = None,
+    gmail_include_spam_trash: bool = False,
+    token_store: str | None = None,
+    token_file: str | None = None,
+    limit: int = 50,
+    full_sync: bool = False,
+    parser_config: ParserConfig = ParserConfig(),
+)
+```
+
+Use `ReceiveConfig` with `atlas.receive(...)` for one bounded Gmail receive pass. `limit` must be between `1` and `500`.
+
+## `ReceiveResult`
+
+```python
+ReceiveResult(
+    status: str,
+    provider: str,
+    account_id: str,
+    fetched_count: int,
+    ingested_count: int,
+    duplicate_count: int,
+    error_count: int,
+    document_ids: tuple[str, ...],
+    cursor: dict[str, object],
+    run_id: str,
+    error: str | None = None,
+)
+```
+
+Returned by `atlas.receive(...)`.
+
+## `ReceiveAccount`, `ReceiveCursor`, and `ReceiveRun`
+
+These dataclasses represent local receive status records from `list_receive_accounts(...)`, stored cursor state, and `list_receive_runs(...)`.
 
 ## `ImapSyncConfig`
 

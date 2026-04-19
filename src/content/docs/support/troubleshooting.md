@@ -84,6 +84,33 @@ Confirm the exact folder name with your provider. Some providers use localized f
 
 Use a Google OAuth desktop client for `mailatlas auth gmail`. If the browser flow is not usable in your environment, pass `--no-browser` and open the printed URL manually.
 
+## Gmail receive says the token is missing receive scope
+
+Authorize Gmail with the receive capability:
+
+```bash
+mailatlas auth gmail \
+  --client-id "$MAILATLAS_GMAIL_CLIENT_ID" \
+  --client-secret "$MAILATLAS_GMAIL_CLIENT_SECRET" \
+  --email user@gmail.com \
+  --capability receive
+```
+
+Use `--capability send,receive` only when the same local token should support both actions.
+
+## Gmail receive reports `cursor_reset_required`
+
+The stored Gmail history cursor is no longer valid. Run an explicit full sync:
+
+```bash
+mailatlas receive \
+  --label INBOX \
+  --limit 50 \
+  --full-sync
+```
+
+Full sync may return duplicates if those messages are already stored. That is expected.
+
 ## Gmail From address issue
 
 Use the authenticated Gmail address or a Gmail send-as alias configured in Gmail.
@@ -125,6 +152,17 @@ mailatlas mcp --root .mailatlas
 ```
 
 Set this variable only where the MCP client is allowed to send email. Draft and read tools remain available without the send gate.
+
+## MCP receive tools hidden
+
+Gmail receive tools are hidden by default. To expose them:
+
+```bash
+export MAILATLAS_MCP_ALLOW_RECEIVE=1
+mailatlas mcp --root .mailatlas
+```
+
+Set this variable only where the MCP client is allowed to contact Gmail and write private email into the local workspace.
 
 ## Still stuck
 

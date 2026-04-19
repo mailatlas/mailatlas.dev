@@ -4,9 +4,9 @@ description: Understand what MailAtlas stores, what it avoids storing, how provi
 slug: docs/marketing/security-and-privacy
 ---
 
-MailAtlas stores data on the local filesystem and in SQLite by default. The core CLI commands and Python APIs operate on files you point at, IMAP folders you sync explicitly, and outbound messages you ask MailAtlas to draft or send.
+MailAtlas stores data on the local filesystem and in SQLite by default. The core CLI commands and Python APIs operate on files you point at, Gmail messages you receive explicitly, IMAP folders you sync explicitly, and outbound messages you ask MailAtlas to draft or send.
 
-MailAtlas does not require a hosted MailAtlas service for file ingest, manual IMAP sync, export, or outbound audit records.
+MailAtlas does not require a hosted MailAtlas service for file ingest, Gmail receive, manual IMAP sync, export, or outbound audit records.
 
 Local storage still contains sensitive data. Treat a MailAtlas workspace as source email data, not as a scrubbed sharing format.
 
@@ -18,6 +18,7 @@ MailAtlas can store:
 - Normalized HTML and extracted assets on disk.
 - Cleaned body text in stored document records.
 - Document metadata and parser notes in SQLite.
+- Gmail receive account state, cursor state, and run history in SQLite when you use `receive`.
 - IMAP sync cursor state in SQLite when you use `sync`.
 - Outbound raw `.eml` snapshots.
 - Outbound body files.
@@ -33,6 +34,7 @@ MailAtlas does not provide:
 - Hosted storage.
 - Hosted mailbox sync.
 - Background mailbox sync as a managed service.
+- Hidden Gmail receive.
 - Automatic publication of private inbox data.
 - Autonomous background sending.
 - Deliverability management.
@@ -40,7 +42,7 @@ MailAtlas does not provide:
 
 ## Secrets not stored in the workspace
 
-MailAtlas reads provider credentials at runtime. It does not write these secrets to `store.db`, raw snapshots, logs, or JSON send results:
+MailAtlas reads provider credentials at runtime. It does not write these secrets to `store.db`, raw snapshots, logs, or JSON receive/send results:
 
 | Secret type | Examples |
 | --- | --- |
@@ -53,7 +55,7 @@ MailAtlas reads provider credentials at runtime. It does not write these secrets
 
 For local Gmail CLI workflows, `mailatlas auth gmail` stores token material outside the workspace. With `mailatlas[keychain]` installed, it uses the operating system keychain by default. Without that extra, it uses a user config token file outside the workspace.
 
-Backend applications should store OAuth refresh tokens in their own encrypted credential store and pass short-lived access tokens to MailAtlas at send time.
+Backend applications should store OAuth refresh tokens in their own encrypted credential store and pass short-lived access tokens to MailAtlas at receive or send time.
 
 ## Workspace sensitivity
 
@@ -78,6 +80,16 @@ If you use OAuth for IMAP:
 3. Keep refresh tokens outside MailAtlas.
 4. Rotate or revoke tokens using your provider's controls.
 
+## Gmail receive privacy
+
+Gmail receive stores the messages it fetches in the local workspace. That can include raw message bytes, cleaned body text, HTML snapshots, inline images, attachments, sender and recipient metadata, and exported artifacts.
+
+Gmail receive is read-only. MailAtlas does not delete, archive, label, or mark Gmail messages read.
+
+Use `mailatlas auth gmail --capability receive` for receive-only local access. Use `--capability send,receive` only when the same local token should support both actions.
+
+If Gmail reports that the stored history cursor is invalid, run an explicit `mailatlas receive --full-sync` so the reset is visible in command history and logs.
+
 ## Outbound email privacy
 
 Outbound records are audit data. Treat them as sensitive.
@@ -100,6 +112,8 @@ The MCP server exposes local workspace tools to MCP-compatible clients over STDI
 
 Live sending is disabled by default. The live send tool is only exposed when `MAILATLAS_MCP_ALLOW_SEND=1` is set before the server starts.
 
+Gmail receive tools are also disabled by default. They are only exposed when `MAILATLAS_MCP_ALLOW_RECEIVE=1` is set before the server starts. Receive-on-read is off unless `MAILATLAS_MCP_RECEIVE_ON_READ=1` is set.
+
 Use the draft tool for reviewable generated messages, and enable live sends only in environments where the client is allowed to send email.
 
 ## Practical guidance
@@ -110,6 +124,7 @@ Use the draft tool for reviewable generated messages, and enable live sends only
 - Review exported JSON, HTML, Markdown, and PDF artifacts before sending them outside your machine or repository.
 - Review outbound records before sharing logs or workspace snapshots.
 - Pass credentials through runtime configuration such as environment variables, CLI flags, secret managers, or explicit Python config.
+- Use Gmail receive only with a read-only scope unless the same token must also send mail.
 - Prefer Gmail API OAuth with the `gmail.send` scope over SMTP app passwords for personal Gmail sending.
 - Revoke old app passwords or test credentials when they are no longer needed.
 
@@ -123,4 +138,5 @@ Before sharing a workspace or export, check:
 - Does it contain BCC metadata?
 - Does it contain exported PDFs or Markdown bundles?
 - Does it contain provider error details or message IDs?
+- Does it contain Gmail receive cursor or run history?
 - Is it synthetic data or real user data?

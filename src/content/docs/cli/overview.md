@@ -1,16 +1,17 @@
 ---
 title: CLI Overview
-description: Use the MailAtlas CLI to ingest files, sync IMAP folders, list and inspect documents, export JSON, Markdown, HTML, or PDF, send outbound email, run doctor, and start the MCP server.
+description: Use the MailAtlas CLI to ingest files, receive Gmail, sync IMAP folders, list and inspect documents, export JSON, Markdown, HTML, or PDF, send outbound email, run doctor, and start the MCP server.
 slug: docs/cli/overview
 ---
 
 The MailAtlas CLI provides a local workflow for email I/O:
 
 1. Ingest email files or manually sync IMAP folders.
-2. List stored documents.
-3. Inspect or export one document.
-4. Send outbound email through configured providers when needed.
-5. Run local self-checks and optional MCP tools.
+2. Receive Gmail messages with the Gmail API.
+3. List stored documents.
+4. Inspect or export one document.
+5. Send outbound email through configured providers when needed.
+6. Run local self-checks and optional MCP tools.
 
 Across all ingest paths, MailAtlas preserves raw messages, cleaned text, normalized HTML, extracted inline images, regular attachments, metadata, and source provenance.
 
@@ -25,7 +26,7 @@ Root resolution order:
 3. Project config from `.mailatlas.toml` or `pyproject.toml`
 4. Fallback `.mailatlas`
 
-The default workspace contains `store.db`, `raw/`, `html/`, `assets/`, `exports/`, and `outbound/`.
+The default workspace contains `store.db`, `raw/`, `html/`, `assets/`, `exports/`, and `outbound/`. Gmail receive account state, cursors, and run history live in `store.db`.
 
 ## Command summary
 
@@ -82,6 +83,50 @@ mailatlas sync --folder INBOX
 ```
 
 MailAtlas consumes the token but does not run a browser login flow or manage refresh tokens for IMAP.
+
+## Receive Gmail
+
+Authorize a read-only Gmail token before running receive:
+
+```bash
+python -m pip install "mailatlas[keychain]"
+
+mailatlas auth gmail \
+  --client-id "$MAILATLAS_GMAIL_CLIENT_ID" \
+  --client-secret "$MAILATLAS_GMAIL_CLIENT_SECRET" \
+  --email user@gmail.com \
+  --capability receive
+```
+
+Run one bounded receive pass:
+
+```bash
+mailatlas receive \
+  --provider gmail \
+  --label INBOX \
+  --limit 50
+```
+
+The command prints JSON with `status`, `account_id`, message counts, `document_ids`, cursor data, and a `run_id`. MailAtlas stores received messages in the same document store used by `ingest` and `sync`.
+
+Run foreground polling when you want the local workspace to stay current:
+
+```bash
+mailatlas receive watch \
+  --provider gmail \
+  --label INBOX \
+  --interval 60
+```
+
+`watch` prints one compact JSON line per run. Stop it with your shell or process manager, or pass `--max-runs` for a bounded script.
+
+Inspect local receive accounts, cursors, and recent runs:
+
+```bash
+mailatlas receive status
+```
+
+Gmail receive is read-only. MailAtlas does not archive, delete, label, or mark messages read.
 
 ## List and inspect documents
 
@@ -174,6 +219,8 @@ mailatlas mcp --root .mailatlas
 
 The MCP server exposes document, export, outbound-list, outbound-get, and draft tools over MCP. The live send tool is hidden unless `MAILATLAS_MCP_ALLOW_SEND=1` is set before the server starts.
 
+Gmail receive tools are hidden unless `MAILATLAS_MCP_ALLOW_RECEIVE=1` is set before server startup.
+
 ## Common flags
 
 | Flag | Purpose |
@@ -181,6 +228,11 @@ The MCP server exposes document, export, outbound-list, outbound-get, and draft 
 | `--root` | Select the MailAtlas workspace root. |
 | `--query` | Optional substring search for `list`. |
 | `--folder` | Repeatable folder selector for IMAP sync. Defaults to `INBOX`. |
+| `--label` | Gmail label for receive. Defaults to `INBOX`. |
+| `--limit` | Maximum Gmail messages to receive in one pass. Defaults to `50`. |
+| `--full-sync` | Ignore the stored Gmail cursor and run an explicit full sync pass. |
+| `--interval` | Polling interval for `receive watch`. Defaults to `60` seconds. |
+| `--max-runs` | Optional run limit for `receive watch`. |
 | `--type` | Optional ingest type override. |
 | `--dry-run` | Render and store outbound email without contacting a provider. |
 | `--to`, `--cc`, `--bcc` | Add outbound recipients. |
@@ -206,6 +258,9 @@ Each also supports a `--no-...` form. Use [Parser Cleaning](/docs/config/parser-
 
 - `ingest` prints a JSON summary with counts and created document refs.
 - `sync` prints per-folder sync results as JSON.
+- `receive` prints a JSON result with counts, document IDs, cursor state, and run ID.
+- `receive watch` prints one compact JSON object per line.
+- `receive status` prints accounts, cursors, recent runs, and the last error when one exists.
 - `list` prints stored document refs as JSON.
 - `get` prints one stored document as JSON by default.
 - `get --format markdown --out <directory>` writes `document.md` plus an `assets/` bundle and prints the resolved path to `document.md`.
@@ -224,7 +279,9 @@ SMTP variables: `MAILATLAS_SMTP_HOST`, `MAILATLAS_SMTP_PORT`, `MAILATLAS_SMTP_US
 
 Cloudflare variables: `MAILATLAS_CLOUDFLARE_ACCOUNT_ID`, `MAILATLAS_CLOUDFLARE_API_TOKEN`, `MAILATLAS_CLOUDFLARE_API_BASE`.
 
-Gmail variables: `MAILATLAS_GMAIL_ACCESS_TOKEN`, `MAILATLAS_GMAIL_API_BASE`, `MAILATLAS_GMAIL_USER_ID`, `MAILATLAS_GMAIL_TOKEN_FILE`, `MAILATLAS_GMAIL_TOKEN_STORE`, `MAILATLAS_GMAIL_CLIENT_ID`, `MAILATLAS_GMAIL_CLIENT_SECRET`.
+Gmail send variables: `MAILATLAS_GMAIL_ACCESS_TOKEN`, `MAILATLAS_GMAIL_API_BASE`, `MAILATLAS_GMAIL_USER_ID`, `MAILATLAS_GMAIL_TOKEN_FILE`, `MAILATLAS_GMAIL_TOKEN_STORE`, `MAILATLAS_GMAIL_CLIENT_ID`, `MAILATLAS_GMAIL_CLIENT_SECRET`.
+
+Gmail receive variables: `MAILATLAS_RECEIVE_PROVIDER`, `MAILATLAS_GMAIL_ACCESS_TOKEN`, `MAILATLAS_GMAIL_API_BASE`, `MAILATLAS_GMAIL_USER_ID`, `MAILATLAS_GMAIL_RECEIVE_LABEL`, `MAILATLAS_GMAIL_RECEIVE_QUERY`, `MAILATLAS_GMAIL_RECEIVE_LIMIT`, `MAILATLAS_GMAIL_TOKEN_FILE`, and `MAILATLAS_GMAIL_TOKEN_STORE`.
 
 For personal Gmail addresses, prefer the Gmail API provider with OAuth:
 
@@ -243,4 +300,4 @@ mailatlas send \
   --text "Sent with Gmail API OAuth."
 ```
 
-Provider secrets and OAuth tokens are consumed at runtime from flags, environment variables, Python config, or the Gmail auth token store. They are not written to `store.db`, raw snapshots, logs, or JSON send results.
+Provider secrets and OAuth tokens are consumed at runtime from flags, environment variables, Python config, or the Gmail auth token store. They are not written to `store.db`, raw snapshots, logs, or JSON receive/send results.

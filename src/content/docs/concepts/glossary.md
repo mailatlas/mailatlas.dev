@@ -1,6 +1,6 @@
 ---
 title: Glossary
-description: Definitions for MailAtlas concepts, including .eml, mbox, IMAP sync, workspace root, document, asset, export, outbound record, provider, and parser cleaning.
+description: Definitions for MailAtlas concepts, including .eml, mbox, Gmail receive, IMAP sync, workspace root, document, asset, export, outbound record, provider, and parser cleaning.
 slug: docs/concepts/glossary
 ---
 
@@ -16,13 +16,29 @@ A mailbox file on disk that can contain many messages. Use `mailatlas ingest` wh
 
 The MailAtlas workflow for connecting to a live mailbox over IMAP and fetching selected folders into the local workspace. Use `mailatlas sync` for this path.
 
+## Gmail receive
+
+The MailAtlas command and API path for fetching Gmail messages with the Gmail API and storing them as local documents. Use `mailatlas receive` for one bounded pass or `mailatlas receive watch` for foreground polling.
+
+## Receive account
+
+A local record for a Gmail receive configuration. It stores provider identity and non-secret options such as label and query.
+
+## Receive cursor
+
+The Gmail checkpoint MailAtlas stores in SQLite to avoid reprocessing the same messages on incremental receive runs.
+
+## Receive run
+
+One receive attempt. A run stores status, counts, errors, and links to documents created or skipped as duplicates.
+
 ## Workspace root
 
 The local directory that holds raw email, normalized HTML, extracted assets, exports, outbound records, and `store.db`.
 
 ## `store.db`
 
-The SQLite database inside the workspace root. It stores document metadata, lookup data, dedupe information, IMAP sync cursors, run history, and outbound records.
+The SQLite database inside the workspace root. It stores document metadata, lookup data, dedupe information, Gmail receive cursors, IMAP sync cursors, run history, and outbound records.
 
 ## Document
 
@@ -62,7 +78,7 @@ Metadata that explains where a document came from and how it was processed, incl
 
 ## Source kind
 
-The input type that produced a document, such as `eml`, `mbox`, or `imap`.
+The input type that produced a document, such as `eml`, `mbox`, `gmail`, or `imap`.
 
 ## Outbound record
 
@@ -78,7 +94,7 @@ An outbound delivery backend configured at runtime, such as SMTP, Cloudflare Ema
 
 ## Provider credentials
 
-Secrets used to authenticate with an outbound provider, such as SMTP passwords, Cloudflare API tokens, or Gmail OAuth tokens. MailAtlas reads these at runtime and does not write them to `store.db`, raw snapshots, logs, or JSON send results.
+Secrets used to authenticate with a provider, such as SMTP passwords, Cloudflare API tokens, or Gmail OAuth tokens. MailAtlas reads these at runtime and does not write them to `store.db`, raw snapshots, logs, or JSON receive/send results.
 
 ## Idempotency key
 
@@ -91,3 +107,7 @@ The optional Model Context Protocol server that exposes local MailAtlas tools to
 ## Send gate
 
 The explicit runtime configuration required before the MCP server exposes live outbound sending. Draft tools remain available without the live send gate.
+
+## Receive gate
+
+The explicit runtime configuration required before the MCP server exposes Gmail receive tools.

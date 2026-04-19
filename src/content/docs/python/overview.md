@@ -1,12 +1,12 @@
 ---
 title: Python API
-description: Embed MailAtlas in Python applications. Parse email without storage, use a storage-backed MailAtlas instance, sync IMAP folders, export documents, and send outbound email with audit records.
+description: Embed MailAtlas in Python applications. Parse email without storage, use a storage-backed MailAtlas instance, receive Gmail, sync IMAP folders, export documents, and send outbound email with audit records.
 slug: docs/python/overview
 ---
 
 Use the Python API when you want MailAtlas inside an application, worker, notebook, test suite, or pipeline.
 
-Use `parse_eml(...)` for parse-only experiments. Use `MailAtlas(...)` when you want storage-backed ingest, IMAP sync, document lookup, export, outbound drafts, and provider sends.
+Use `parse_eml(...)` for parse-only experiments. Use `MailAtlas(...)` when you want storage-backed ingest, Gmail receive, IMAP sync, document lookup, export, outbound drafts, and provider sends.
 
 MailAtlas is currently alpha. Confirm exact method signatures against the installed version before depending on them in production.
 
@@ -19,6 +19,7 @@ from mailatlas import (
     OutboundAttachment,
     OutboundMessage,
     ParserConfig,
+    ReceiveConfig,
     SendConfig,
     parse_eml,
 )
@@ -29,6 +30,7 @@ Use:
 - `parse_eml(...)` when you want one normalized document in memory.
 - `MailAtlas(...)` when you want a configured storage-backed object.
 - `ParserConfig(...)` when you need to tune parser cleaning.
+- `ReceiveConfig(...)` when you need a bounded Gmail receive pass.
 - `ImapSyncConfig(...)` when you need manual IMAP folder sync.
 - `OutboundMessage(...)` and `SendConfig(...)` when you need outbound drafts, dry runs, or provider sends.
 
@@ -105,6 +107,37 @@ sync_result = atlas.sync_imap(
 Use `ImapSyncConfig(...)` when you want MailAtlas to connect to an IMAP mailbox over TLS, fetch folders incrementally, and store only non-secret cursor state in SQLite.
 
 Treat MailAtlas as the OAuth consumer, not the OAuth client. Your application should obtain and refresh the access token, then pass it into `ImapSyncConfig(access_token=..., auth="xoauth2")`.
+
+## Gmail receive
+
+```python
+from mailatlas import MailAtlas, ReceiveConfig
+
+atlas = MailAtlas()
+
+result = atlas.receive(
+    ReceiveConfig(
+        gmail_access_token="ya29...",
+        gmail_label="INBOX",
+        limit=50,
+    )
+)
+
+print(result.status)
+print(result.document_ids)
+```
+
+Use `ReceiveConfig(...)` when you want MailAtlas to call the Gmail API, decode raw messages, and store them in the local workspace. Receive is read-only: it does not mark Gmail messages read, archive them, delete them, or change labels.
+
+Backend applications should store Gmail refresh tokens in their own encrypted credential store, refresh them outside MailAtlas, and pass short-lived access tokens through `ReceiveConfig(gmail_access_token=...)`.
+
+Inspect receive state:
+
+```python
+status = atlas.receive_status()
+accounts = atlas.list_receive_accounts()
+runs = atlas.list_receive_runs(limit=10)
+```
 
 ## Export documents
 
@@ -198,6 +231,10 @@ Backend applications should store refresh tokens in their own encrypted credenti
 | `parse_eml(...)` | One normalized document in memory. |
 | `ingest_eml(...)` | Document refs with IDs you can store or export later. |
 | `ingest_mbox(...)` | Document refs for messages ingested from the mailbox archive. |
+| `receive(...)` | Gmail receive counts, document IDs, cursor state, and run ID. |
+| `receive_status(...)` | Local receive accounts, cursors, recent runs, and last error. |
+| `list_receive_accounts(...)` | Configured local receive account records. |
+| `list_receive_runs(...)` | Recent receive run records. |
 | `sync_imap(...)` | Per-folder sync results and document refs for that run. |
 | `export_document(...)` | Exported content or an output path string depending on the format and destination. |
 | `draft_email(...)` | A stored local outbound draft and rendered `.eml` snapshot. |

@@ -1,10 +1,10 @@
 ---
 title: MCP Server
-description: Run the optional MailAtlas MCP server over STDIO so compatible local AI tools can inspect documents, export artifacts, create outbound drafts, and optionally send email through an explicit runtime gate.
+description: Run the optional MailAtlas MCP server over STDIO so compatible local AI tools can inspect documents, export artifacts, create outbound drafts, and optionally receive Gmail or send email through explicit runtime gates.
 slug: docs/mcp/overview
 ---
 
-MailAtlas ships an optional MCP server for local AI tools that need to inspect email records, export documents, review outbound records, or prepare outbound messages.
+MailAtlas ships an optional MCP server for local AI tools that need to inspect email records, export documents, review outbound records, prepare outbound messages, or run explicitly enabled Gmail receive passes.
 
 The MCP server runs against the same MailAtlas workspace root as the CLI and Python API. It does not create a hosted service.
 
@@ -74,6 +74,11 @@ This tool is hidden by default and only appears when live sending is explicitly 
 
 MailAtlas also exposes Gmail receive tools when receive support is explicitly enabled in the runtime environment. Keep receive access local and credential-scoped.
 
+- `mailatlas_receive`
+- `mailatlas_receive_status`
+
+`mailatlas_receive` contacts Gmail and stores private email in the local workspace. It is hidden by default.
+
 ## Live send gate
 
 Live sends are disabled by default. This lets MCP clients draft and inspect email without contacting an outbound provider.
@@ -86,6 +91,29 @@ mailatlas mcp --root .mailatlas
 ```
 
 Set this variable only in environments where the client is allowed to send email.
+
+## Gmail receive gate
+
+Gmail receive is disabled by default. This keeps MCP read tools local to the workspace unless you explicitly authorize the server to contact Gmail.
+
+To expose receive tools:
+
+```bash
+export MAILATLAS_MCP_ALLOW_RECEIVE=1
+mailatlas mcp --root .mailatlas
+```
+
+To run one receive pass before `mailatlas_list_documents`:
+
+```bash
+export MAILATLAS_MCP_ALLOW_RECEIVE=1
+export MAILATLAS_MCP_RECEIVE_ON_READ=1
+mailatlas mcp --root .mailatlas
+```
+
+Use receive-on-read only when the client should be allowed to contact Gmail during read operations. It can be slower than ordinary reads and writes new private email into the workspace.
+
+`MAILATLAS_MCP_RECEIVE_BACKGROUND=1` starts a local background receive loop with the MCP server process. Keep it off unless the MCP process lifecycle is the intended receive lifecycle.
 
 ## Provider configuration
 
@@ -102,12 +130,20 @@ Cloudflare:
 - `MAILATLAS_CLOUDFLARE_ACCOUNT_ID`
 - `MAILATLAS_CLOUDFLARE_API_TOKEN`
 
-Gmail:
+Gmail send:
 
 - `MAILATLAS_GMAIL_ACCESS_TOKEN`
 - A token created with `mailatlas auth gmail`
 
-Provider secrets and Gmail tokens are consumed at runtime. MailAtlas does not write them to `store.db`, raw snapshots, logs, or JSON send results.
+Gmail receive:
+
+- `MAILATLAS_GMAIL_ACCESS_TOKEN`
+- A token created with `mailatlas auth gmail --capability receive`
+- `MAILATLAS_GMAIL_RECEIVE_LABEL`
+- `MAILATLAS_GMAIL_RECEIVE_QUERY`
+- `MAILATLAS_GMAIL_RECEIVE_LIMIT`
+
+Provider secrets and Gmail tokens are consumed at runtime. MailAtlas does not write them to `store.db`, raw snapshots, logs, or JSON receive/send results.
 
 ## Gmail with MCP
 
@@ -118,7 +154,8 @@ python -m pip install "mailatlas[keychain]"
 mailatlas auth gmail \
   --client-id "$MAILATLAS_GMAIL_CLIENT_ID" \
   --client-secret "$MAILATLAS_GMAIL_CLIENT_SECRET" \
-  --email user@gmail.com
+  --email user@gmail.com \
+  --capability send,receive
 
 mailatlas mcp --root .mailatlas
 ```
@@ -135,5 +172,7 @@ Raw outbound MIME snapshots remain Bcc-free.
 
 - Keep the MCP server local unless a future transport is explicitly designed for remote use.
 - Do not enable `MAILATLAS_MCP_ALLOW_SEND=1` in environments where the client should only draft or inspect.
+- Do not enable `MAILATLAS_MCP_ALLOW_RECEIVE=1` unless the client is allowed to contact Gmail and store private email locally.
+- Leave `MAILATLAS_MCP_RECEIVE_ON_READ` and `MAILATLAS_MCP_RECEIVE_BACKGROUND` unset unless those side effects are expected.
 - Use dry runs and drafts for generated or agent-authored content before enabling live sends.
 - Treat the workspace root as sensitive data.

@@ -105,6 +105,55 @@ Provider flags:
 - Cloudflare: `--cloudflare-account-id`, `--cloudflare-api-token`, `--cloudflare-api-base`
 - Gmail: `--gmail-access-token`, `--gmail-api-base`, `--gmail-user-id`, `--gmail-token-file`, `--gmail-token-store`
 
+## `mailatlas receive`
+
+```bash
+mailatlas receive [--root ROOT] [--provider gmail] [--account-id ACCOUNT_ID] \
+  [--label LABEL] [--query QUERY] [--limit LIMIT] [--full-sync] \
+  [--include-spam-trash | --no-include-spam-trash] \
+  [--gmail-access-token TOKEN] [--gmail-api-base URL] [--gmail-user-id USER_ID] \
+  [--token-file TOKEN_FILE] [--token-store TOKEN_STORE]
+```
+
+Use `receive` for one bounded Gmail API fetch pass into the local workspace. The first supported provider is `gmail`.
+
+Common receive flags:
+
+- `--label`: Gmail label to receive from. Defaults to `INBOX`.
+- `--query`: Optional Gmail search query.
+- `--limit`: Maximum messages to fetch in one pass. Defaults to `50`.
+- `--full-sync`: Ignore the incremental cursor and run an explicit full sync.
+- `--include-spam-trash`: Include Gmail spam and trash in list calls.
+- `--account-id`: Stable local account ID when you do not want MailAtlas to derive one from Gmail profile data.
+
+Gmail receive token flags:
+
+- `--gmail-access-token`: One-off short-lived Gmail API access token.
+- `--token-file`: Explicit local Gmail OAuth token file path.
+- `--token-store`: `auto`, `keychain`, `file`, or a token file path.
+- `--gmail-api-base`: Gmail API base override for tests.
+- `--gmail-user-id`: Gmail API user ID. Defaults to `me`.
+
+The command prints JSON with `status`, `provider`, `account_id`, fetch counts, `document_ids`, cursor data, and `run_id`.
+
+## `mailatlas receive watch`
+
+```bash
+mailatlas receive watch [--root ROOT] [receive flags] [--interval SECONDS] [--max-runs N]
+```
+
+Use `receive watch` for a foreground polling process. It runs one receive pass immediately, sleeps, then repeats until interrupted or until `--max-runs` is reached.
+
+The command prints one compact JSON line per run.
+
+## `mailatlas receive status`
+
+```bash
+mailatlas receive status [--root ROOT] [--account-id ACCOUNT_ID]
+```
+
+Use `receive status` to inspect local Gmail receive accounts, cursors, recent runs, and the most recent error.
+
 ## `mailatlas doctor`
 
 ```bash
@@ -123,6 +172,8 @@ mailatlas auth gmail [--client-id CLIENT_ID] [--client-secret CLIENT_SECRET] \
 
 The default Gmail scope is `https://www.googleapis.com/auth/gmail.send`.
 
+Use `--capability receive` to request `https://www.googleapis.com/auth/gmail.readonly`. Use `--capability send,receive` when one local token should support both Gmail send and Gmail receive.
+
 Use status and logout subcommands:
 
 ```bash
@@ -137,6 +188,8 @@ mailatlas mcp [--root ROOT] [--transport stdio]
 ```
 
 STDIO is the only supported MCP transport.
+
+Gmail receive tools are exposed only when `MAILATLAS_MCP_ALLOW_RECEIVE=1` is set before server startup.
 
 ## Next step
 

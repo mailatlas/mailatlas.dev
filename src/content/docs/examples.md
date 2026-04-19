@@ -1,6 +1,6 @@
 ---
 title: Examples
-description: Example workflows for MailAtlas file ingest, mbox archives, IMAP sync, exports, outbound sends, Python usage, and MCP server setup.
+description: Example workflows for MailAtlas file ingest, mbox archives, Gmail receive, IMAP sync, exports, outbound sends, Python usage, and MCP server setup.
 slug: docs/examples
 ---
 
@@ -32,6 +32,22 @@ Use these examples when you want a task-focused path instead of a conceptual ref
       <p>Fetch selected live mailbox folders into the same local workspace.</p>
     </span>
     <span class="docs-route-meta">imap</span>
+  </a>
+  <a class="docs-route-row" href="/docs/examples/gmail-receive/">
+    <span class="docs-route-kicker">Gmail</span>
+    <span>
+      <span class="docs-route-title">Receive Gmail messages</span>
+      <p>Authorize a read-only Gmail token and fetch messages into the local workspace.</p>
+    </span>
+    <span class="docs-route-meta">receive</span>
+  </a>
+  <a class="docs-route-row" href="/docs/examples/gmail-receive-watch/">
+    <span class="docs-route-kicker">Polling</span>
+    <span>
+      <span class="docs-route-title">Watch Gmail receive</span>
+      <p>Run foreground Gmail polling and inspect one JSON line per receive pass.</p>
+    </span>
+    <span class="docs-route-meta">watch</span>
   </a>
 </div>
 

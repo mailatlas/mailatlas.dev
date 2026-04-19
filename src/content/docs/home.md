@@ -1,10 +1,10 @@
 ---
 title: MailAtlas Docs
-description: Learn how to ingest, inspect, export, sync, and send email with MailAtlas using the CLI, Python API, MCP server, and configured providers.
+description: Learn how to ingest, receive, inspect, export, sync, and send email with MailAtlas using the CLI, Python API, MCP server, and configured providers.
 slug: docs
 ---
 
-MailAtlas is an open-source email infrastructure layer for developers building local email workflows, AI agents, retrieval systems, and data applications. These docs show how to ingest email from files or IMAP, inspect stored documents, export structured outputs, and send provider-backed email while preserving a local audit trail.
+MailAtlas is an open-source email infrastructure layer for developers building local email workflows, AI agents, retrieval systems, and data applications. These docs show how to ingest email from files, receive Gmail, sync IMAP folders, inspect stored documents, export structured outputs, and send provider-backed email while preserving a local audit trail.
 
 > MailAtlas is currently alpha. Expect CLI, schema, and packaging details to keep improving as the project matures.
 
@@ -36,6 +36,14 @@ Choose the path that matches where the email lives now. Each path writes to the 
       <p>Use Manual IMAP Sync when MailAtlas should connect to a live mailbox, fetch selected folders, and store messages in the same local workspace.</p>
     </span>
     <span class="docs-route-meta">IMAP</span>
+  </a>
+  <a class="docs-route-row" href="/docs/examples/gmail-receive/">
+    <span class="docs-route-kicker">Gmail</span>
+    <span>
+      <span class="docs-route-title">Gmail receive</span>
+      <p>Use Gmail Receive when MailAtlas should fetch Gmail messages with a read-only OAuth token and store them in the local workspace.</p>
+    </span>
+    <span class="docs-route-meta">Gmail API</span>
   </a>
   <a class="docs-route-row" href="/docs/providers/outbound-email/">
     <span class="docs-route-kicker">Outbound</span>
@@ -102,6 +110,7 @@ mailatlas list
 
 <ul class="docs-choice-list">
   <li><code>ingest</code><span>Use <code>mailatlas ingest</code> when you already have <code>.eml</code> files or an <code>mbox</code> mailbox file on disk.</span></li>
+  <li><code>receive</code><span>Use <code>mailatlas receive</code> when MailAtlas should fetch Gmail messages with the Gmail API and store them locally.</span></li>
   <li><code>sync</code><span>Use <code>mailatlas sync</code> when MailAtlas should fetch selected folders from a live mailbox over IMAP.</span></li>
   <li><code>get</code><span>Use <code>mailatlas list</code> to find documents, then <code>mailatlas get</code> to inspect or export one document as JSON, Markdown, HTML, or PDF.</span></li>
   <li><code>send</code><span>Use <code>mailatlas send</code> when MailAtlas should render a local outbound audit record and send through a configured provider.</span></li>
@@ -114,7 +123,7 @@ MailAtlas has a small local data model. Learn these concepts before building on 
 Inbound email follows this shape:
 
 ```text
-.eml file, mbox archive, or IMAP message
+.eml file, mbox archive, Gmail message, or IMAP message
         |
 MailAtlas document
         |
