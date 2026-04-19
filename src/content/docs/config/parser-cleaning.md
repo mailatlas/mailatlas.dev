@@ -8,6 +8,8 @@ Email bodies often contain forwarded-message wrappers, signatures, tracking link
 
 Use stricter cleaning when the output will feed retrieval chunks, model prompts, or analytics. Use lighter cleaning when you need forensic review or want to preserve the message as closely as possible.
 
+Cleaning affects `body_text` and parser metadata. It does not remove the stored raw message from the workspace.
+
 The current CLI defaults enable all parser-cleaning controls. Each flag supports a matching `--no-...` form when you want to disable one control for a run.
 
 ## Available controls

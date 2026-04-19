@@ -6,6 +6,8 @@ slug: docs/providers/outbound-email
 
 MailAtlas can compose, render, store, and send outbound email through providers you configure at runtime. Use this workflow when your application needs a local audit record for messages it sends.
 
+Outbound email uses the same local-first design as inbound ingest: MailAtlas writes inspectable artifacts first, then contacts the provider unless the message is a dry run.
+
 MailAtlas is not a hosted deliverability service. It does not manage reputation, suppression lists, campaign analytics, bounce processing, or provider accounts.
 
 Every outbound message gets a local record before provider delivery. That record can include:

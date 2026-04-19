@@ -14,6 +14,8 @@ A document can come from:
 
 The schema is alpha. Field names and compatibility guarantees may evolve before a stable schema version is published.
 
+Use this page when you are building against stored document output. Use Workspace Model when you need to know where linked files live on disk.
+
 ## Core document fields
 
 | Field | Description |

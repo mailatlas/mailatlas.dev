@@ -6,7 +6,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "MailAtlas",
-      description: "Open-source local email I/O for AI agents, data apps, retrieval systems, and Python workflows.",
+      description: "Open-source email infrastructure for local workspaces, AI agents, retrieval systems, and Python workflows.",
       customCss: ["./src/styles/custom.css"],
       components: {
         ThemeProvider: "./src/components/DocsThemeProvider.astro",
@@ -39,6 +39,10 @@ export default defineConfig({
         {
           label: "Core Concepts",
           items: [
+            {
+              label: "Overview",
+              link: "/docs/concepts/",
+            },
             "docs/concepts/workspace-model",
             "docs/concepts/document-schema",
             "docs/config/parser-cleaning",

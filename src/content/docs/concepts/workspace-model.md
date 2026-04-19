@@ -6,6 +6,8 @@ slug: docs/concepts/workspace-model
 
 MailAtlas stores email artifacts in one local workspace root. The default workspace root is `.mailatlas` in the current directory unless you set `MAILATLAS_HOME`, pass `--root`, or configure a project root.
 
+Think of the workspace as the durable boundary between MailAtlas and your application. The CLI, Python API, MCP server, exports, and outbound send workflow all read from or write to this local root.
+
 The built-in workspace uses:
 
 - Files on disk for raw inbound messages, HTML snapshots, extracted assets, exports, and outbound audit artifacts.

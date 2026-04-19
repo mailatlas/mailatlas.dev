@@ -1,60 +1,62 @@
 ---
 title: MailAtlas Docs
-description: Start using MailAtlas. Learn how to ingest .eml files and mbox archives, manually sync IMAP folders, export documents, use the CLI and Python API, configure outbound providers, and understand the local workspace.
+description: Learn how to ingest, inspect, export, sync, and send email with MailAtlas using the CLI, Python API, MCP server, and configured providers.
 slug: docs
 ---
 
-MailAtlas is an open-source local email I/O layer for AI agents, data apps, retrieval systems, and Python workflows. These docs show you how to bring email in from files or IMAP, inspect stored documents, export structured outputs, and send outbound email through configured providers while keeping a local audit trail.
+MailAtlas is an open-source email infrastructure layer for developers building local email workflows, AI agents, retrieval systems, and data applications. These docs show how to ingest email from files or IMAP, inspect stored documents, export structured outputs, and send provider-backed email while preserving a local audit trail.
 
 > MailAtlas is currently alpha. Expect CLI, schema, and packaging details to keep improving as the project matures.
 
 ## Start with your input
 
+Choose the path that matches where the email lives now. Each path writes to the same local workspace model.
+
 <div class="docs-route-list">
   <a class="docs-route-row" href="/docs/getting-started/quickstart/">
     <span class="docs-route-kicker">Files</span>
     <span>
-      <span class="docs-route-title"><code>.eml</code> files</span>
-      <p>Use the Quickstart when you already have individual message files on disk and want to verify the full ingest, inspect, and export flow.</p>
+      <span class="docs-route-title">Files</span>
+      <p>Use the Quickstart when you already have individual <code>.eml</code> files on disk and want to verify ingest, inspect, and export behavior end to end.</p>
     </span>
     <span class="docs-route-meta">Quickstart</span>
   </a>
   <a class="docs-route-row" href="/docs/examples/mbox-ingest/">
     <span class="docs-route-kicker">Archive</span>
     <span>
-      <span class="docs-route-title"><code>mbox</code> archives</span>
-      <p>Use Mbox Ingest when your email is already exported as a mailbox file and you want to preserve per-message source references and attachment paths.</p>
+      <span class="docs-route-title">Archive</span>
+      <p>Use <code>mbox</code> ingest when email is already exported as a mailbox archive and you want MailAtlas to create one stored document per message.</p>
     </span>
-    <span class="docs-route-meta">Mbox Ingest</span>
+    <span class="docs-route-meta">Mbox</span>
   </a>
   <a class="docs-route-row" href="/docs/getting-started/manual-imap-sync/">
     <span class="docs-route-kicker">Mailbox</span>
     <span>
-      <span class="docs-route-title">Live mailbox folders</span>
+      <span class="docs-route-title">Mailbox</span>
       <p>Use Manual IMAP Sync when MailAtlas should connect to a live mailbox, fetch selected folders, and store messages in the same local workspace.</p>
     </span>
-    <span class="docs-route-meta">Manual IMAP Sync</span>
+    <span class="docs-route-meta">IMAP</span>
   </a>
   <a class="docs-route-row" href="/docs/providers/outbound-email/">
     <span class="docs-route-kicker">Outbound</span>
     <span>
       <span class="docs-route-title">Outbound email</span>
-      <p>Use Outbound Email when your application needs to compose, render, store, and send messages through SMTP, Cloudflare, or Gmail while keeping a local outbound record.</p>
+      <p>Use Outbound Email when your application needs to render, store, send, and audit messages through SMTP, Cloudflare, or Gmail.</p>
     </span>
-    <span class="docs-route-meta">Outbound Email</span>
+    <span class="docs-route-meta">Send</span>
   </a>
 </div>
 
 ## Recommended first path
 
-Run one file-based ingest before connecting a live mailbox or building on the Python API. It is the fastest way to confirm the install, see the workspace layout, and understand the stored document model.
+Run one file-based ingest before connecting a live mailbox or building on the Python API. This confirms the install, creates a workspace, and shows the document model with the least setup.
 
 ```bash
 python3.12 -m venv .venv
 source .venv/bin/activate
 python -m pip install mailatlas
-export MAILATLAS_HOME="$PWD/.mailatlas"
 
+export MAILATLAS_HOME="$PWD/.mailatlas"
 mailatlas ingest path/to/message.eml
 mailatlas list
 ```
@@ -74,7 +76,7 @@ mailatlas list
     <span class="docs-route-kicker">CLI</span>
     <span>
       <span class="docs-route-title">CLI</span>
-      <p>Use the CLI for terminal workflows, scripts, inspection, exports, provider-based sends, self-checks, and local MCP server startup.</p>
+      <p>Use the CLI for terminal workflows, scripts, inspection, exports, provider-backed sends, self-checks, and local MCP server startup.</p>
     </span>
     <span class="docs-route-meta">CLI Overview</span>
   </a>
@@ -90,7 +92,7 @@ mailatlas list
     <span class="docs-route-kicker">MCP</span>
     <span>
       <span class="docs-route-title">MCP server</span>
-      <p>Use the MCP server when you want MCP-compatible clients to inspect local email data, prepare outbound drafts, and optionally send through an explicit runtime gate.</p>
+      <p>Use the MCP server when MCP-compatible clients should inspect local email data, prepare outbound drafts, or optionally send through an explicit runtime gate.</p>
     </span>
     <span class="docs-route-meta">MCP Server</span>
   </a>
@@ -105,48 +107,80 @@ mailatlas list
   <li><code>send</code><span>Use <code>mailatlas send</code> when MailAtlas should render a local outbound audit record and send through a configured provider.</span></li>
 </ul>
 
-## Core references
+## Core Concepts
+
+MailAtlas has a small local data model. Learn these concepts before building on the CLI, Python API, MCP server, or provider integrations.
+
+Inbound email follows this shape:
+
+```text
+.eml file, mbox archive, or IMAP message
+        |
+MailAtlas document
+        |
+raw message + cleaned text + HTML snapshot + assets + metadata
+        |
+CLI, Python API, MCP server, exports, retrieval, or review workflows
+```
+
+Outbound email follows the same local-first pattern:
+
+```text
+draft or send request
+        |
+rendered body + raw .eml snapshot + copied attachments
+        |
+outbound record + provider status
+```
 
 <div class="docs-route-list">
+  <a class="docs-route-row" href="/docs/concepts/">
+    <span class="docs-route-kicker">Overview</span>
+    <span>
+      <span class="docs-route-title">Core Concepts</span>
+      <p>Learn how workspaces, documents, assets, parser metadata, exports, and outbound records fit together.</p>
+    </span>
+    <span class="docs-route-meta">model</span>
+  </a>
   <a class="docs-route-row" href="/docs/concepts/workspace-model/">
-    <span class="docs-route-kicker">Storage</span>
+    <span class="docs-route-kicker">Workspace</span>
     <span>
       <span class="docs-route-title">Workspace Model</span>
-      <p>Explains where raw email, HTML snapshots, extracted assets, exports, outbound records, and SQLite metadata live.</p>
+      <p>Understand the local workspace root: <code>store.db</code>, raw messages, HTML snapshots, assets, exports, IMAP sync state, and outbound records.</p>
     </span>
     <span class="docs-route-meta">workspace</span>
   </a>
   <a class="docs-route-row" href="/docs/concepts/document-schema/">
-    <span class="docs-route-kicker">Schema</span>
+    <span class="docs-route-kicker">Document</span>
     <span>
       <span class="docs-route-title">Document Schema</span>
-      <p>Describes normalized fields, source references, attachment metadata, parser notes, and IMAP provenance.</p>
+      <p>Review the normalized document fields, asset fields, parser metadata, source provenance, and path behavior used by the CLI and Python API.</p>
     </span>
     <span class="docs-route-meta">document</span>
   </a>
   <a class="docs-route-row" href="/docs/config/parser-cleaning/">
-    <span class="docs-route-kicker">Parsing</span>
+    <span class="docs-route-kicker">Cleaning</span>
     <span>
       <span class="docs-route-title">Parser Cleaning</span>
-      <p>Explains configurable cleaning controls and how parser notes make transformations inspectable.</p>
+      <p>Tune how MailAtlas transforms noisy email bodies into cleaned text for retrieval, exports, analytics, review, and tests.</p>
     </span>
     <span class="docs-route-meta">cleaning</span>
   </a>
-  <a class="docs-route-row" href="/docs/providers/gmail/">
-    <span class="docs-route-kicker">Provider</span>
+  <a class="docs-route-row" href="/docs/reference/export-formats/">
+    <span class="docs-route-kicker">Export</span>
     <span>
-      <span class="docs-route-title">Gmail Provider</span>
-      <p>Covers Gmail API OAuth setup, token-store behavior, and Gmail-specific send behavior.</p>
+      <span class="docs-route-title">Export Formats</span>
+      <p>Choose between JSON, Markdown, HTML, and PDF outputs, and understand how exported files relate to stored documents and assets.</p>
     </span>
-    <span class="docs-route-meta">gmail</span>
+    <span class="docs-route-meta">export</span>
   </a>
-  <a class="docs-route-row" href="/docs/marketing/security-and-privacy/">
-    <span class="docs-route-kicker">Security</span>
+  <a class="docs-route-row" href="/docs/providers/outbound-email/">
+    <span class="docs-route-kicker">Outbound</span>
     <span>
-      <span class="docs-route-title">Security and Privacy</span>
-      <p>Explains what MailAtlas stores, what it avoids storing, and how to treat local workspaces and outbound records.</p>
+      <span class="docs-route-title">Outbound Email</span>
+      <p>Render, dry-run, send, and audit outbound messages through configured providers.</p>
     </span>
-    <span class="docs-route-meta">privacy</span>
+    <span class="docs-route-meta">send</span>
   </a>
 </div>
 
@@ -167,7 +201,15 @@ mailatlas list
   </div>
   <div>
     <strong>Document</strong>
-    <p>The normalized MailAtlas record you can inspect, search, and export.</p>
+    <p>The normalized MailAtlas record created from one inbound email message.</p>
+  </div>
+  <div>
+    <strong>Asset</strong>
+    <p>An inline image or regular file attachment extracted from a message and linked to a document.</p>
+  </div>
+  <div>
+    <strong>Parser metadata</strong>
+    <p>Structured notes that describe how a message was parsed, cleaned, and traced back to its source.</p>
   </div>
   <div>
     <strong>Export</strong>

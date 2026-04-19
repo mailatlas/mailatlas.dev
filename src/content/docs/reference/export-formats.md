@@ -8,6 +8,15 @@ MailAtlas can export a stored document as JSON, Markdown, HTML, or PDF.
 
 Use `mailatlas get <document-id> --format ...` from the CLI, or `atlas.export_document(...)` from Python.
 
+## Which format should I choose?
+
+| Format | Use when |
+| --- | --- |
+| JSON | Another program needs normalized fields, metadata, provenance, and asset references. |
+| Markdown | A person, notebook, retrieval index, or model prompt needs readable text with local asset references. |
+| HTML | Layout, hierarchy, images, or visual inspection matter. |
+| PDF | You need a portable review artifact or archive snapshot. |
+
 ## JSON
 
 ```bash

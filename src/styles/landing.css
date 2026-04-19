@@ -324,6 +324,14 @@ code {
   margin: 0.9rem 0 0;
 }
 
+.section-note {
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.75;
+  margin: 1.5rem 0 0;
+  max-width: 58rem;
+}
+
 .step-list {
   margin: 2.5rem 0 0;
   padding: 0;
