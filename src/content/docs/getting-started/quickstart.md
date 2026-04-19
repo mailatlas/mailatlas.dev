@@ -6,7 +6,7 @@ slug: docs/getting-started/quickstart
 
 This guide walks through the file-based MailAtlas workflow: create a local workspace, ingest `.eml` files, list stored documents, inspect one document, and export it.
 
-Use this page when your input already exists as files on disk. If you want MailAtlas to connect to a live mailbox, use [Manual IMAP Sync](/docs/getting-started/manual-imap-sync/) instead.
+Use this page when your input already exists as files on disk. If you want MailAtlas to connect to a live mailbox, use [IMAP Sync](/docs/getting-started/manual-imap-sync/) instead.
 
 By the end, you will have:
 
@@ -233,7 +233,7 @@ Only delete a workspace when you are sure it does not contain real mail or outbo
 
 ## Next step
 
-- Use [Manual IMAP Sync](/docs/getting-started/manual-imap-sync/) to fetch selected folders from a live mailbox.
+- Use [IMAP Sync](/docs/getting-started/manual-imap-sync/) to fetch selected folders from a live mailbox.
 - Use [Document Schema](/docs/concepts/document-schema/) to understand stored fields.
 - Use [Workspace Model](/docs/concepts/workspace-model/) to understand local files and SQLite metadata.
 - Use [CLI Overview](/docs/cli/overview/) for the full command surface.

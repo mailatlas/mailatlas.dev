@@ -14,7 +14,7 @@ Use MailAtlas when you need one or more of these capabilities:
 
 - Ingest stored `.eml` files.
 - Ingest `mbox` mailbox archives.
-- Manually sync selected IMAP folders into a local workspace.
+- Receive selected IMAP folders into a local workspace.
 - Preserve raw messages, cleaned text, HTML snapshots, inline images, attachments, and metadata together.
 - Export JSON, Markdown, HTML, or PDF for downstream systems.
 - Build retrieval, analytics, archival, or agent workflows over email.
@@ -42,7 +42,7 @@ Use a different tool when you need:
 | Decode MIME parts inside a small script | Generic MIME parser | You may not need a workspace, dedupe, exports, or provenance. |
 | Send product or marketing campaigns | Deliverability platform | You need bounce handling, suppression lists, templates, analytics, and reputation tooling. |
 | Build an agent workflow that reads and sends email with audit records | MailAtlas | It supports local inbound records and outbound send records through configured providers. |
-| Keep mailbox sync running continuously in the background | Background connector or custom worker | MailAtlas currently provides manual sync, not a hosted background service. |
+| Keep mailbox sync running as a hosted service | Hosted connector or custom worker | MailAtlas provides local foreground polling, not a hosted background service. |
 
 ## What MailAtlas adds on top of parsing
 
@@ -55,7 +55,7 @@ MailAtlas adds:
 - Stable document IDs.
 - Dedupe behavior.
 - Repeatable exports.
-- Manual IMAP sync state.
+- IMAP sync state.
 - Outbound MIME snapshots, body files, copied attachments, provider status, BCC audit metadata, and retry keys.
 
 ## Decision checklist
@@ -80,5 +80,5 @@ Choose a different tool if most of these are true:
 
 - Use [Installation](/docs/getting-started/installation/) to set up the CLI.
 - Use [Quickstart](/docs/getting-started/quickstart/) for local `.eml` files.
-- Use [Manual IMAP Sync](/docs/getting-started/manual-imap-sync/) for live mailbox folders.
+- Use [IMAP Sync](/docs/getting-started/manual-imap-sync/) for live mailbox folders.
 - Use [Outbound Email](/docs/providers/outbound-email/) for send and audit workflows.

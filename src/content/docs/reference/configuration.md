@@ -1,6 +1,6 @@
 ---
 title: Configuration Reference
-description: Configure MailAtlas workspace roots, PDF browser discovery, Gmail receive, IMAP sync, outbound providers, Gmail token storage, and MCP runtime gates.
+description: Configure MailAtlas workspace roots, PDF browser discovery, mailbox receive, outbound providers, Gmail token storage, and MCP runtime gates.
 slug: docs/reference/configuration
 ---
 
@@ -48,7 +48,7 @@ PDF export uses local Chrome or Chromium. If MailAtlas cannot find the browser o
 export MAILATLAS_PDF_BROWSER="/path/to/chrome-or-chromium"
 ```
 
-## IMAP sync variables
+## IMAP receive variables
 
 | Variable | Purpose |
 | --- | --- |
@@ -98,7 +98,7 @@ Use either password auth or OAuth token auth, not both.
 
 | Variable | Purpose |
 | --- | --- |
-| `MAILATLAS_RECEIVE_PROVIDER` | Receive provider. The first supported value is `gmail`. |
+| `MAILATLAS_RECEIVE_PROVIDER` | Receive provider. Supported values are `gmail` and `imap`. |
 | `MAILATLAS_GMAIL_ACCESS_TOKEN` | Short-lived Gmail API access token. |
 | `MAILATLAS_GMAIL_API_BASE` | Optional Gmail API base override. |
 | `MAILATLAS_GMAIL_USER_ID` | Gmail API user ID. Defaults to `me`. |
@@ -125,12 +125,12 @@ Local CLI workflows can use `mailatlas auth gmail --capability receive`. Backend
 | Variable | Purpose |
 | --- | --- |
 | `MAILATLAS_MCP_ALLOW_SEND` | Set to `1` to expose the live send tool. |
-| `MAILATLAS_MCP_ALLOW_RECEIVE` | Set to `1` to expose Gmail receive tools. |
+| `MAILATLAS_MCP_ALLOW_RECEIVE` | Set to `1` to expose mailbox receive tools. |
 | `MAILATLAS_MCP_RECEIVE_ON_READ` | Set to `1` to run one receive pass before document list reads. |
 | `MAILATLAS_MCP_RECEIVE_BACKGROUND` | Set to `1` to start a background receive loop with the MCP server process. |
 | `MAILATLAS_MCP_AUTO_RECEIVE` | Convenience alias for receive-on-read. Prefer the explicit receive variables above. |
 
-Live sending and Gmail receive are hidden by default. Keep the MCP server local unless a future transport is explicitly designed for remote use.
+Live sending and mailbox receive are hidden by default. Keep the MCP server local unless a future transport is explicitly designed for remote use.
 
 ## Next step
 

@@ -64,14 +64,14 @@ For password auth:
 
 ```bash
 export MAILATLAS_IMAP_PASSWORD=app-password
-mailatlas sync --folder INBOX
+mailatlas receive --provider imap --folder INBOX
 ```
 
 For OAuth token auth:
 
 ```bash
 export MAILATLAS_IMAP_ACCESS_TOKEN=oauth-access-token
-mailatlas sync --folder INBOX
+mailatlas receive --provider imap --folder INBOX
 ```
 
 MailAtlas consumes the access token but does not manage the OAuth login or refresh lifecycle.
@@ -155,14 +155,14 @@ Set this variable only where the MCP client is allowed to send email. Draft and 
 
 ## MCP receive tools hidden
 
-Gmail receive tools are hidden by default. To expose them:
+Mailbox receive tools are hidden by default. To expose them:
 
 ```bash
 export MAILATLAS_MCP_ALLOW_RECEIVE=1
 mailatlas mcp --root .mailatlas
 ```
 
-Set this variable only where the MCP client is allowed to contact Gmail and write private email into the local workspace.
+Set this variable only where the MCP client is allowed to contact a mailbox provider and write private email into the local workspace.
 
 ## Still stuck
 

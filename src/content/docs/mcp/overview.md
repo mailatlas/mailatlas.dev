@@ -1,10 +1,10 @@
 ---
 title: MCP Server
-description: Run the optional MailAtlas MCP server over STDIO so compatible local AI tools can inspect documents, export artifacts, create outbound drafts, and optionally receive Gmail or send email through explicit runtime gates.
+description: Run the optional MailAtlas MCP server over STDIO so compatible local AI tools can inspect documents, export artifacts, create outbound drafts, and optionally receive mailbox messages or send email through explicit runtime gates.
 slug: docs/mcp/overview
 ---
 
-MailAtlas ships an optional MCP server for local AI tools that need to inspect email records, export documents, review outbound records, prepare outbound messages, or run explicitly enabled Gmail receive passes.
+MailAtlas ships an optional MCP server for local AI tools that need to inspect email records, export documents, review outbound records, prepare outbound messages, or run explicitly enabled mailbox receive passes.
 
 The MCP server runs against the same MailAtlas workspace root as the CLI and Python API. It does not create a hosted service.
 
@@ -72,12 +72,12 @@ This tool is hidden by default and only appears when live sending is explicitly 
 
 ### Receive tools
 
-MailAtlas also exposes Gmail receive tools when receive support is explicitly enabled in the runtime environment. Keep receive access local and credential-scoped.
+MailAtlas also exposes mailbox receive tools when receive support is explicitly enabled in the runtime environment. Keep receive access local and credential-scoped.
 
 - `mailatlas_receive`
 - `mailatlas_receive_status`
 
-`mailatlas_receive` contacts Gmail and stores private email in the local workspace. It is hidden by default.
+`mailatlas_receive` contacts a configured mailbox provider and stores private email in the local workspace. It is hidden by default.
 
 ## Live send gate
 
@@ -92,9 +92,9 @@ mailatlas mcp --root .mailatlas
 
 Set this variable only in environments where the client is allowed to send email.
 
-## Gmail receive gate
+## Receive gate
 
-Gmail receive is disabled by default. This keeps MCP read tools local to the workspace unless you explicitly authorize the server to contact Gmail.
+Mailbox receive is disabled by default. This keeps MCP read tools local to the workspace unless you explicitly authorize the server to contact a provider.
 
 To expose receive tools:
 
@@ -111,7 +111,7 @@ export MAILATLAS_MCP_RECEIVE_ON_READ=1
 mailatlas mcp --root .mailatlas
 ```
 
-Use receive-on-read only when the client should be allowed to contact Gmail during read operations. It can be slower than ordinary reads and writes new private email into the workspace.
+Use receive-on-read only when the client should be allowed to contact a mailbox provider during read operations. It can be slower than ordinary reads and writes new private email into the workspace.
 
 `MAILATLAS_MCP_RECEIVE_BACKGROUND=1` starts a local background receive loop with the MCP server process. Keep it off unless the MCP process lifecycle is the intended receive lifecycle.
 
@@ -142,6 +142,14 @@ Gmail receive:
 - `MAILATLAS_GMAIL_RECEIVE_LABEL`
 - `MAILATLAS_GMAIL_RECEIVE_QUERY`
 - `MAILATLAS_GMAIL_RECEIVE_LIMIT`
+
+IMAP receive:
+
+- `MAILATLAS_IMAP_HOST`
+- `MAILATLAS_IMAP_PORT`
+- `MAILATLAS_IMAP_USERNAME`
+- `MAILATLAS_IMAP_PASSWORD`
+- `MAILATLAS_IMAP_ACCESS_TOKEN`
 
 Provider secrets and Gmail tokens are consumed at runtime. MailAtlas does not write them to `store.db`, raw snapshots, logs, or JSON receive/send results.
 

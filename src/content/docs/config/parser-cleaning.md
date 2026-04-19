@@ -41,10 +41,11 @@ mailatlas ingest sample-data/fixtures/eml/atlas-founder-forward.eml \
   --no-strip-boilerplate
 ```
 
-Apply the same controls during manual IMAP sync:
+Apply the same controls during IMAP receive:
 
 ```bash
-mailatlas sync \
+mailatlas receive \
+  --provider imap \
   --folder INBOX \
   --strip-boilerplate \
   --normalize-whitespace
@@ -118,4 +119,4 @@ Cleaning choices affect downstream behavior. Search indexes, retrieval systems, 
 
 - Use [Document Schema](/docs/concepts/document-schema/) to inspect cleaning metadata.
 - Use [Quickstart](/docs/getting-started/quickstart/) to run cleaning against local files.
-- Use [Manual IMAP Sync](/docs/getting-started/manual-imap-sync/) to apply cleaning during mailbox sync.
+- Use [IMAP Sync](/docs/getting-started/manual-imap-sync/) to apply cleaning during mailbox sync.

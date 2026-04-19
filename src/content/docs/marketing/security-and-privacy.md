@@ -6,7 +6,7 @@ slug: docs/marketing/security-and-privacy
 
 MailAtlas stores data on the local filesystem and in SQLite by default. The core CLI commands and Python APIs operate on files you point at, Gmail messages you receive explicitly, IMAP folders you sync explicitly, and outbound messages you ask MailAtlas to draft or send.
 
-MailAtlas does not require a hosted MailAtlas service for file ingest, Gmail receive, manual IMAP sync, export, or outbound audit records.
+MailAtlas does not require a hosted MailAtlas service for file ingest, mailbox receive, export, or outbound audit records.
 
 Local storage still contains sensitive data. Treat a MailAtlas workspace as source email data, not as a scrubbed sharing format.
 
@@ -18,8 +18,8 @@ MailAtlas can store:
 - Normalized HTML and extracted assets on disk.
 - Cleaned body text in stored document records.
 - Document metadata and parser notes in SQLite.
-- Gmail receive account state, cursor state, and run history in SQLite when you use `receive`.
-- IMAP sync cursor state in SQLite when you use `sync`.
+- Receive account state, cursor state, and run history in SQLite when you use `receive`.
+- IMAP sync cursor state in SQLite when you receive IMAP folders.
 - Outbound raw `.eml` snapshots.
 - Outbound body files.
 - Copied outbound attachments.
@@ -34,7 +34,7 @@ MailAtlas does not provide:
 - Hosted storage.
 - Hosted mailbox sync.
 - Background mailbox sync as a managed service.
-- Hidden Gmail receive.
+- Hidden mailbox receive.
 - Automatic publication of private inbox data.
 - Autonomous background sending.
 - Deliverability management.
@@ -71,7 +71,7 @@ Recommended `.gitignore` entry:
 
 ## IMAP sync privacy
 
-Manual IMAP sync stores cursor state, not mailbox credentials.
+IMAP receive stores cursor state, not mailbox credentials.
 
 If you use OAuth for IMAP:
 
@@ -112,7 +112,7 @@ The MCP server exposes local workspace tools to MCP-compatible clients over STDI
 
 Live sending is disabled by default. The live send tool is only exposed when `MAILATLAS_MCP_ALLOW_SEND=1` is set before the server starts.
 
-Gmail receive tools are also disabled by default. They are only exposed when `MAILATLAS_MCP_ALLOW_RECEIVE=1` is set before the server starts. Receive-on-read is off unless `MAILATLAS_MCP_RECEIVE_ON_READ=1` is set.
+Mailbox receive tools are also disabled by default. They are only exposed when `MAILATLAS_MCP_ALLOW_RECEIVE=1` is set before the server starts. Receive-on-read is off unless `MAILATLAS_MCP_RECEIVE_ON_READ=1` is set.
 
 Use the draft tool for reviewable generated messages, and enable live sends only in environments where the client is allowed to send email.
 
@@ -138,5 +138,5 @@ Before sharing a workspace or export, check:
 - Does it contain BCC metadata?
 - Does it contain exported PDFs or Markdown bundles?
 - Does it contain provider error details or message IDs?
-- Does it contain Gmail receive cursor or run history?
+- Does it contain receive cursor or run history?
 - Is it synthetic data or real user data?

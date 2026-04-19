@@ -15,7 +15,7 @@ The recommended path is a Python virtual environment and PyPI. Use `uv`, Homebre
 - Python 3.12 is recommended. The package metadata currently allows Python 3.11 and newer.
 - A local directory where MailAtlas can create a workspace.
 - Chrome or Chromium only if you want PDF export.
-- Provider credentials only if you plan to sync IMAP or send outbound email.
+- Provider credentials only if you plan to receive from IMAP or send outbound email.
 
 The core file-ingest path does not require a hosted MailAtlas service, an email provider account, or a cloud service.
 
@@ -122,5 +122,5 @@ make help
 
 - Use [Quickstart](/docs/getting-started/quickstart/) if your email is already on disk as `.eml` files.
 - Use [Mbox Ingest](/docs/examples/mbox-ingest/) if you have a mailbox archive on disk.
-- Use [Manual IMAP Sync](/docs/getting-started/manual-imap-sync/) if MailAtlas should connect to a live mailbox.
+- Use [IMAP Sync](/docs/getting-started/manual-imap-sync/) if MailAtlas should connect to a live mailbox.
 - Use [Outbound Email](/docs/providers/outbound-email/) if your application needs send records and provider delivery.

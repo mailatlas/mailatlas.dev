@@ -21,8 +21,8 @@ The top-level `--root` flag selects the workspace root. If it is omitted, MailAt
 | `ingest` | Ingest one or more email sources from disk. |
 | `get` | Read or export a stored document. |
 | `list` | List stored documents. |
-| `sync` | Sync one or more IMAP folders. |
-| `receive` | Receive Gmail messages into the local workspace. |
+| `receive` | Receive Gmail or IMAP messages into the local workspace. |
+| `sync` | Compatibility alias for one-shot IMAP receive. |
 | `send` | Compose, send, and audit an outbound email. |
 | `auth` | Manage provider authentication. |
 | `mcp` | Run the MailAtlas MCP server. |
@@ -52,7 +52,7 @@ mailatlas sync [--root ROOT] [--host HOST] [--port PORT] [--username USERNAME] \
   [--password PASSWORD | --access-token ACCESS_TOKEN] [--folder FOLDER]
 ```
 
-Use `sync` for manual IMAP folder pulls. Repeat `--folder` for multiple folders. If no folder is provided, MailAtlas uses `INBOX`.
+Use `sync` for existing one-shot IMAP scripts. New integrations should use `mailatlas receive --provider imap`. Repeat `--folder` for multiple folders. If no folder is provided, MailAtlas uses `INBOX`.
 
 Environment variables:
 
@@ -108,14 +108,16 @@ Provider flags:
 ## `mailatlas receive`
 
 ```bash
-mailatlas receive [--root ROOT] [--provider gmail] [--account-id ACCOUNT_ID] \
+mailatlas receive [--root ROOT] [--provider gmail|imap] [--account-id ACCOUNT_ID] \
   [--label LABEL] [--query QUERY] [--limit LIMIT] [--full-sync] \
   [--include-spam-trash | --no-include-spam-trash] \
   [--gmail-access-token TOKEN] [--gmail-api-base URL] [--gmail-user-id USER_ID] \
-  [--token-file TOKEN_FILE] [--token-store TOKEN_STORE]
+  [--token-file TOKEN_FILE] [--token-store TOKEN_STORE] \
+  [--host HOST] [--port PORT] [--username USERNAME] \
+  [--password PASSWORD | --access-token ACCESS_TOKEN] [--folder FOLDER]
 ```
 
-Use `receive` for one bounded Gmail API fetch pass into the local workspace. The first supported provider is `gmail`.
+Use `receive` for one bounded live-mailbox fetch pass into the local workspace. Supported providers are `gmail` and `imap`.
 
 Common receive flags:
 
@@ -134,7 +136,16 @@ Gmail receive token flags:
 - `--gmail-api-base`: Gmail API base override for tests.
 - `--gmail-user-id`: Gmail API user ID. Defaults to `me`.
 
-The command prints JSON with `status`, `provider`, `account_id`, fetch counts, `document_ids`, cursor data, and `run_id`.
+IMAP receive flags:
+
+- `--host`: IMAP hostname. Defaults to `MAILATLAS_IMAP_HOST`.
+- `--port`: IMAP TLS port. Defaults to `MAILATLAS_IMAP_PORT` or `993`.
+- `--username`: IMAP username. Defaults to `MAILATLAS_IMAP_USERNAME`.
+- `--password`: IMAP password. Defaults to `MAILATLAS_IMAP_PASSWORD`.
+- `--access-token`: IMAP OAuth access token. Defaults to `MAILATLAS_IMAP_ACCESS_TOKEN`.
+- `--folder`: IMAP folder to receive. Repeat for multiple folders. Defaults to `INBOX`.
+
+The command prints JSON with `status`, `provider`, `account_id`, fetch counts, `document_ids`, cursor data, `run_id`, and provider-specific details when available.
 
 ## `mailatlas receive watch`
 
@@ -152,7 +163,7 @@ The command prints one compact JSON line per run.
 mailatlas receive status [--root ROOT] [--account-id ACCOUNT_ID]
 ```
 
-Use `receive status` to inspect local Gmail receive accounts, cursors, recent runs, and the most recent error.
+Use `receive status` to inspect local receive accounts, cursors, recent runs, and the most recent error.
 
 ## `mailatlas doctor`
 
@@ -189,7 +200,7 @@ mailatlas mcp [--root ROOT] [--transport stdio]
 
 STDIO is the only supported MCP transport.
 
-Gmail receive tools are exposed only when `MAILATLAS_MCP_ALLOW_RECEIVE=1` is set before server startup.
+Mailbox receive tools are exposed only when `MAILATLAS_MCP_ALLOW_RECEIVE=1` is set before server startup.
 
 ## Next step
 

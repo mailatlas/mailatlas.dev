@@ -1,14 +1,16 @@
 ---
-title: Manual IMAP Sync
-description: Fetch selected IMAP folders into a local MailAtlas workspace. Configure password or OAuth token authentication, run sync manually, inspect results, and understand incremental cursor behavior.
+title: IMAP Sync
+description: Receive selected IMAP folders into a local MailAtlas workspace. Configure password or OAuth token authentication, run one-shot receive, run foreground polling, inspect results, and understand incremental cursor behavior.
 slug: docs/getting-started/manual-imap-sync
 ---
 
-Use manual IMAP sync when messages are still in a live mailbox and you want MailAtlas to fetch selected folders into a local workspace.
+Use IMAP sync when messages are still in a live mailbox and you want MailAtlas to fetch selected folders into a local workspace.
 
 If you already have `.eml` files or an `mbox` file on disk, use file ingest instead.
 
-Manual IMAP sync is not a hosted connector and not a background daemon. You run `mailatlas sync` when you want to pull from a mailbox. MailAtlas stores per-folder sync cursors in SQLite so later runs can continue incrementally when possible.
+The canonical live-mailbox command is `mailatlas receive`. Use `--provider imap` for IMAP. Run `mailatlas receive watch --provider imap` when you want a foreground polling process, or run one bounded pass when you want a manual backfill or script step. MailAtlas stores per-folder IMAP cursors in SQLite so later runs can continue incrementally when possible.
+
+`mailatlas sync` remains available as a compatibility alias for one-shot IMAP receive.
 
 ## Before you start
 
@@ -18,7 +20,7 @@ You need:
 - An IMAP host.
 - A mailbox username.
 - One credential type: password or OAuth access token.
-- One or more folder names to sync. `INBOX` is the default.
+- One or more folder names to receive. `INBOX` is the default.
 - A workspace root where MailAtlas can store documents and sync state.
 
 MailAtlas does not persist mailbox passwords or OAuth access tokens in the workspace.
@@ -52,18 +54,39 @@ MailAtlas is OAuth-compatible, but it is not your IMAP OAuth client. The intende
 3. MailAtlas uses XOAUTH2 to authenticate the IMAP session.
 4. Your application remains responsible for login UX, consent, token refresh, and secure token storage.
 
-## Sync folders
+## Keep folders current
 
-Sync the default folder:
+Run foreground polling for the default folder:
 
 ```bash
-mailatlas sync
+mailatlas receive watch --provider imap
 ```
 
-Sync specific folders:
+Run foreground polling for specific folders:
 
 ```bash
-mailatlas sync \
+mailatlas receive watch \
+  --provider imap \
+  --folder INBOX \
+  --folder Newsletters \
+  --interval 60
+```
+
+`watch` runs one receive pass immediately, sleeps for the interval, then repeats until you stop it. Use `--max-runs` when a script needs a bounded polling loop.
+
+## Run one bounded pass
+
+Receive the default folder once:
+
+```bash
+mailatlas receive --provider imap
+```
+
+Receive specific folders once:
+
+```bash
+mailatlas receive \
+  --provider imap \
   --folder INBOX \
   --folder Newsletters
 ```
@@ -71,13 +94,76 @@ mailatlas sync \
 Command-line credential overrides are available for local tests or controlled scripts:
 
 ```bash
-mailatlas sync --folder INBOX --password "$MAILATLAS_IMAP_PASSWORD"
-mailatlas sync --folder INBOX --access-token "$MAILATLAS_IMAP_ACCESS_TOKEN"
+mailatlas receive --provider imap --folder INBOX --password "$MAILATLAS_IMAP_PASSWORD"
+mailatlas receive --provider imap --folder INBOX --access-token "$MAILATLAS_IMAP_ACCESS_TOKEN"
 ```
 
-## Read the sync summary
+## Read the receive summary
 
-`sync` prints one JSON object summarizing the run and each folder result:
+`receive --provider imap` prints one JSON object summarizing the run, local receive account, cursor, and folder details:
+
+```json
+{
+  "status": "ok",
+  "provider": "imap",
+  "account_id": "imap:user@example.com:imap.example.com:INBOX",
+  "fetched_count": 12,
+  "ingested_count": 11,
+  "duplicate_count": 1,
+  "error_count": 0,
+  "document_ids": ["<document-id>"],
+  "cursor": {
+    "host": "imap.example.com",
+    "port": 993,
+    "username": "user@example.com",
+    "folders": [
+      {
+        "folder": "INBOX",
+        "status": "ok",
+        "uidvalidity": "11",
+        "last_uid": 4812,
+        "error": null
+      }
+    ]
+  },
+  "run_id": "<run-id>",
+  "error": null,
+  "details": {
+    "status": "ok",
+    "host": "imap.example.com",
+    "port": 993,
+    "username": "user@example.com",
+    "auth": "password",
+    "folder_count": 1,
+    "error_count": 0,
+    "fetched_count": 12,
+    "ingested_count": 11,
+    "duplicate_count": 1,
+    "folders": [
+      {
+        "folder": "INBOX",
+        "status": "ok",
+        "uidvalidity": "11",
+        "last_uid": 4812,
+        "fetched_count": 12,
+        "ingested_count": 11,
+        "duplicate_count": 1,
+        "document_refs": [
+          {
+            "id": "<document-id>",
+            "subject": "Daily market digest",
+            "source_kind": "imap",
+            "created_at": "<timestamp>"
+          }
+        ],
+        "error": null
+      }
+    ]
+  }
+}
+```
+
+The compatibility `sync` command prints the older per-folder shape:
 
 ```json
 {
@@ -114,9 +200,9 @@ mailatlas sync --folder INBOX --access-token "$MAILATLAS_IMAP_ACCESS_TOKEN"
 }
 ```
 
-Use `document_refs[].id` with `mailatlas get`.
+Use `document_ids[]` from `receive` or `details.folders[].document_refs[].id` from `sync` with `mailatlas get`.
 
-## Inspect synced documents
+## Inspect received documents
 
 ```bash
 mailatlas list
@@ -124,19 +210,19 @@ mailatlas get <document-id>
 mailatlas get <document-id> --format markdown --out ./synced-message
 ```
 
-For IMAP-synced documents, `source_kind` is `imap` and `metadata.source.*` records the mailbox folder and UID that produced the stored document.
+For IMAP-received documents, `source_kind` is `imap` and `metadata.source.*` records the mailbox folder and UID that produced the stored document.
 
 ## Incremental reruns
 
-When you rerun sync against the same workspace root, MailAtlas uses stored IMAP cursor state to fetch only newer messages when possible.
+When you receive from the same workspace root, MailAtlas uses stored IMAP cursor state to fetch only newer messages when possible.
 
 If you point the command at a different workspace root, MailAtlas starts a fresh sync history.
 
 When a provider reports changed `UIDVALIDITY`, MailAtlas starts from the beginning of the folder for that cursor because previous UIDs can no longer be treated as stable.
 
-## Parser cleaning during sync
+## Parser cleaning during IMAP receive
 
-`sync` accepts the same parser-cleaning flags as file ingest, including:
+`receive --provider imap` accepts the same parser-cleaning flags as file ingest, including:
 
 - `--strip-forwarded-headers`
 - `--strip-boilerplate`
@@ -149,7 +235,7 @@ Use [Parser Cleaning](/docs/config/parser-cleaning/) for behavior and tradeoffs.
 
 ## IMAP sync versus mbox ingest
 
-Use `mailatlas sync` when messages are still in a live mailbox and MailAtlas should fetch them over IMAP.
+Use `mailatlas receive --provider imap` when messages are still in a live mailbox and MailAtlas should fetch them over IMAP.
 
 Use `mailatlas ingest path/to/archive.mbox` when you already have a mailbox export on disk.
 
@@ -169,7 +255,7 @@ For OAuth, confirm the access token is valid, not expired, and authorized for IM
 
 Confirm the exact folder name with your provider. Some providers use localized or nested folder names.
 
-### Sync returns duplicates
+### Receive returns duplicates
 
 Duplicates can occur when messages already exist in the workspace. MailAtlas deduplicates by `message_id` when present and falls back to a normalized content hash.
 

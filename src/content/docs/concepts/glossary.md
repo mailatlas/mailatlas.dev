@@ -12,9 +12,9 @@ A single email message file on disk. Use `mailatlas ingest` when you already hav
 
 A mailbox file on disk that can contain many messages. Use `mailatlas ingest` when you already have an `mbox` archive locally. An `mbox` file is not the same thing as IMAP sync.
 
-## Manual IMAP sync
+## IMAP sync
 
-The MailAtlas workflow for connecting to a live mailbox over IMAP and fetching selected folders into the local workspace. Use `mailatlas sync` for this path.
+The MailAtlas workflow for connecting to a live mailbox over IMAP and fetching selected folders into the local workspace. Use `mailatlas receive --provider imap` for new integrations. `mailatlas sync` remains as a one-shot compatibility alias.
 
 ## Gmail receive
 
@@ -22,7 +22,7 @@ The MailAtlas command and API path for fetching Gmail messages with the Gmail AP
 
 ## Receive account
 
-A local record for a Gmail receive configuration. It stores provider identity and non-secret options such as label and query.
+A local record for a mailbox receive configuration. It stores provider identity and non-secret options such as label, query, or folder selection.
 
 ## Receive cursor
 
@@ -110,4 +110,4 @@ The explicit runtime configuration required before the MCP server exposes live o
 
 ## Receive gate
 
-The explicit runtime configuration required before the MCP server exposes Gmail receive tools.
+The explicit runtime configuration required before the MCP server exposes mailbox receive tools.

@@ -55,7 +55,7 @@ The workspace is designed to be inspectable:
 
 ## What MailAtlas stores
 
-MailAtlas can store raw email bytes, cleaned body text, normalized HTML, extracted inline files, extracted attachments, document metadata, parser notes, exported artifacts, Gmail receive account state, Gmail receive cursor state, receive run history, IMAP sync cursor state, outbound records, copied outbound attachments, and BCC recipients in SQLite for audit.
+MailAtlas can store raw email bytes, cleaned body text, normalized HTML, extracted inline files, extracted attachments, document metadata, parser notes, exported artifacts, receive account state, receive cursor state, receive run history, IMAP sync cursor state, outbound records, copied outbound attachments, and BCC recipients in SQLite for audit.
 
 MailAtlas omits BCC from local raw MIME snapshots while preserving BCC in SQLite for audit.
 
@@ -71,7 +71,7 @@ MailAtlas omits BCC from local raw MIME snapshots while preserving BCC in SQLite
 6. It writes document metadata to `store.db`.
 7. It returns document references with IDs.
 
-### Manual IMAP sync
+### IMAP receive
 
 1. MailAtlas connects to selected IMAP folders.
 2. It fetches messages not already covered by cursor state when possible.

@@ -1,13 +1,13 @@
 ---
 title: CLI Overview
-description: Use the MailAtlas CLI to ingest files, receive Gmail, sync IMAP folders, list and inspect documents, export JSON, Markdown, HTML, or PDF, send outbound email, run doctor, and start the MCP server.
+description: Use the MailAtlas CLI to ingest files, receive Gmail or IMAP messages, list and inspect documents, export JSON, Markdown, HTML, or PDF, send outbound email, run doctor, and start the MCP server.
 slug: docs/cli/overview
 ---
 
 The MailAtlas CLI provides a local workflow for email I/O:
 
-1. Ingest email files or manually sync IMAP folders.
-2. Receive Gmail messages with the Gmail API.
+1. Ingest email files from disk.
+2. Receive Gmail or IMAP messages from a live mailbox.
 3. List stored documents.
 4. Inspect or export one document.
 5. Send outbound email through configured providers when needed.
@@ -26,15 +26,15 @@ Root resolution order:
 3. Project config from `.mailatlas.toml` or `pyproject.toml`
 4. Fallback `.mailatlas`
 
-The default workspace contains `store.db`, `raw/`, `html/`, `assets/`, `exports/`, and `outbound/`. Gmail receive account state, cursors, and run history live in `store.db`.
+The default workspace contains `store.db`, `raw/`, `html/`, `assets/`, `exports/`, and `outbound/`. Receive account state, cursors, and run history live in `store.db`.
 
 ## Command summary
 
 | Command | Purpose |
 | --- | --- |
 | `mailatlas ingest` | Ingest `.eml` files or `mbox` archives from disk. |
-| `mailatlas sync` | Manually fetch selected IMAP folders into the workspace. |
-| `mailatlas receive` | Receive Gmail messages into the local workspace using Gmail API credentials. |
+| `mailatlas receive` | Receive Gmail or IMAP messages into the local workspace. |
+| `mailatlas sync` | Compatibility alias for one-shot IMAP receive. |
 | `mailatlas list` | List stored document references. |
 | `mailatlas get` | Read or export one stored document. |
 | `mailatlas send` | Render, store, and optionally send outbound email. |
@@ -63,14 +63,15 @@ mailatlas ingest path/to/archive.mbox --type mbox
 
 Accepted `--type` values are `auto`, `eml`, and `mbox`.
 
-## Sync IMAP folders
+## Receive IMAP folders
 
 ```bash
 export MAILATLAS_IMAP_HOST=imap.example.com
 export MAILATLAS_IMAP_USERNAME=user@example.com
 export MAILATLAS_IMAP_PASSWORD=app-password
 
-mailatlas sync \
+mailatlas receive \
+  --provider imap \
   --folder INBOX \
   --folder Newsletters
 ```
@@ -79,10 +80,21 @@ Use OAuth access token auth when your auth layer already has a token:
 
 ```bash
 export MAILATLAS_IMAP_ACCESS_TOKEN=oauth-access-token
-mailatlas sync --folder INBOX
+mailatlas receive --provider imap --folder INBOX
 ```
 
 MailAtlas consumes the token but does not run a browser login flow or manage refresh tokens for IMAP.
+
+Run foreground polling when you want selected folders to stay current:
+
+```bash
+mailatlas receive watch \
+  --provider imap \
+  --folder INBOX \
+  --interval 60
+```
+
+`mailatlas sync` remains available for existing one-shot IMAP scripts and prints the older per-folder JSON shape.
 
 ## Receive Gmail
 
@@ -107,7 +119,7 @@ mailatlas receive \
   --limit 50
 ```
 
-The command prints JSON with `status`, `account_id`, message counts, `document_ids`, cursor data, and a `run_id`. MailAtlas stores received messages in the same document store used by `ingest` and `sync`.
+The command prints JSON with `status`, `account_id`, message counts, `document_ids`, cursor data, and a `run_id`. MailAtlas stores received messages in the same document store used by `ingest` and IMAP receive.
 
 Run foreground polling when you want the local workspace to stay current:
 
@@ -219,7 +231,7 @@ mailatlas mcp --root .mailatlas
 
 The MCP server exposes document, export, outbound-list, outbound-get, and draft tools over MCP. The live send tool is hidden unless `MAILATLAS_MCP_ALLOW_SEND=1` is set before the server starts.
 
-Gmail receive tools are hidden unless `MAILATLAS_MCP_ALLOW_RECEIVE=1` is set before server startup.
+Mailbox receive tools are hidden unless `MAILATLAS_MCP_ALLOW_RECEIVE=1` is set before server startup.
 
 ## Common flags
 
@@ -227,7 +239,7 @@ Gmail receive tools are hidden unless `MAILATLAS_MCP_ALLOW_RECEIVE=1` is set bef
 | --- | --- |
 | `--root` | Select the MailAtlas workspace root. |
 | `--query` | Optional substring search for `list`. |
-| `--folder` | Repeatable folder selector for IMAP sync. Defaults to `INBOX`. |
+| `--folder` | Repeatable folder selector for IMAP receive. Defaults to `INBOX`. |
 | `--label` | Gmail label for receive. Defaults to `INBOX`. |
 | `--limit` | Maximum Gmail messages to receive in one pass. Defaults to `50`. |
 | `--full-sync` | Ignore the stored Gmail cursor and run an explicit full sync pass. |
@@ -243,7 +255,7 @@ Gmail receive tools are hidden unless `MAILATLAS_MCP_ALLOW_RECEIVE=1` is set bef
 
 ## Parser cleaning flags
 
-The `ingest` and `sync` commands accept parser-cleaning flags such as:
+The `ingest`, `receive --provider imap`, and `sync` commands accept parser-cleaning flags such as:
 
 - `--strip-forwarded-headers`
 - `--strip-boilerplate`
@@ -257,8 +269,8 @@ Each also supports a `--no-...` form. Use [Parser Cleaning](/docs/config/parser-
 ## Output behavior
 
 - `ingest` prints a JSON summary with counts and created document refs.
-- `sync` prints per-folder sync results as JSON.
-- `receive` prints a JSON result with counts, document IDs, cursor state, and run ID.
+- `receive` prints a JSON result with counts, document IDs, cursor state, run ID, and provider-specific details when available.
+- `sync` prints per-folder IMAP results as JSON for compatibility.
 - `receive watch` prints one compact JSON object per line.
 - `receive status` prints accounts, cursors, recent runs, and the last error when one exists.
 - `list` prints stored document refs as JSON.
@@ -281,7 +293,7 @@ Cloudflare variables: `MAILATLAS_CLOUDFLARE_ACCOUNT_ID`, `MAILATLAS_CLOUDFLARE_A
 
 Gmail send variables: `MAILATLAS_GMAIL_ACCESS_TOKEN`, `MAILATLAS_GMAIL_API_BASE`, `MAILATLAS_GMAIL_USER_ID`, `MAILATLAS_GMAIL_TOKEN_FILE`, `MAILATLAS_GMAIL_TOKEN_STORE`, `MAILATLAS_GMAIL_CLIENT_ID`, `MAILATLAS_GMAIL_CLIENT_SECRET`.
 
-Gmail receive variables: `MAILATLAS_RECEIVE_PROVIDER`, `MAILATLAS_GMAIL_ACCESS_TOKEN`, `MAILATLAS_GMAIL_API_BASE`, `MAILATLAS_GMAIL_USER_ID`, `MAILATLAS_GMAIL_RECEIVE_LABEL`, `MAILATLAS_GMAIL_RECEIVE_QUERY`, `MAILATLAS_GMAIL_RECEIVE_LIMIT`, `MAILATLAS_GMAIL_TOKEN_FILE`, and `MAILATLAS_GMAIL_TOKEN_STORE`.
+Receive variables: `MAILATLAS_RECEIVE_PROVIDER`, Gmail variables such as `MAILATLAS_GMAIL_ACCESS_TOKEN`, `MAILATLAS_GMAIL_API_BASE`, `MAILATLAS_GMAIL_USER_ID`, `MAILATLAS_GMAIL_RECEIVE_LABEL`, `MAILATLAS_GMAIL_RECEIVE_QUERY`, `MAILATLAS_GMAIL_RECEIVE_LIMIT`, `MAILATLAS_GMAIL_TOKEN_FILE`, and `MAILATLAS_GMAIL_TOKEN_STORE`, plus IMAP variables such as `MAILATLAS_IMAP_HOST`, `MAILATLAS_IMAP_PORT`, `MAILATLAS_IMAP_USERNAME`, `MAILATLAS_IMAP_PASSWORD`, and `MAILATLAS_IMAP_ACCESS_TOKEN`.
 
 For personal Gmail addresses, prefer the Gmail API provider with OAuth:
 

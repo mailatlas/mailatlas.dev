@@ -8,7 +8,7 @@ Use this example when you already have a mailbox archive on disk.
 
 An `mbox` file is a local mailbox file that can contain many messages. It is often created by an export tool or another local mail program.
 
-An `mbox` file is not the same thing as IMAP sync. Use [Manual IMAP Sync](/docs/getting-started/manual-imap-sync/) when MailAtlas should connect to a live mailbox and fetch selected folders.
+An `mbox` file is not the same thing as IMAP sync. Use [IMAP Sync](/docs/getting-started/manual-imap-sync/) when MailAtlas should connect to a live mailbox and fetch selected folders.
 
 ## Before you start
 
@@ -67,4 +67,4 @@ A nonzero `duplicate_count` is expected when an archive overlaps with messages a
 
 Use `mbox` ingest when you have a mailbox export, want repeatable local parsing, want to build a retrieval corpus from an archive, and do not need MailAtlas to connect to a live mailbox.
 
-Use manual IMAP sync instead when messages still live in a mailbox and should be fetched over IMAP.
+Use IMAP receive instead when messages still live in a mailbox and should be fetched over IMAP.

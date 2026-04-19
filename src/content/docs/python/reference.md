@@ -57,7 +57,7 @@ ParserConfig(
 )
 ```
 
-Controls parser cleaning for file ingest, IMAP sync, and parse-only calls.
+Controls parser cleaning for file ingest, mailbox receive, and parse-only calls.
 
 ## `ReceiveConfig`
 
@@ -75,11 +75,18 @@ ReceiveConfig(
     token_file: str | None = None,
     limit: int = 50,
     full_sync: bool = False,
+    imap_host: str | None = None,
+    imap_port: int = 993,
+    imap_username: str | None = None,
+    imap_auth: str | None = None,
+    imap_password: str | None = None,
+    imap_access_token: str | None = None,
+    imap_folders: tuple[str, ...] = ("INBOX",),
     parser_config: ParserConfig = ParserConfig(),
 )
 ```
 
-Use `ReceiveConfig` with `atlas.receive(...)` for one bounded Gmail receive pass. `limit` must be between `1` and `500`.
+Use `ReceiveConfig` with `atlas.receive(...)` for one bounded Gmail or IMAP receive pass. `limit` must be between `1` and `500`.
 
 ## `ReceiveResult`
 
@@ -96,10 +103,11 @@ ReceiveResult(
     cursor: dict[str, object],
     run_id: str,
     error: str | None = None,
+    details: dict[str, object] = {},
 )
 ```
 
-Returned by `atlas.receive(...)`.
+Returned by `atlas.receive(...)`. `details` is included when the provider exposes structured run details, such as IMAP per-folder results.
 
 ## `ReceiveAccount`, `ReceiveCursor`, and `ReceiveRun`
 
@@ -120,7 +128,7 @@ ImapSyncConfig(
 )
 ```
 
-Use `auth="password"` with `password`, or `auth="xoauth2"` with `access_token`.
+Use `auth="password"` with `password`, or `auth="xoauth2"` with `access_token`. New integrations should prefer `ReceiveConfig(provider="imap", ...)`; `ImapSyncConfig` remains available for compatibility.
 
 ## `OutboundAttachment`
 

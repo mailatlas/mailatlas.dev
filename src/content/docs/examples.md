@@ -28,8 +28,8 @@ Use these examples when you want a task-focused path instead of a conceptual ref
   <a class="docs-route-row" href="/docs/examples/imap-sync/">
     <span class="docs-route-kicker">Mailbox</span>
     <span>
-      <span class="docs-route-title">Sync IMAP folders</span>
-      <p>Fetch selected live mailbox folders into the same local workspace.</p>
+      <span class="docs-route-title">Receive IMAP folders</span>
+      <p>Fetch selected live mailbox folders once or with foreground polling.</p>
     </span>
     <span class="docs-route-meta">imap</span>
   </a>
