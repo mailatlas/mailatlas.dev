@@ -1,83 +1,102 @@
 ---
 title: Why Mailboxes Should Be Native to AI Agents
-description: The MailAtlas product vision for turning mailbox access into local, agent-friendly representations instead of browser automation.
+description: MailAtlas exists to give AI agents and software systems direct, local, inspectable access to email artifacts instead of forcing them through browser automation or hosted inbox interfaces.
 slug: docs/marketing/product-vision
 ---
 
-MailAtlas exists because AI agents need to work with email, but the default access path is still a
-human interface.
+MailAtlas exists because AI agents and software systems need to work with email, but the default access path is still a human interface.
 
-Today, when an AI agent needs to read a mailbox, the fallback is often browser automation or
-computer-use tooling driving Gmail or Outlook. That can work, but it works badly. It is slow,
-expensive, fragile, and hard to reason about. The model spends tokens and attention on clicking,
-scrolling, waiting, and recovering from UI noise instead of understanding the mailbox itself.
+When an AI agent needs to read a mailbox, the fallback is often browser automation or computer-use tooling driving Gmail or Outlook. That approach can work, but it is slow, expensive, fragile, and difficult to audit. The model spends tokens and attention on clicking, scrolling, waiting, and recovering from UI noise instead of understanding the mailbox itself.
 
-MailAtlas takes a different approach. It gives AI agents direct access to email artifacts in forms
-that fit agent tasks. Instead of forcing the model to act like a person operating an inbox,
-MailAtlas turns email into representations an agent can use to read, search, reason over, compose,
-send through configured providers, and audit locally. The goal is not to build another mail client.
-The goal is to make mailbox access native to the agent loop.
+MailAtlas takes a different approach. It gives software direct access to email artifacts in forms that fit software tasks. Instead of forcing a model to behave like a person operating an inbox, MailAtlas turns email into local representations an agent or application can read, search, inspect, export, compose, send through configured providers, and audit.
+
+The goal is not to build another mail client. The goal is to make mailbox access native to the agent loop.
 
 ## Email is not just text
 
-Email is not just text. Many messages, especially newsletters and transactional emails, carry
-meaning in layout, hierarchy, images, tables, and surrounding clutter. A human can quickly tell the
-difference between the main content and an ad block. An agent reading flattened text often cannot.
-Reducing every message to a single simplified format throws away information that may matter for
-judgment. MailAtlas preserves that optionality.
+Email is not just plain text. Many messages, especially newsletters, transactional emails, reports, and forwarded threads, carry meaning in layout, hierarchy, images, tables, attachments, and surrounding clutter.
+
+A human can often tell the difference between main content, legal boilerplate, a forwarded wrapper, and an ad block. An agent reading flattened text may not. Reducing every message to one simplified format throws away information that may matter for judgment.
+
+MailAtlas preserves optionality. It keeps raw messages, cleaned text, normalized HTML, extracted assets, and exports linked to the same document.
 
 ## One mailbox, multiple views
 
-This is why MailAtlas supports multiple representations of the same message. Markdown and JSON are
-useful when compact text or structure is enough. HTML and PDF matter when the agent needs to inspect
-rendering, preserve visual context, or understand where the real content stops and the noise begins.
+Different tasks need different views of the same email:
 
-These are not redundant export formats. They are different views of the same underlying mailbox,
-exposed so the agent can use the cheapest representation that works and escalate to higher fidelity
-when it needs more context.
+- JSON is useful when an application needs structure.
+- Markdown is useful when a model or reviewer needs readable text with asset references.
+- HTML is useful when layout and hierarchy matter.
+- PDF is useful when a durable visual artifact is needed.
+- Raw `.eml` is useful when exact source review matters.
+
+These formats are different views of the same underlying message, exposed so software can use the cheapest useful representation first and escalate to higher fidelity when needed.
 
 ## Retrieval is part of access
 
-Mailbox access is also a retrieval problem, not just a viewing problem. AI agents rarely care about
-one email in isolation. They need to ask what arrived last week, what a sender said across several
-threads, whether a message has already been processed, or which emails match a specific condition.
+Mailbox access is also a retrieval problem. Agents and applications rarely care about one email in isolation. They need to answer questions such as:
 
-MailAtlas includes a local SQLite-backed store for exactly this reason. It turns the mailbox into
-searchable working state that can be queried directly, exposed through an in-process MCP surface, or
-accessed through the CLI in environments where the agent has shell access.
+- What arrived last week?
+- What did this sender say across several messages?
+- Has this message already been processed?
+- Which documents match this condition?
+- Which sent message used this retry key?
 
-Outbound email follows the same principle. A send should leave behind a local, inspectable record:
-what was rendered, which provider was called, which recipients were used, whether the provider
-accepted the message, and which retry key prevents accidental duplicate sends.
+MailAtlas includes a local SQLite-backed store for this reason. It turns email into searchable working state that can be queried directly, accessed through the CLI, used from Python, or exposed to MCP-compatible clients.
+
+## Outbound email should be auditable
+
+Reading email is only half of the loop. Many agents and applications also need to draft or send messages.
+
+Outbound email should not be a hidden side effect. It should leave behind an inspectable record:
+
+- What was rendered.
+- Which recipients were used.
+- Whether BCC was included in delivery.
+- Which provider was called.
+- Whether the provider accepted the message.
+- Which attachments were copied.
+- Which idempotency key prevents duplicate sends.
+- Which error occurred if delivery failed.
+
+MailAtlas treats outbound email as part of local email I/O. Drafts, dry runs, sends, failures, and provider responses become auditable workspace state.
 
 ## The beliefs behind MailAtlas
 
-MailAtlas is built on a few simple beliefs:
+MailAtlas is built on these beliefs:
 
-- mailbox access for AI agents should be deterministic wherever possible
-- no single representation is sufficient for every reasoning task
-- retrieval and access are part of the same problem
-- outbound actions should be explicit, auditable, and provider-owned
-- local control matters because email is sensitive and users should not have to hand it to a hosted
-  black box just to make it useful to an agent
+- Mailbox access for AI agents should be deterministic wherever possible.
+- No single representation is sufficient for every reasoning task.
+- Retrieval and access are part of the same problem.
+- Outbound actions should be explicit, auditable, and provider-owned.
+- Local control matters because email is sensitive.
+- Users should not have to hand private inbox data to a hosted black box just to make it useful to software.
 
 ## What MailAtlas is not
 
-MailAtlas is not trying to be an inbox client, a hosted deliverability service, or a generic
-unstructured-data cleanup system. Its job is narrower and more specific. It is the local email I/O
-layer that lets AI agents read, inspect, retrieve, compose, send through configured providers, and
-audit email reliably.
+MailAtlas is not trying to be:
+
+- A hosted inbox client.
+- A webmail UI.
+- A managed background connector.
+- A deliverability platform.
+- A generic unstructured-data cleanup system.
+- A replacement for your mail server.
+
+Its job is narrower and more specific. MailAtlas is the local email I/O layer that lets software read, inspect, retrieve, export, compose, send, and audit email reliably.
 
 ## The long-term ambition
 
-The long-term ambition of MailAtlas is to make native mailbox access the default for AI agents. Just
-as databases expose query interfaces instead of forcing software to scrape dashboards, mailboxes
-should expose agent-friendly access patterns instead of forcing models through interfaces built for
-people.
+The long-term ambition of MailAtlas is to make native mailbox access the default for AI agents.
 
-MailAtlas is a step toward that future. It takes raw mailbox sources such as IMAP, `mbox`, and
-individual email files, and turns them into accessible views, searchable state, and reproducible
-local artifacts that an agent can actually use.
+Databases expose query interfaces instead of forcing software to scrape dashboards. Mailboxes should expose agent-friendly access patterns instead of forcing models through interfaces built for people.
 
-MailAtlas exists to make mailboxes natively accessible to AI agents, without forcing them through
-the browser first.
+MailAtlas is a step toward that future. It takes raw mailbox sources such as IMAP, `mbox`, and individual email files, then turns them into accessible views, searchable state, and reproducible local artifacts that software can use.
+
+## Build from here
+
+- Use [Quickstart](/docs/getting-started/quickstart/) to ingest local files.
+- Use [Manual IMAP Sync](/docs/getting-started/manual-imap-sync/) to fetch selected mailbox folders.
+- Use [Workspace Model](/docs/concepts/workspace-model/) to understand the local store.
+- Use [Outbound Email](/docs/providers/outbound-email/) to create audit records for sends.
+- Use [MCP Server](/docs/mcp/overview/) to expose local tools to compatible agents.

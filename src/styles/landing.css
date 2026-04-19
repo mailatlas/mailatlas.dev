@@ -230,12 +230,20 @@ code {
   font-size: 1.04rem;
 }
 
+.lede-tight {
+  max-width: 39rem;
+}
+
 .hero-actions {
   margin-top: 1.5rem;
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
   gap: 0.7rem;
+}
+
+.hero-actions-secondary {
+  margin-top: 0.7rem;
 }
 
 .button {
@@ -395,6 +403,11 @@ code {
   color: var(--blue);
 }
 
+.storage-list .source-row:nth-child(5) code {
+  background: var(--warm-soft);
+  color: var(--warm);
+}
+
 .terminal {
   margin-top: 2rem;
   max-width: 40rem;
@@ -402,6 +415,10 @@ code {
   border: 1px solid #1f2b31;
   border-radius: var(--radius);
   background: var(--terminal);
+}
+
+.terminal-secondary {
+  margin-top: 1rem;
 }
 
 .terminal-bar {

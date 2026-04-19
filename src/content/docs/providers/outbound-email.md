@@ -1,25 +1,32 @@
 ---
 title: Outbound Email
-description: Send email through SMTP, Cloudflare Email Service, or Gmail API OAuth while keeping a local audit trail.
+description: Compose, render, store, and send outbound email with MailAtlas. Use dry runs, SMTP, Cloudflare Email Service, or Gmail API OAuth while keeping local audit records.
 slug: docs/providers/outbound-email
 ---
 
-MailAtlas can compose, render, store, and send outbound email through providers you configure at
-runtime. Use this path when your application needs a local audit record for messages it sends, but
-does not need MailAtlas to act as a hosted deliverability service.
+MailAtlas can compose, render, store, and send outbound email through providers you configure at runtime. Use this workflow when your application needs a local audit record for messages it sends.
 
-Every outbound message gets a local record before provider delivery:
+MailAtlas is not a hosted deliverability service. It does not manage reputation, suppression lists, campaign analytics, bounce processing, or provider accounts.
 
-- a rendered raw `.eml` snapshot
-- plain-text and HTML body files when present
-- copied attachments
-- recipient, BCC, provider, status, error, and retry metadata in SQLite
-- provider response metadata without provider secrets or OAuth tokens
+Every outbound message gets a local record before provider delivery. That record can include:
+
+- A rendered raw `.eml` snapshot.
+- Plain-text body files.
+- HTML body files.
+- Copied attachments.
+- Recipient metadata.
+- BCC metadata in SQLite.
+- Provider name.
+- Status.
+- Error details.
+- Retry metadata.
+- Provider response metadata.
+
+Provider secrets and OAuth tokens are read at runtime. MailAtlas does not write SMTP passwords, Cloudflare API tokens, Gmail access tokens, or Gmail refresh tokens into `store.db`, raw snapshots, logs, or JSON send results.
 
 ## Start with a dry run
 
-Use `--dry-run` when you want to verify rendering, validation, attachments, and local storage
-without contacting a provider:
+Use `--dry-run` to verify rendering, validation, attachments, and local storage without contacting a provider:
 
 ```bash
 mailatlas send \
@@ -30,8 +37,9 @@ mailatlas send \
   --text "The build passed."
 ```
 
-The command prints JSON with the outbound record ID and stores the rendered files under
-`outbound/` in the MailAtlas root.
+The command prints JSON with the outbound record ID and stores rendered files under `outbound/` in the workspace root.
+
+Use dry runs when testing message rendering, generated content, attachments, headers, review workflows, or provider setup.
 
 ## Provider choice
 
@@ -42,10 +50,6 @@ Choose a provider with `--provider` or `MAILATLAS_SEND_PROVIDER`.
 | `smtp` | You already have an SMTP relay or local mail test server. | SMTP host, optional username and password. |
 | `cloudflare` | You use Cloudflare Email Service for API-based sending. | Cloudflare account ID and API token. |
 | `gmail` | You want to send from a personal Gmail address or Gmail send-as alias. | Gmail API OAuth token with the `gmail.send` scope. |
-
-Provider credentials are read from flags, environment variables, Python config, or the Gmail token
-store at runtime. MailAtlas does not write SMTP passwords, Cloudflare API tokens, Gmail access
-tokens, or Gmail refresh tokens into `store.db`, raw snapshots, logs, or JSON send results.
 
 ## SMTP
 
@@ -62,7 +66,7 @@ mailatlas send \
   --text "Sent through SMTP."
 ```
 
-Useful SMTP flags and variables:
+Useful SMTP variables:
 
 - `MAILATLAS_SMTP_HOST`
 - `MAILATLAS_SMTP_PORT`
@@ -71,8 +75,7 @@ Useful SMTP flags and variables:
 - `MAILATLAS_SMTP_STARTTLS`
 - `MAILATLAS_SMTP_SSL`
 
-For Gmail addresses, SMTP app passwords are a compatibility path. Prefer the Gmail provider when
-you can use OAuth.
+For Gmail addresses, SMTP app passwords are a compatibility path. Prefer the Gmail provider when OAuth is available.
 
 ## Cloudflare Email Service
 
@@ -82,7 +85,7 @@ export MAILATLAS_CLOUDFLARE_ACCOUNT_ID=your-account-id
 export MAILATLAS_CLOUDFLARE_API_TOKEN=your-api-token
 
 mailatlas send \
-  --from sender@example.com \
+  --from agent@example.com \
   --to user@example.com \
   --subject "Cloudflare test" \
   --text "Sent through Cloudflare Email Service."
@@ -98,7 +101,7 @@ Use the Cloudflare API base override only for tests or provider-compatible gatew
 
 ## Gmail API OAuth
 
-Use the Gmail provider for personal Gmail addresses:
+Use the Gmail provider for personal Gmail addresses and Gmail-configured send-as aliases:
 
 ```bash
 python -m pip install "mailatlas[keychain]"
@@ -116,13 +119,9 @@ mailatlas send \
   --text "Sent with Gmail API OAuth."
 ```
 
-MailAtlas requests only the `https://www.googleapis.com/auth/gmail.send` scope. See
-[Gmail Provider](/docs/providers/gmail/) for the Google Cloud setup, token-store behavior, and
-troubleshooting steps.
+MailAtlas requests only the `https://www.googleapis.com/auth/gmail.send` scope by default.
 
-For backend applications, store Gmail refresh tokens in your own encrypted credential store and
-pass short-lived access tokens to MailAtlas at send time. The local CLI keychain is for local
-operator workflows, not multi-user backend credential storage.
+For backend applications, store Gmail refresh tokens in your own encrypted credential store and pass short-lived access tokens to MailAtlas at send time.
 
 ## Attachments and headers
 
@@ -136,17 +135,19 @@ mailatlas send \
   --header "X-Campaign-ID: weekly"
 ```
 
-MailAtlas validates sender and recipient fields, rejects CR/LF header injection, and fails if an
-attachment path is missing.
+MailAtlas validates sender and recipient fields, rejects CR/LF header injection, and fails if an attachment path is missing.
 
 ## BCC behavior
 
-BCC recipients are stored in SQLite for audit and are included in provider delivery. They are
-omitted from local raw MIME snapshots.
+BCC recipients are stored in SQLite for audit and are included in provider delivery. They are omitted from local raw MIME snapshots.
 
-SMTP sends BCC through the SMTP envelope. Cloudflare sends BCC through the provider payload. Gmail
-API sends use a provider-only transient MIME payload that includes `Bcc` for delivery while keeping
-the saved local raw snapshot Bcc-free.
+Provider behavior:
+
+- SMTP sends BCC through the SMTP envelope.
+- Cloudflare sends BCC through the provider payload.
+- Gmail API sends use a provider-only transient MIME payload that includes BCC for delivery while keeping the saved local raw snapshot Bcc-free.
+
+Default list views should not include BCC recipients. Use explicit detail views or audit options when BCC visibility is required.
 
 ## Idempotency
 
@@ -162,8 +163,18 @@ mailatlas send \
   --idempotency-key gmail-api-test-1
 ```
 
-If the same key already exists, MailAtlas returns the existing outbound record instead of sending a
-second message.
+If the same key already exists, MailAtlas returns the existing outbound record instead of sending a second message.
+
+## Status lifecycle
+
+| Status | Meaning |
+| --- | --- |
+| `draft` | Message was rendered and stored as a local draft. |
+| `dry_run` | Message was rendered and stored without contacting a provider. |
+| `sending` | Message is in the process of being sent. |
+| `sent` | Provider accepted the send request. |
+| `queued` | Provider accepted or queued the message but final delivery is not known. |
+| `error` | Provider send or validation failed. |
 
 ## Python API
 
@@ -184,4 +195,20 @@ result = atlas.send_email(
 )
 ```
 
-See [Python API](/docs/python/overview/) for the full storage-backed example.
+## Troubleshooting
+
+### Dry run succeeds but send fails
+
+Check provider configuration and credentials. A dry run validates local rendering but does not verify provider authentication.
+
+### Attachment fails
+
+Confirm the attachment path exists and is readable from the current working directory.
+
+### Gmail From address fails
+
+Use the authenticated Gmail address or a Gmail send-as alias configured in Gmail.
+
+### Duplicate send avoided
+
+If you reuse an idempotency key, MailAtlas returns the existing outbound record instead of sending again. Use a new key only when you intentionally want a new send.

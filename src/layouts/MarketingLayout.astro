@@ -7,8 +7,8 @@ interface Props {
 }
 
 const {
-  title = "MailAtlas",
-  description = "MailAtlas: email ingestion for AI agents and data apps.",
+  title = "MailAtlas: Local Email I/O for AI Agents and Data Apps",
+  description = "MailAtlas is an open-source local email I/O layer for AI agents and Python applications. Ingest .eml files, mbox archives, and IMAP folders, export documents, and send outbound email with local audit records.",
 } = Astro.props;
 ---
 
@@ -19,6 +19,13 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <title>{title}</title>
+    <link rel="canonical" href="https://mailatlas.dev/" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://mailatlas.dev/" />
+    <meta property="og:site_name" content="MailAtlas" />
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   </head>
   <body>

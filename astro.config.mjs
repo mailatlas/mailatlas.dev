@@ -6,7 +6,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "MailAtlas",
-      description: "Email ingestion for AI and data applications.",
+      description: "Open-source local email I/O for AI agents, data apps, retrieval systems, and Python workflows.",
       customCss: ["./src/styles/custom.css"],
       components: {
         ThemeProvider: "./src/components/DocsThemeProvider.astro",
@@ -37,7 +37,7 @@ export default defineConfig({
           ],
         },
         {
-          label: "Reference",
+          label: "Core Concepts",
           items: [
             "docs/concepts/workspace-model",
             "docs/concepts/document-schema",
@@ -46,10 +46,29 @@ export default defineConfig({
           ],
         },
         {
-          label: "Interfaces",
+          label: "Reference",
+          items: [
+            "docs/reference/configuration",
+            "docs/reference/export-formats",
+          ],
+        },
+        {
+          label: "CLI",
           items: [
             "docs/cli/overview",
+            "docs/cli/commands",
+          ],
+        },
+        {
+          label: "Python",
+          items: [
             "docs/python/overview",
+            "docs/python/reference",
+          ],
+        },
+        {
+          label: "MCP",
+          items: [
             "docs/mcp/overview",
           ],
         },
@@ -63,8 +82,14 @@ export default defineConfig({
         {
           label: "Examples",
           items: [
+            {
+              label: "Examples Index",
+              link: "/docs/examples/",
+            },
             "docs/examples/eml-ingest",
             "docs/examples/mbox-ingest",
+            "docs/examples/imap-sync",
+            "docs/examples/gmail-oauth-send",
           ],
         },
         {
@@ -76,6 +101,12 @@ export default defineConfig({
             },
             "docs/marketing/security-and-privacy",
             "docs/marketing/roadmap",
+          ],
+        },
+        {
+          label: "Support",
+          items: [
+            "docs/support/troubleshooting",
           ],
         },
       ],

@@ -1,34 +1,84 @@
 ---
 title: When to Use MailAtlas
-description: Understand where MailAtlas fits and where another tool is a better choice.
+description: Decide whether MailAtlas is the right tool for your email workflow. Compare local email I/O with hosted inbox connectors, generic MIME parsers, background sync services, and deliverability platforms.
 slug: docs/marketing/why-not-connectors
 ---
 
-MailAtlas is useful when you need to parse email into stored records, exported files, and outbound
-audit trails under your control. It can start from email files on disk or from a manual IMAP sync
-into the same workspace, then send outbound email through providers you configure.
+MailAtlas is useful when you need email to become local, inspectable software state. It parses and stores inbound email, exports documents, and keeps local audit records for outbound email sent through providers you configure.
 
-Inbox connectors are useful when you want fast search and question answering across a connected
-account. Generic parsers are useful when you only need low-level MIME access.
+It is not a hosted inbox product, managed connector platform, full mail client, or deliverability service.
 
 ## Use MailAtlas when
 
-- you are ingesting stored `.eml` files, `mbox` mailbox files, or manually synced IMAP folders
-- you need cleaned text plus links back to raw messages, HTML, and extracted assets
-- you want repeatable parsed outputs for retrieval systems, analytics, auditing, or agent tooling
-- you need reviewable outputs such as JSON, HTML, Markdown, or PDF
-- you need outbound email records for drafts, dry runs, provider sends, failures, and retries
+Use MailAtlas when you need one or more of these capabilities:
+
+- Ingest stored `.eml` files.
+- Ingest `mbox` mailbox archives.
+- Manually sync selected IMAP folders into a local workspace.
+- Preserve raw messages, cleaned text, HTML snapshots, inline images, attachments, and metadata together.
+- Export JSON, Markdown, HTML, or PDF for downstream systems.
+- Build retrieval, analytics, archival, or agent workflows over email.
+- Create outbound drafts and dry runs.
+- Send outbound email through SMTP, Cloudflare, or Gmail while keeping local audit records.
+- Avoid hosted storage for the email processing layer.
 
 ## Use a different tool when
 
-- you need background mailbox sync, hosted storage, managed deliverability, or a full mailbox client
-- you want inbox search inside chat without managing your own ingestion layer
-- you only need MIME decoding and do not care about normalized outputs or provenance
+Use a different tool when you need:
+
+- A hosted webmail client.
+- A managed inbox connector with background sync and hosted storage.
+- A search product that answers questions directly inside chat without managing ingestion.
+- A low-level MIME parser only.
+- A deliverability platform with suppression lists, reputation management, campaign metrics, and bounce handling.
+- A managed mail server.
+
+## Comparison table
+
+| Need | Better fit | Why |
+| --- | --- | --- |
+| Parse local `.eml` or `mbox` files and keep inspectable outputs | MailAtlas | It stores raw input, cleaned text, HTML, assets, exports, and metadata in one local workspace. |
+| Ask quick questions over a connected inbox without managing ingestion | Hosted inbox connector | The connector handles sync, hosted storage, indexing, and user-facing search. |
+| Decode MIME parts inside a small script | Generic MIME parser | You may not need a workspace, dedupe, exports, or provenance. |
+| Send product or marketing campaigns | Deliverability platform | You need bounce handling, suppression lists, templates, analytics, and reputation tooling. |
+| Build an agent workflow that reads and sends email with audit records | MailAtlas | It supports local inbound records and outbound send records through configured providers. |
+| Keep mailbox sync running continuously in the background | Background connector or custom worker | MailAtlas currently provides manual sync, not a hosted background service. |
 
 ## What MailAtlas adds on top of parsing
 
-- configurable cleaning instead of raw body extraction only
-- normalized HTML snapshots and extracted asset references
-- a default filesystem plus SQLite implementation you can inspect or replace
-- repeatable exports and stable document IDs for other services, scripts, or batch jobs
-- outbound MIME snapshots, body files, copied attachments, and provider status without persisting provider secrets
+MailAtlas adds:
+
+- Configurable cleaning for noisy email bodies.
+- Normalized HTML snapshots.
+- Extracted inline-image and attachment references.
+- A default filesystem plus SQLite workspace.
+- Stable document IDs.
+- Dedupe behavior.
+- Repeatable exports.
+- Manual IMAP sync state.
+- Outbound MIME snapshots, body files, copied attachments, provider status, BCC audit metadata, and retry keys.
+
+## Decision checklist
+
+Choose MailAtlas if most of these are true:
+
+- You want local control over email artifacts.
+- You need repeatable parsing and exports.
+- You care about provenance.
+- You want to inspect raw, cleaned, structured, and visual representations.
+- You are comfortable configuring credentials at runtime.
+- You do not need MailAtlas to host storage or run continuous background sync.
+
+Choose a different tool if most of these are true:
+
+- You want a managed service to host and sync email.
+- You only need low-level MIME access.
+- You need an end-user inbox UI.
+- You need deliverability operations rather than local audit records.
+
+## Next step
+
+- Use [Installation](/docs/getting-started/installation/) to set up the CLI.
+- Use [Quickstart](/docs/getting-started/quickstart/) for local `.eml` files.
+- Use [Manual IMAP Sync](/docs/getting-started/manual-imap-sync/) for live mailbox folders.
+- Use [Outbound Email](/docs/providers/outbound-email/) for send and audit workflows.

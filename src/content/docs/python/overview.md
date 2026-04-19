@@ -1,53 +1,95 @@
 ---
 title: Python API
-description: Use MailAtlas as a Python library for parse-only calls, storage-backed usage, and outbound email.
+description: Embed MailAtlas in Python applications. Parse email without storage, use a storage-backed MailAtlas instance, sync IMAP folders, export documents, and send outbound email with audit records.
 slug: docs/python/overview
 ---
+
+Use the Python API when you want MailAtlas inside an application, worker, notebook, test suite, or pipeline.
+
+Use `parse_eml(...)` for parse-only experiments. Use `MailAtlas(...)` when you want storage-backed ingest, IMAP sync, document lookup, export, outbound drafts, and provider sends.
+
+MailAtlas is currently alpha. Confirm exact method signatures against the installed version before depending on them in production.
 
 ## Main entry points
 
 ```python
-from mailatlas import ImapSyncConfig, MailAtlas, OutboundMessage, ParserConfig, SendConfig, parse_eml
+from mailatlas import (
+    ImapSyncConfig,
+    MailAtlas,
+    OutboundAttachment,
+    OutboundMessage,
+    ParserConfig,
+    SendConfig,
+    parse_eml,
+)
 ```
 
-Use `parse_eml(...)` when you want parser output without storage. Use `MailAtlas(...)` when you
-want one configured object for storage-backed ingest, IMAP sync, export, outbound drafts, and sends.
+Use:
 
-Parsed and stored documents can include extracted inline images and regular email attachments in
-their `assets` collection.
+- `parse_eml(...)` when you want one normalized document in memory.
+- `MailAtlas(...)` when you want a configured storage-backed object.
+- `ParserConfig(...)` when you need to tune parser cleaning.
+- `ImapSyncConfig(...)` when you need manual IMAP folder sync.
+- `OutboundMessage(...)` and `SendConfig(...)` when you need outbound drafts, dry runs, or provider sends.
 
-## Parse without storage first
+## Parse without storage
 
 ```python
 from mailatlas import ParserConfig, parse_eml
 
 document = parse_eml(
-    "data/fixtures/atlas-founder-forward.eml",
-    parser_config=ParserConfig(strip_boilerplate=True, stop_at_footer=True),
+    "sample-data/fixtures/eml/atlas-founder-forward.eml",
+    parser_config=ParserConfig(
+        strip_boilerplate=True,
+        stop_at_footer=True,
+    ),
 )
+
+print(document.subject)
+print(document.body_text)
 ```
 
-This is the fastest way to inspect parser behavior inside tests, experiments, or data pipelines
-that do not need the default workspace.
+Parse-only mode does not create the full workspace layout.
 
-## Use `MailAtlas` for storage-backed usage
+## Use storage-backed MailAtlas
 
 ```python
-from mailatlas import ImapSyncConfig, MailAtlas, OutboundMessage, ParserConfig, SendConfig
+from mailatlas import MailAtlas, ParserConfig
 
 atlas = MailAtlas(
     db_path=".mailatlas/store.db",
     workspace_path=".mailatlas",
-    parser_config=ParserConfig(strip_boilerplate=True, stop_at_footer=True),
+    parser_config=ParserConfig(
+        strip_boilerplate=True,
+        stop_at_footer=True,
+    ),
 )
+```
 
-document = atlas.parse_eml(
-    "data/fixtures/atlas-founder-forward.eml",
-)
+## Ingest `.eml` files
 
-refs = atlas.ingest_eml(
-    ["data/fixtures/atlas-market-map.eml", "data/fixtures/atlas-inline-chart.eml"],
-)
+```python
+refs = atlas.ingest_eml([
+    "sample-data/fixtures/eml/atlas-market-map.eml",
+    "sample-data/fixtures/eml/atlas-inline-chart.eml",
+])
+
+for ref in refs:
+    print(ref.id, ref.subject)
+```
+
+## Ingest an `mbox` file
+
+```python
+refs = atlas.ingest_mbox("sample-data/fixtures/mbox/atlas-demo.mbox")
+```
+
+Use `ingest_mbox(...)` when you already have a mailbox archive on disk. Use `sync_imap(...)` when messages still live in a mailbox and MailAtlas should fetch them over IMAP.
+
+## Manual IMAP sync
+
+```python
+from mailatlas import ImapSyncConfig
 
 sync_result = atlas.sync_imap(
     ImapSyncConfig(
@@ -58,13 +100,31 @@ sync_result = atlas.sync_imap(
         folders=("INBOX", "Newsletters"),
     )
 )
+```
 
+Use `ImapSyncConfig(...)` when you want MailAtlas to connect to an IMAP mailbox over TLS, fetch folders incrementally, and store only non-secret cursor state in SQLite.
+
+Treat MailAtlas as the OAuth consumer, not the OAuth client. Your application should obtain and refresh the access token, then pass it into `ImapSyncConfig(access_token=..., auth="xoauth2")`.
+
+## Export documents
+
+```python
 pdf_path = atlas.export_document(
     refs[0].id,
     format="pdf",
 )
+```
 
-send_result = atlas.send_email(
+Use `format="json"`, `format="markdown"`, `format="html"`, or `format="pdf"` depending on the output you need. `export_document(...)` returns a string. For file-writing exports, the string is the resolved output path.
+
+## Outbound dry run
+
+```python
+from mailatlas import MailAtlas, OutboundMessage, SendConfig
+
+atlas = MailAtlas()
+
+result = atlas.send_email(
     OutboundMessage(
         from_email="agent@example.com",
         to=("user@example.com",),
@@ -76,47 +136,9 @@ send_result = atlas.send_email(
 )
 ```
 
-This is the right entry point when you want stored raw messages, normalized HTML, extracted inline
-images and attachments, document lookup through the default workspace, and optional IMAP folder
-sync. It also lets your application create outbound audit records and send through providers it
-configures explicitly.
+A dry run validates, renders, and stores the outbound record without contacting a provider.
 
-## What you get back
-
-- `parse_eml(...)` returns one normalized document in memory.
-- `ingest_eml(...)` returns document refs with IDs you can store or export later.
-- `sync_imap(...)` returns per-folder sync results and document refs for that run.
-- `export_document(...)` returns the exported content or output path depending on the format.
-- `draft_email(...)` stores a local outbound draft and rendered `.eml` snapshot.
-- `send_email(...)` stores a local outbound attempt, sends through the configured provider unless
-  `dry_run=True`, and returns a `SendResult`.
-- `list_outbound(...)` and `get_outbound(...)` expose outbound audit records.
-
-See [Document Schema](/docs/concepts/document-schema/) for the persisted record structure and
-[Workspace Model](/docs/concepts/workspace-model/) for the default storage layout.
-
-## Parser configuration
-
-Use `ParserConfig(...)` when you need to tune forwarded-header stripping, boilerplate removal,
-footer stopping, link-only line removal, or whitespace cleanup.
-
-## Manual IMAP sync
-
-Use `ImapSyncConfig(...)` when you want MailAtlas to connect to an IMAP mailbox over TLS, fetch one
-or more folders incrementally, and store only non-secret sync cursor state in SQLite.
-
-Treat MailAtlas as the OAuth consumer rather than the OAuth client: your app or local tooling
-should obtain the access token, then pass it into `ImapSyncConfig(access_token=..., auth="xoauth2")`.
-
-Use `atlas.ingest_mbox(...)` instead when you already have an `mbox` mailbox file on disk. `mbox`
-is a file format; IMAP sync is the live mailbox access path. For a CLI walkthrough of mailbox sync,
-see [Manual IMAP Sync](/docs/getting-started/manual-imap-sync/).
-
-## Outbound email
-
-Create messages with explicit fields. MailAtlas validates sender and recipient addresses, rejects
-header injection, copies attachments into the outbound audit area, and omits BCC from the MIME
-headers while preserving it in SQLite for audit.
+## Send through SMTP
 
 ```python
 from mailatlas import MailAtlas, OutboundAttachment, OutboundMessage, SendConfig
@@ -128,8 +150,8 @@ result = atlas.send_email(
         from_email="agent@example.com",
         from_name="Build Agent",
         to=("user@example.com",),
-        cc=("team@example.com",),
-        bcc=("archive@example.com",),
+        cc=("observer@example.com",),
+        bcc=("audit@example.com",),
         subject="Report",
         text="Report attached.",
         attachments=(OutboundAttachment("report.pdf"),),
@@ -144,12 +166,9 @@ result = atlas.send_email(
 )
 ```
 
-Provider secrets belong in your application config, CLI flags, or environment variables at runtime.
-MailAtlas does not persist SMTP passwords or Cloudflare API tokens in SQLite, raw snapshots, or JSON
-output.
+MailAtlas validates sender and recipient addresses, rejects header injection, copies attachments into the outbound audit area, and omits BCC from local raw MIME snapshots while preserving BCC in SQLite for audit.
 
-For Gmail, prefer the Gmail API provider with an OAuth access token scoped to
-`https://www.googleapis.com/auth/gmail.send`:
+## Send through Gmail API
 
 ```python
 from mailatlas import MailAtlas, OutboundMessage, SendConfig
@@ -170,10 +189,22 @@ result = atlas.send_email(
 )
 ```
 
-The CLI can store and refresh Gmail OAuth tokens for local testing with `mailatlas auth gmail`,
-using the operating-system keychain when `mailatlas[keychain]` is installed. Backend applications
-should store refresh tokens in their own encrypted credential store and pass fresh access tokens
-directly through `SendConfig`.
+Backend applications should store refresh tokens in their own encrypted credential store and pass fresh access tokens directly through `SendConfig`.
 
-PDF export uses Chrome or Chromium under the hood. Set `MAILATLAS_PDF_BROWSER` if the browser
-executable is not on the default path.
+## What methods return
+
+| Method | Returns |
+| --- | --- |
+| `parse_eml(...)` | One normalized document in memory. |
+| `ingest_eml(...)` | Document refs with IDs you can store or export later. |
+| `ingest_mbox(...)` | Document refs for messages ingested from the mailbox archive. |
+| `sync_imap(...)` | Per-folder sync results and document refs for that run. |
+| `export_document(...)` | Exported content or an output path string depending on the format and destination. |
+| `draft_email(...)` | A stored local outbound draft and rendered `.eml` snapshot. |
+| `send_email(...)` | A local outbound attempt, provider result unless dry run, and a `SendResult`. |
+| `list_outbound(...)` | Outbound audit records. |
+| `get_outbound(...)` | One outbound audit record. |
+
+## Error handling
+
+MailAtlas currently raises standard Python exceptions for many validation and local IO failures, including `ValueError` for configuration validation. Provider-specific and export-specific exception categories may become more formal as the API stabilizes.

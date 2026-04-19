@@ -1,29 +1,54 @@
 ---
 title: MCP Server
-description: Expose MailAtlas documents, outbound audit records, drafts, and gated sends to MCP clients.
+description: Run the optional MailAtlas MCP server over STDIO so compatible local AI tools can inspect documents, export artifacts, create outbound drafts, and optionally send email through an explicit runtime gate.
 slug: docs/mcp/overview
 ---
 
-MailAtlas ships an optional MCP server for local AI tools that need to inspect email records or
-prepare outbound messages. It runs against the same MailAtlas root as the CLI.
+MailAtlas ships an optional MCP server for local AI tools that need to inspect email records, export documents, review outbound records, or prepare outbound messages.
 
-Install the optional MCP extra:
+The MCP server runs against the same MailAtlas workspace root as the CLI and Python API. It does not create a hosted service.
+
+STDIO is the only supported MCP transport in MailAtlas right now.
+
+## Install the MCP extra
 
 ```bash
 python -m pip install "mailatlas[mcp]"
 ```
 
-Run the server over the STDIO transport:
+## Run the server
 
 ```bash
 mailatlas mcp --root .mailatlas
 ```
 
-STDIO is the only supported MCP transport in MailAtlas right now.
+Use the same workspace root that you use with the CLI:
+
+```bash
+export MAILATLAS_HOME="$PWD/.mailatlas"
+mailatlas mcp --root "$MAILATLAS_HOME"
+```
+
+## Client configuration example
+
+Use this pattern for local MCP clients that launch tools over STDIO:
+
+```json
+{
+  "mcpServers": {
+    "mailatlas": {
+      "command": "mailatlas",
+      "args": ["mcp", "--root", ".mailatlas"]
+    }
+  }
+}
+```
+
+Adapt the configuration format to your MCP client.
 
 ## Tools
 
-Read tools:
+### Read tools
 
 - `mailatlas_list_documents`
 - `mailatlas_get_document`
@@ -31,44 +56,84 @@ Read tools:
 - `mailatlas_list_outbound`
 - `mailatlas_get_outbound`
 
-Draft tool:
+Use these tools when an MCP client needs to inspect local MailAtlas state without sending email.
+
+### Draft tool
 
 - `mailatlas_draft_email`
 
-Send tool:
+Use this tool when an MCP client should compose and store a reviewable outbound draft without contacting a provider.
+
+### Send tool
 
 - `mailatlas_send_email`
 
-## Send gate
+This tool is hidden by default and only appears when live sending is explicitly enabled before server startup.
 
-Live sends are disabled by default. The server exposes `mailatlas_draft_email` so an MCP client can
-compose and store a reviewable draft without contacting a provider.
+### Receive tools
 
-To expose the live send tool, set:
+MailAtlas also exposes Gmail receive tools when receive support is explicitly enabled in the runtime environment. Keep receive access local and credential-scoped.
+
+## Live send gate
+
+Live sends are disabled by default. This lets MCP clients draft and inspect email without contacting an outbound provider.
+
+To expose the live send tool:
 
 ```bash
 export MAILATLAS_MCP_ALLOW_SEND=1
 mailatlas mcp --root .mailatlas
 ```
 
-Use the same provider configuration as `mailatlas send`:
+Set this variable only in environments where the client is allowed to send email.
 
-- SMTP: `MAILATLAS_SMTP_HOST`, `MAILATLAS_SMTP_USERNAME`, `MAILATLAS_SMTP_PASSWORD`
-- Cloudflare: `MAILATLAS_CLOUDFLARE_ACCOUNT_ID`, `MAILATLAS_CLOUDFLARE_API_TOKEN`
-- Gmail: `MAILATLAS_GMAIL_ACCESS_TOKEN` or a token created with `mailatlas auth gmail`
+## Provider configuration
 
-Provider secrets and Gmail tokens are consumed at runtime. MailAtlas does not write them to
-`store.db`, raw snapshots, logs, or JSON send results.
+The MCP send tool uses the same provider configuration as `mailatlas send`.
 
-For local Gmail testing, install `mailatlas[keychain]` and run `mailatlas auth gmail` before
-starting the MCP server. The send tool can also receive `gmail_token_store` with `keychain`, `file`,
-`auto`, or a token-file path, and `gmail_token_file` for explicit throwaway test files. Backend MCP
-hosts should store provider credentials in their own secret store and pass short-lived
-`gmail_access_token` values to the tool.
+SMTP:
 
-## BCC
+- `MAILATLAS_SMTP_HOST`
+- `MAILATLAS_SMTP_USERNAME`
+- `MAILATLAS_SMTP_PASSWORD`
 
-Default outbound list views do not include BCC recipients. `mailatlas_get_outbound` accepts
-`include_bcc=true` when an MCP client needs explicit audit details.
+Cloudflare:
+
+- `MAILATLAS_CLOUDFLARE_ACCOUNT_ID`
+- `MAILATLAS_CLOUDFLARE_API_TOKEN`
+
+Gmail:
+
+- `MAILATLAS_GMAIL_ACCESS_TOKEN`
+- A token created with `mailatlas auth gmail`
+
+Provider secrets and Gmail tokens are consumed at runtime. MailAtlas does not write them to `store.db`, raw snapshots, logs, or JSON send results.
+
+## Gmail with MCP
+
+For local Gmail testing:
+
+```bash
+python -m pip install "mailatlas[keychain]"
+mailatlas auth gmail \
+  --client-id "$MAILATLAS_GMAIL_CLIENT_ID" \
+  --client-secret "$MAILATLAS_GMAIL_CLIENT_SECRET" \
+  --email user@gmail.com
+
+mailatlas mcp --root .mailatlas
+```
+
+Backend MCP hosts should store provider credentials in their own secret store and pass short-lived Gmail access tokens to the tool.
+
+## BCC behavior
+
+Default outbound list views do not include BCC recipients. `mailatlas_get_outbound` accepts `include_bcc=true` when an MCP client needs explicit audit details.
 
 Raw outbound MIME snapshots remain Bcc-free.
+
+## Safety guidance
+
+- Keep the MCP server local unless a future transport is explicitly designed for remote use.
+- Do not enable `MAILATLAS_MCP_ALLOW_SEND=1` in environments where the client should only draft or inspect.
+- Use dry runs and drafts for generated or agent-authored content before enabling live sends.
+- Treat the workspace root as sensitive data.

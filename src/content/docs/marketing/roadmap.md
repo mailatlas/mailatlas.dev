@@ -1,26 +1,57 @@
 ---
 title: Roadmap
-description: Near-term roadmap for MailAtlas email parsing, storage, and export features.
+description: See the current MailAtlas roadmap, including parser quality, export structure, examples, MCP support, mailbox adapters, outbound providers, and packaging improvements.
 slug: docs/marketing/roadmap
 ---
 
-## Now
+This roadmap describes current direction, not a delivery guarantee. Priorities may change as the project matures, user feedback arrives, and the API stabilizes.
 
-- improve cleaning for common email layouts and newsletter HTML
-- strengthen attachment and inline asset extraction across more real-world fixtures
-- support outbound drafts, dry runs, SMTP sends, Cloudflare Email Service sends, and local audit records
-- tighten the docs and examples around quickstart, export behavior, and integration paths
+MailAtlas is currently alpha. Expect the CLI, schema, docs, packaging, and examples to continue improving.
 
-## Next
+## Current focus
 
-- improve exported document structure for retrieval and indexing systems
-- expand CLI and Python reference coverage for common tasks
-- add MCP tools for outbound draft/read flows, with send gated by explicit runtime configuration
-- add more fixture-backed examples that show stored HTML and asset extraction
+The current focus is making the core local email I/O workflow reliable and easy to understand.
+
+Work includes:
+
+- Improving cleaning for common email layouts and newsletter HTML.
+- Strengthening attachment and inline asset extraction across more real-world fixtures.
+- Supporting outbound drafts, dry runs, SMTP sends, Cloudflare Email Service sends, Gmail sends, and local audit records.
+- Tightening docs and examples around quickstart, export behavior, integration paths, provider setup, and security guidance.
+- Improving the reliability of `mailatlas doctor` and local setup checks.
+
+## Near-term
+
+Near-term work should improve integration quality and developer confidence.
+
+Planned areas include:
+
+- Better exported document structure for retrieval and indexing systems.
+- Expanded CLI reference coverage for common tasks.
+- Expanded Python API reference coverage.
+- More MCP tool documentation for document reads, exports, outbound drafts, outbound reads, and gated live sends.
+- More fixture-backed examples that show stored HTML and asset extraction.
+- A centralized configuration and environment-variable reference.
+- A troubleshooting guide for install, PDF export, IMAP auth, Gmail auth, and provider sends.
 
 ## Later
 
-- background or scheduled mailbox sync beyond manual IMAP runs
-- broader mailbox adapter coverage beyond IMAP
-- additional outbound providers such as Resend, SendGrid, Postmark, or local `.eml` drop directories
-- packaging and distribution paths that reduce local setup friction as release channels mature
+Later work may include:
+
+- Background or scheduled mailbox sync beyond manual IMAP runs.
+- Broader mailbox adapter coverage beyond IMAP.
+- Additional outbound providers such as Resend, SendGrid, Postmark, or local `.eml` drop directories.
+- Packaging and distribution paths that reduce local setup friction as release channels mature.
+- Clear schema versioning and compatibility policy.
+- More production-oriented guidance for embedding MailAtlas in services.
+
+## How to follow progress
+
+Use GitHub for current project activity, issues, examples, and release notes.
+
+- [GitHub repository](https://github.com/mailatlas/mailatlas)
+- [Issues](https://github.com/mailatlas/mailatlas/issues)
+- [Pull requests](https://github.com/mailatlas/mailatlas/pulls)
+- [Releases](https://github.com/mailatlas/mailatlas/releases)
+- [Examples repository](https://github.com/mailatlas/examples)
+- [Sample data repository](https://github.com/mailatlas/sample-data)

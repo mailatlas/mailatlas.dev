@@ -1,0 +1,152 @@
+---
+title: API Reference
+description: Reference MailAtlas Python classes and functions including parse_eml, MailAtlas, ParserConfig, ImapSyncConfig, OutboundMessage, OutboundAttachment, SendConfig, and SendResult.
+slug: docs/python/reference
+---
+
+This is a compact reference for the public Python entry points currently exposed by MailAtlas. The API is alpha; confirm signatures against the installed package before depending on them in long-lived application code.
+
+## `parse_eml`
+
+```python
+parse_eml(path: str | Path, parser_config: ParserConfig | None = None) -> NormalizedDocument
+```
+
+Parses one `.eml` file and returns a normalized document in memory. It does not create the full workspace layout.
+
+## `MailAtlas`
+
+```python
+MailAtlas(
+    db_path: str | Path = ".mailatlas/store.db",
+    workspace_path: str | Path = ".mailatlas",
+    parser_config: ParserConfig | None = None,
+)
+```
+
+Creates a storage-backed MailAtlas object.
+
+Common methods:
+
+- `parse_eml(path, parser_config=None)`
+- `ingest_eml(paths, parser_config=None)`
+- `ingest_mbox(path, parser_config=None)`
+- `sync_imap(config)`
+- `get_document(document_id)`
+- `list_documents(query=None)`
+- `export_document(document_id, format="json", out_path=None)`
+- `draft_email(message)`
+- `send_email(message, config)`
+- `list_outbound(query=None)`
+- `get_outbound(outbound_id)`
+
+## `ParserConfig`
+
+```python
+ParserConfig(
+    strip_forwarded_headers=True,
+    strip_boilerplate=True,
+    strip_link_only_lines=True,
+    stop_at_footer=True,
+    strip_invisible_chars=True,
+    normalize_whitespace=True,
+)
+```
+
+Controls parser cleaning for file ingest, IMAP sync, and parse-only calls.
+
+## `ImapSyncConfig`
+
+```python
+ImapSyncConfig(
+    host: str,
+    username: str,
+    port: int = 993,
+    auth: str = "password",
+    password: str | None = None,
+    access_token: str | None = None,
+    folders: tuple[str, ...] = ("INBOX",),
+    parser_config: ParserConfig = ParserConfig(),
+)
+```
+
+Use `auth="password"` with `password`, or `auth="xoauth2"` with `access_token`.
+
+## `OutboundAttachment`
+
+```python
+OutboundAttachment(
+    path: str | Path,
+    filename: str | None = None,
+    mime_type: str | None = None,
+)
+```
+
+Describes one outbound attachment.
+
+## `OutboundMessage`
+
+```python
+OutboundMessage(
+    from_email: str,
+    to: tuple[str, ...],
+    subject: str,
+    text: str | None = None,
+    html: str | None = None,
+    from_name: str | None = None,
+    cc: tuple[str, ...] = (),
+    bcc: tuple[str, ...] = (),
+    reply_to: tuple[str, ...] = (),
+    in_reply_to: str | None = None,
+    references: tuple[str, ...] = (),
+    headers: dict[str, str] = {},
+    attachments: tuple[OutboundAttachment, ...] = (),
+    source_document_id: str | None = None,
+    idempotency_key: str | None = None,
+)
+```
+
+Describes an outbound draft, dry run, or provider send.
+
+## `SendConfig`
+
+```python
+SendConfig(
+    provider: str,
+    dry_run: bool = False,
+    smtp_host: str | None = None,
+    smtp_port: int = 587,
+    smtp_username: str | None = None,
+    smtp_password: str | None = None,
+    smtp_starttls: bool = True,
+    smtp_ssl: bool = False,
+    cloudflare_account_id: str | None = None,
+    cloudflare_api_token: str | None = None,
+    cloudflare_api_base: str | None = None,
+    gmail_access_token: str | None = None,
+    gmail_api_base: str | None = None,
+    gmail_user_id: str = "me",
+)
+```
+
+Supported providers are `smtp`, `cloudflare`, and `gmail`.
+
+## `SendResult`
+
+```python
+SendResult(
+    id: str,
+    status: str,
+    provider: str,
+    provider_message_id: str | None = None,
+    error: str | None = None,
+)
+```
+
+Returned by `draft_email(...)` and `send_email(...)`.
+
+## Next step
+
+- Use [Python API](/docs/python/overview/) for task-based examples.
+- Use [Outbound Email](/docs/providers/outbound-email/) for provider behavior.
+- Use [Document Schema](/docs/concepts/document-schema/) for stored document fields.

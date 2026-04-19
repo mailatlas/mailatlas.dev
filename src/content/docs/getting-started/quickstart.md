@@ -1,44 +1,77 @@
 ---
-title: Quickstart
-description: Run MailAtlas end to end with synthetic fixtures and inspect the output, including extracted attachments and inline assets.
+title: "Quickstart: Ingest and Export Email Files"
+description: Run your first MailAtlas file ingest. Create a local workspace, ingest sample .eml files, inspect a document, and export JSON, Markdown, HTML, or PDF.
 slug: docs/getting-started/quickstart
 ---
 
-MailAtlas ships with synthetic fixtures so you can verify the file-based ingest flow before
-pointing it at your own email. The core path is ingest, list, inspect, and export JSON or an
-AI-ready Markdown bundle while keeping raw email, HTML, and extracted attachments or inline assets
-linked together. PDF export is optional.
+This guide walks through the file-based MailAtlas workflow: create a local workspace, ingest `.eml` files, list stored documents, inspect one document, and export it.
 
-This page uses `.eml` files already on disk. If you want MailAtlas to connect to a live mailbox,
-use `mailatlas sync` instead.
+Use this page when your input already exists as files on disk. If you want MailAtlas to connect to a live mailbox, use [Manual IMAP Sync](/docs/getting-started/manual-imap-sync/) instead.
+
+By the end, you will have:
+
+- A local MailAtlas workspace.
+- One or more stored email documents.
+- Raw message files, cleaned text, HTML snapshots, and extracted assets when present.
+- A JSON export.
+- A Markdown bundle suitable for downstream AI or retrieval workflows.
+- Optional HTML or PDF exports.
 
 ## Before you start
 
-- Use this page when your input already exists as files on disk.
-- You need a working MailAtlas install and Python 3.12.
-- You only need Chrome or Chromium if you plan to export PDF.
-- By the end, you will ingest sample messages, inspect one stored document, export JSON, and write an AI-ready Markdown bundle.
-- If you only want a quick installation check first, run `mailatlas doctor`.
+You need:
 
-## 1. Choose the local root
+- Python 3.12 recommended, or another supported Python version from the package metadata.
+- A working MailAtlas install.
+- A local `.eml` file, or the MailAtlas sample data repository.
+- Chrome or Chromium only if you plan to export PDF.
 
-MailAtlas defaults to `.mailatlas` in the current directory. You can make that explicit once for
-the rest of the session:
+Run this first if you have not verified the install:
+
+```bash
+mailatlas doctor
+```
+
+## 1. Create a workspace root
 
 ```bash
 export MAILATLAS_HOME="$PWD/.mailatlas"
 ```
 
-## 2. Ingest the sample `.eml` files
+Check that the variable is set:
+
+```bash
+echo "$MAILATLAS_HOME"
+```
+
+## 2. Get sample email fixtures
+
+If you already have your own `.eml` files, skip this step.
+
+```bash
+git clone https://github.com/mailatlas/sample-data.git
+```
+
+The public sample-data repository includes the fixtures used below.
+
+## 3. Ingest `.eml` files
+
+Ingest one message:
+
+```bash
+mailatlas ingest sample-data/fixtures/eml/atlas-market-map.eml
+```
+
+Or ingest several messages:
 
 ```bash
 mailatlas ingest \
-  data/fixtures/atlas-market-map.eml \
-  data/fixtures/atlas-founder-forward.eml \
-  data/fixtures/atlas-inline-chart.eml
+  sample-data/fixtures/eml/atlas-market-map.eml \
+  sample-data/fixtures/eml/atlas-founder-forward.eml \
+  sample-data/fixtures/eml/atlas-inline-chart.eml
 ```
 
-MailAtlas prints a JSON summary:
+Expected output shape:
 
 ```json
 {
@@ -56,26 +89,31 @@ MailAtlas prints a JSON summary:
 }
 ```
 
-## 3. List the stored documents
+Copy one returned `id`. You will use it as `<document-id>`.
+
+## 4. List stored documents
 
 ```bash
 mailatlas list
 ```
 
-Use any returned `id` as `<document-id>` in the next steps.
+Use this command whenever you need to find document IDs in the current workspace.
 
-## 4. Inspect one stored document
+## 5. Inspect one stored document
 
 ```bash
 mailatlas get <document-id>
 ```
 
-A stored document includes links back to the original email, any normalized HTML, and extracted
-assets such as inline images or email attachments:
+A stored document includes fields such as:
 
 ```json
 {
+  "id": "<document-id>",
+  "source_kind": "eml",
   "subject": "Port dwell times normalize after weather disruptions",
+  "sender_email": "sender@example.com",
+  "body_text": "<cleaned text>",
   "body_html_path": "html/<document-id>.html",
   "raw_path": "raw/<document-id>.eml",
   "metadata": {
@@ -95,64 +133,107 @@ assets such as inline images or email attachments:
 }
 ```
 
-When MailAtlas extracts a regular file attachment, that same `assets` array uses
-`"kind": "attachment"` and stores the file under `assets/<document-id>/...`.
+When MailAtlas extracts a regular file attachment, the same `assets` array uses `"kind": "attachment"` and stores the file under `assets/<document-id>/...`.
 
-## 5. Export a document as JSON
+## 6. Export JSON
 
 ```bash
 mailatlas get <document-id> \
   --format json \
-  --out ./port-dwell.json
+  --out ./message.json
 ```
 
-The command prints the output path you wrote, for example:
+Use JSON when another program needs normalized fields, metadata, and asset references.
 
-```text
-/private/tmp/port-dwell.json
-```
-
-## 6. Export the same document as an AI-ready Markdown bundle
+## 7. Export a Markdown bundle
 
 ```bash
 mailatlas get <document-id> \
   --format markdown \
-  --out ./port-dwell-markdown
+  --out ./message-markdown
 ```
 
-This writes a directory bundle with:
+This writes a directory bundle that contains:
 
 - `document.md`
-- `assets/` containing copied inline images and attachments referenced from the markdown
+- `assets/` with copied inline images and attachments referenced from the Markdown
 
-The command prints the resolved path to `document.md`.
+Use Markdown when an AI workflow, search index, notebook, or review process needs readable text with local asset references.
 
-## 7. Optionally export the same document as PDF
+## 8. Export HTML
+
+```bash
+mailatlas get <document-id> \
+  --format html \
+  --out ./message.html
+```
+
+Use HTML when layout or visual structure matters.
+
+## 9. Export PDF
+
+PDF export requires Chrome or Chromium:
 
 ```bash
 mailatlas get <document-id> \
   --format pdf \
-  --out ./port-dwell.pdf
+  --out ./message.pdf
 ```
 
-PDF export uses Chrome or Chromium. Set `MAILATLAS_PDF_BROWSER` if the browser executable is not
-on the default path.
+If MailAtlas cannot find the browser:
 
-## 8. Review the stored outputs
+```bash
+export MAILATLAS_PDF_BROWSER="/path/to/chrome-or-chromium"
+```
+
+If you omit `--out` for PDF, MailAtlas writes the PDF to `.mailatlas/exports/<document-id>.pdf`.
+
+## 10. Review the workspace
+
+```bash
+find "$MAILATLAS_HOME" -maxdepth 3 -type f | sort
+```
 
 During ingest, MailAtlas writes:
 
-- raw email bytes to `raw/`
-- HTML snapshots to `html/` when the message has HTML
-- extracted inline images and attachments to `assets/`
-- metadata to `store.db`
+- Raw email bytes to `raw/`.
+- HTML snapshots to `html/` when the message has HTML.
+- Extracted inline images and attachments to `assets/`.
+- Metadata and indexes to `store.db`.
 
-Exports go where you tell MailAtlas to write them with `--out`. If you omit `--out` for a PDF
-export, MailAtlas writes the PDF to `.mailatlas/exports/<document-id>.pdf`.
-Markdown export prints markdown to stdout by default with absolute local asset paths, or writes a
-bundle directory when you pass `--out <directory>`.
+Exports go where you tell MailAtlas to write them with `--out`.
+
+## Troubleshooting
+
+### `No such file or directory`
+
+Confirm the fixture path exists:
+
+```bash
+ls sample-data/fixtures/eml
+```
+
+If you are using your own message, pass the path to that `.eml` file instead.
+
+### `duplicate_count` is greater than zero
+
+MailAtlas deduplicates by `message_id` when present and falls back to a normalized content hash. Duplicate records are expected if you ingest the same message more than once.
+
+### PDF export fails
+
+Install Chrome or Chromium, then set `MAILATLAS_PDF_BROWSER` if needed.
+
+## Reset the quickstart workspace
+
+```bash
+rm -rf "$MAILATLAS_HOME"
+```
+
+Only delete a workspace when you are sure it does not contain real mail or outbound audit records you need to keep.
 
 ## Next step
 
-- Use [Manual IMAP Sync](/docs/getting-started/manual-imap-sync/) if you want to fetch from a live mailbox.
-- Use [Document Schema](/docs/concepts/document-schema/) if you want the full stored document schema.
+- Use [Manual IMAP Sync](/docs/getting-started/manual-imap-sync/) to fetch selected folders from a live mailbox.
+- Use [Document Schema](/docs/concepts/document-schema/) to understand stored fields.
+- Use [Workspace Model](/docs/concepts/workspace-model/) to understand local files and SQLite metadata.
+- Use [CLI Overview](/docs/cli/overview/) for the full command surface.
