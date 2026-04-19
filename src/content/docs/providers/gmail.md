@@ -17,7 +17,17 @@ they are a compatibility option for local testing, not the preferred integration
 - a Google OAuth client secret if Google issued one for that client
 - the Gmail address you want to send from
 
-Create the OAuth client in Google Cloud Console, then run:
+Create the OAuth client in Google Cloud Console:
+
+1. Create or select a Google Cloud project.
+2. Enable the Gmail API for that project.
+3. Configure the OAuth consent screen. For a personal Gmail test, choose an external app and add
+   your Gmail address as a test user while the app is in testing mode.
+4. Open **APIs & Services** > **Credentials**.
+5. Create an OAuth client ID with application type **Desktop app**.
+6. Copy the client ID and client secret.
+
+Then run:
 
 ```bash
 mailatlas auth gmail \
@@ -52,6 +62,9 @@ mailatlas send \
   --subject "MailAtlas Gmail API test" \
   --text "Sent with Gmail API OAuth."
 ```
+
+For a runnable example, see
+[`mailatlas/examples/gmail-oauth-send`](https://github.com/mailatlas/examples/tree/main/gmail-oauth-send).
 
 Use `--idempotency-key` when repeating tests so retries return the existing outbound record instead
 of sending another message.
@@ -95,11 +108,11 @@ mailatlas send \
   --text "Sent with a test token file."
 ```
 
-## BCC limitation
+## BCC behavior
 
-MailAtlas keeps local outbound raw snapshots free of `Bcc` headers. Gmail API sends currently use
-the raw MIME payload directly, so Gmail sends with `--bcc` fail with a clear error. Use SMTP for BCC
-tests until MailAtlas has provider-only transient MIME rendering for Gmail.
+MailAtlas keeps local outbound raw snapshots free of `Bcc` headers. Gmail API sends use a
+provider-only transient MIME payload that includes `Bcc` for Gmail delivery while preserving the
+Bcc-free local audit snapshot.
 
 ## Troubleshooting
 

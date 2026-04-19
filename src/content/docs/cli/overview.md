@@ -7,7 +7,7 @@ slug: docs/cli/overview
 The CLI follows a simple workflow: ingest documents, list them, read one document, export the format
 you need, and send outbound email through a configured provider when your application needs it. When
 you want MailAtlas to pull directly from a mailbox, use `sync` to fetch one or more folders into the
-same local store.
+same local store. Use `mcp` when an MCP-compatible client needs access to the same local store.
 
 Across all ingest paths, MailAtlas preserves extracted inline images and regular email attachments
 as file references on the stored document.
@@ -127,6 +127,9 @@ Statuses include `dry_run`, `sending`, `sent`, `queued`, and `error`. BCC recipi
 in the provider envelope and stored in SQLite for audit, but they are omitted from the raw MIME
 headers.
 
+See [Outbound Email](/docs/providers/outbound-email/) for provider-specific setup, token handling,
+idempotency, and BCC behavior.
+
 ### Run the self-check
 
 ```bash
@@ -137,6 +140,16 @@ This creates a temporary store, ingests a synthetic message, and verifies JSON e
 Chromium is available, it also verifies PDF export. Use `--skip-pdf` to skip the browser check or
 `--require-pdf` to fail when PDF export is unavailable.
 
+### Run the MCP server
+
+```bash
+python -m pip install "mailatlas[mcp]"
+mailatlas mcp --root .mailatlas
+```
+
+`mailatlas mcp` exposes document, export, outbound-list, outbound-get, and draft tools over MCP.
+The live send tool is hidden unless `MAILATLAS_MCP_ALLOW_SEND=1` is set before the server starts.
+
 ## Common flags
 
 - `--root`: MailAtlas root directory
@@ -145,6 +158,7 @@ Chromium is available, it also verifies PDF export. Use `--skip-pdf` to skip the
 - `--type`: optional override for ingest auto-detection
 - `--dry-run`: render and store an outbound message without contacting a provider
 - `--to`, `--cc`, `--bcc`, `--reply-to`, `--attach`, `--header`: repeatable outbound flags
+- `--transport`: MCP transport for `mailatlas mcp`; currently only `stdio`
 
 ## Parser cleaning flags
 

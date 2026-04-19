@@ -29,10 +29,20 @@ Pick the path based on where the email lives and what you need to do next.
     <strong>Python API</strong>
     <p>Use parse-only calls or storage-backed APIs inside your own application code.</p>
   </a>
+  <a class="docs-task-card" href="/docs/mcp/overview/">
+    <span class="docs-task-eyebrow">AI tools</span>
+    <strong>MCP server</strong>
+    <p>Expose documents, outbound records, drafts, and explicitly gated sends to MCP clients.</p>
+  </a>
   <a class="docs-task-card" href="/docs/providers/gmail/">
     <span class="docs-task-eyebrow">Personal Gmail</span>
     <strong>Gmail provider</strong>
     <p>Send from Gmail with Gmail API OAuth and the narrow <code>gmail.send</code> scope.</p>
+  </a>
+  <a class="docs-task-card" href="/docs/providers/outbound-email/">
+    <span class="docs-task-eyebrow">Outbound</span>
+    <strong>Send and audit email</strong>
+    <p>Choose SMTP, Cloudflare, or Gmail while keeping local send records and rendered snapshots.</p>
   </a>
   <a class="docs-task-card" href="/docs/concepts/document-schema/">
     <span class="docs-task-eyebrow">Inspect outputs</span>
@@ -55,7 +65,8 @@ Pick the path based on where the email lives and what you need to do next.
 
 - `ingest`: use when you already have `.eml` files or an `mbox` mailbox file on disk.
 - `sync`: use when MailAtlas should connect to a live mailbox and fetch selected folders incrementally.
-- `send`: use when MailAtlas should render an outbound audit record and send through SMTP or Cloudflare Email Service.
+- `send`: use when MailAtlas should render an outbound audit record and send through SMTP,
+  Cloudflare Email Service, or Gmail API OAuth.
 
 An `mbox` file is a mailbox file on disk. It is not the same thing as IMAP sync. If the messages
 are still in a live inbox and you want MailAtlas to read them directly, use `sync`.
@@ -93,5 +104,6 @@ are still in a live inbox and you want MailAtlas to read them directly, use `syn
   </div>
 </div>
 
-If you want copy-paste examples next, use [Ingest `.eml` files](/docs/examples/eml-ingest/) or
-[Ingest an `mbox` mailbox file](/docs/examples/mbox-ingest/).
+If you want copy-paste examples next, use [Ingest `.eml` files](/docs/examples/eml-ingest/),
+[Ingest an `mbox` mailbox file](/docs/examples/mbox-ingest/), or
+[Outbound Email](/docs/providers/outbound-email/).

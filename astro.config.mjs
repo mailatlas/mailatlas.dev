@@ -50,6 +50,14 @@ export default defineConfig({
           items: [
             "docs/cli/overview",
             "docs/python/overview",
+            "docs/mcp/overview",
+          ],
+        },
+        {
+          label: "Providers",
+          items: [
+            "docs/providers/outbound-email",
+            "docs/providers/gmail",
           ],
         },
         {
