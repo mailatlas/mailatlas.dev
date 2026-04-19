@@ -219,9 +219,9 @@ main,
 }
 
 .expressive-code .frame {
-  border: 1px solid #1f2b31;
+  border: 1px solid #cbd7cf;
   border-radius: var(--mailatlas-radius);
-  background: #0f171c;
+  background: #f8fbf8;
   box-shadow: none;
 }
 
@@ -230,15 +230,37 @@ main,
 }
 
 .expressive-code pre {
+  --ec-codeBg: #f8fbf8;
+  --ec-codeFg: #25312b;
+  --ec-frm-edBg: #f8fbf8;
+  --ec-frm-trmBg: #f8fbf8;
+  --ec-brdCol: #cbd7cf;
+  --ec-sbThumbCol: rgba(23, 33, 27, 0.18);
+  --ec-sbThumbHoverCol: rgba(23, 33, 27, 0.32);
   margin: 0;
   border: 0;
   border-radius: var(--mailatlas-radius);
-  background: transparent;
+  background: #f8fbf8;
+  color: #25312b;
+}
+
+.expressive-code pre > code,
+.expressive-code .ec-line .code {
+  color: #25312b;
+}
+
+.expressive-code .ec-line :where(span[style^="--"]:not([class])) {
+  color: var(--1, #25312b);
 }
 
 .expressive-code .copy {
   top: 0.65rem;
   right: 0.65rem;
+}
+
+.expressive-code .copy button {
+  background: #f8fbf8;
+  color: #25312b;
 }
 
 .hero {
