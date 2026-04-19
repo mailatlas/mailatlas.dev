@@ -119,4 +119,4 @@ Cleaning choices affect downstream behavior. Search indexes, retrieval systems, 
 
 - Use [Document Schema](/docs/concepts/document-schema/) to inspect cleaning metadata.
 - Use [Quickstart](/docs/getting-started/quickstart/) to run cleaning against local files.
-- Use [IMAP Sync](/docs/getting-started/manual-imap-sync/) to apply cleaning during mailbox sync.
+- Use [IMAP Receive](/docs/getting-started/manual-imap-sync/) to apply cleaning during mailbox receive.

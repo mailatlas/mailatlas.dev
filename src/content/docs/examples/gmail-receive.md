@@ -67,7 +67,7 @@ mailatlas list
 mailatlas get <document-id>
 ```
 
-Received Gmail documents use the same local storage layout as file ingest and IMAP sync. Raw messages go under `raw/`; HTML and assets are stored when present.
+Received Gmail documents use the same local storage layout as file ingest and IMAP receive. Raw messages go under `raw/`; HTML and assets are stored when present.
 
 ## Inspect receive status
 

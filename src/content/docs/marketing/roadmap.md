@@ -40,7 +40,7 @@ Planned areas include:
 
 Later work may include:
 
-- Hosted mailbox sync beyond local foreground polling.
+- Hosted mailbox receive beyond local foreground polling.
 - Broader mailbox adapter coverage beyond IMAP.
 - Additional outbound providers such as Resend, SendGrid, Postmark, or local `.eml` drop directories.
 - Packaging and distribution paths that reduce local setup friction as release channels mature.

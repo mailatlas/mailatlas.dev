@@ -1,16 +1,14 @@
 ---
-title: IMAP Sync
+title: IMAP Receive
 description: Receive selected IMAP folders into a local MailAtlas workspace. Configure password or OAuth token authentication, run one-shot receive, run foreground polling, inspect results, and understand incremental cursor behavior.
 slug: docs/getting-started/manual-imap-sync
 ---
 
-Use IMAP sync when messages are still in a live mailbox and you want MailAtlas to fetch selected folders into a local workspace.
+Use IMAP receive when messages are still in a live mailbox and you want MailAtlas to fetch selected folders into a local workspace.
 
 If you already have `.eml` files or an `mbox` file on disk, use file ingest instead.
 
 The canonical live-mailbox command is `mailatlas receive`. Use `--provider imap` for IMAP. Run `mailatlas receive watch --provider imap` when you want a foreground polling process, or run one bounded pass when you want a manual backfill or script step. MailAtlas stores per-folder IMAP cursors in SQLite so later runs can continue incrementally when possible.
-
-`mailatlas sync` remains available as a compatibility alias for one-shot IMAP receive.
 
 ## Before you start
 
@@ -21,7 +19,7 @@ You need:
 - A mailbox username.
 - One credential type: password or OAuth access token.
 - One or more folder names to receive. `INBOX` is the default.
-- A workspace root where MailAtlas can store documents and sync state.
+- A workspace root where MailAtlas can store documents and cursor state.
 
 MailAtlas does not persist mailbox passwords or OAuth access tokens in the workspace.
 
@@ -130,21 +128,11 @@ mailatlas receive --provider imap --folder INBOX --access-token "$MAILATLAS_IMAP
   "error": null,
   "details": {
     "status": "ok",
-    "host": "imap.example.com",
-    "port": 993,
-    "username": "user@example.com",
-    "auth": "password",
     "folder_count": 1,
-    "error_count": 0,
-    "fetched_count": 12,
-    "ingested_count": 11,
-    "duplicate_count": 1,
     "folders": [
       {
         "folder": "INBOX",
         "status": "ok",
-        "uidvalidity": "11",
-        "last_uid": 4812,
         "fetched_count": 12,
         "ingested_count": 11,
         "duplicate_count": 1,
@@ -163,51 +151,14 @@ mailatlas receive --provider imap --folder INBOX --access-token "$MAILATLAS_IMAP
 }
 ```
 
-The compatibility `sync` command prints the older per-folder shape:
-
-```json
-{
-  "status": "ok",
-  "host": "imap.example.com",
-  "port": 993,
-  "username": "user@example.com",
-  "auth": "password",
-  "folder_count": 1,
-  "error_count": 0,
-  "fetched_count": 12,
-  "ingested_count": 11,
-  "duplicate_count": 1,
-  "folders": [
-    {
-      "folder": "INBOX",
-      "status": "ok",
-      "uidvalidity": "11",
-      "last_uid": 4812,
-      "fetched_count": 12,
-      "ingested_count": 11,
-      "duplicate_count": 1,
-      "document_refs": [
-        {
-          "id": "<document-id>",
-          "subject": "Daily market digest",
-          "source_kind": "imap",
-          "created_at": "<timestamp>"
-        }
-      ],
-      "error": null
-    }
-  ]
-}
-```
-
-Use `document_ids[]` from `receive` or `details.folders[].document_refs[].id` from `sync` with `mailatlas get`.
+Use `document_ids[]` with `mailatlas get`.
 
 ## Inspect received documents
 
 ```bash
 mailatlas list
 mailatlas get <document-id>
-mailatlas get <document-id> --format markdown --out ./synced-message
+mailatlas get <document-id> --format markdown --out ./received-message
 ```
 
 For IMAP-received documents, `source_kind` is `imap` and `metadata.source.*` records the mailbox folder and UID that produced the stored document.
@@ -216,7 +167,7 @@ For IMAP-received documents, `source_kind` is `imap` and `metadata.source.*` rec
 
 When you receive from the same workspace root, MailAtlas uses stored IMAP cursor state to fetch only newer messages when possible.
 
-If you point the command at a different workspace root, MailAtlas starts a fresh sync history.
+If you point the command at a different workspace root, MailAtlas starts a fresh receive history.
 
 When a provider reports changed `UIDVALIDITY`, MailAtlas starts from the beginning of the folder for that cursor because previous UIDs can no longer be treated as stable.
 
@@ -233,7 +184,7 @@ When a provider reports changed `UIDVALIDITY`, MailAtlas starts from the beginni
 
 Use [Parser Cleaning](/docs/config/parser-cleaning/) for behavior and tradeoffs.
 
-## IMAP sync versus mbox ingest
+## IMAP Receive Versus Mbox Ingest
 
 Use `mailatlas receive --provider imap` when messages are still in a live mailbox and MailAtlas should fetch them over IMAP.
 
@@ -261,11 +212,11 @@ Duplicates can occur when messages already exist in the workspace. MailAtlas ded
 
 ### Later runs do not fetch expected messages
 
-Confirm you are using the same `MAILATLAS_HOME` or `--root` as the earlier sync. Sync cursor state is stored per workspace.
+Confirm you are using the same `MAILATLAS_HOME` or `--root` as the earlier receive run. IMAP cursor state is stored per workspace.
 
 ## Next step
 
 - Use [CLI Overview](/docs/cli/overview/) for the rest of the command surface.
 - Use [Document Schema](/docs/concepts/document-schema/) to inspect stored fields.
-- Use [Workspace Model](/docs/concepts/workspace-model/) to understand local sync state.
+- Use [Workspace Model](/docs/concepts/workspace-model/) to understand local cursor state.
 - Use [Security and Privacy](/docs/marketing/security-and-privacy/) for storage and sharing guidance.

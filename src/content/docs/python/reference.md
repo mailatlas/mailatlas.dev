@@ -1,6 +1,6 @@
 ---
 title: API Reference
-description: Reference MailAtlas Python classes and functions including parse_eml, MailAtlas, ParserConfig, ReceiveConfig, ImapSyncConfig, OutboundMessage, OutboundAttachment, SendConfig, ReceiveResult, and SendResult.
+description: Reference MailAtlas Python classes and functions including parse_eml, MailAtlas, ParserConfig, ReceiveConfig, OutboundMessage, OutboundAttachment, SendConfig, ReceiveResult, and SendResult.
 slug: docs/python/reference
 ---
 
@@ -35,7 +35,6 @@ Common methods:
 - `receive_status(account_id=None)`
 - `list_receive_accounts()`
 - `list_receive_runs(account_id=None, limit=20)`
-- `sync_imap(config)`
 - `get_document(document_id)`
 - `list_documents(query=None)`
 - `export_document(document_id, format="json", out_path=None)`
@@ -112,23 +111,6 @@ Returned by `atlas.receive(...)`. `details` is included when the provider expose
 ## `ReceiveAccount`, `ReceiveCursor`, and `ReceiveRun`
 
 These dataclasses represent local receive status records from `list_receive_accounts(...)`, stored cursor state, and `list_receive_runs(...)`.
-
-## `ImapSyncConfig`
-
-```python
-ImapSyncConfig(
-    host: str,
-    username: str,
-    port: int = 993,
-    auth: str = "password",
-    password: str | None = None,
-    access_token: str | None = None,
-    folders: tuple[str, ...] = ("INBOX",),
-    parser_config: ParserConfig = ParserConfig(),
-)
-```
-
-Use `auth="password"` with `password`, or `auth="xoauth2"` with `access_token`. New integrations should prefer `ReceiveConfig(provider="imap", ...)`; `ImapSyncConfig` remains available for compatibility.
 
 ## `OutboundAttachment`
 

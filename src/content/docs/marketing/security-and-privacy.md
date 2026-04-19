@@ -4,7 +4,7 @@ description: Understand what MailAtlas stores, what it avoids storing, how provi
 slug: docs/marketing/security-and-privacy
 ---
 
-MailAtlas stores data on the local filesystem and in SQLite by default. The core CLI commands and Python APIs operate on files you point at, Gmail messages you receive explicitly, IMAP folders you sync explicitly, and outbound messages you ask MailAtlas to draft or send.
+MailAtlas stores data on the local filesystem and in SQLite by default. The core CLI commands and Python APIs operate on files you point at, Gmail messages you receive explicitly, IMAP folders you receive explicitly, and outbound messages you ask MailAtlas to draft or send.
 
 MailAtlas does not require a hosted MailAtlas service for file ingest, mailbox receive, export, or outbound audit records.
 
@@ -19,7 +19,7 @@ MailAtlas can store:
 - Cleaned body text in stored document records.
 - Document metadata and parser notes in SQLite.
 - Receive account state, cursor state, and run history in SQLite when you use `receive`.
-- IMAP sync cursor state in SQLite when you receive IMAP folders.
+- IMAP receive cursor state in SQLite when you receive IMAP folders.
 - Outbound raw `.eml` snapshots.
 - Outbound body files.
 - Copied outbound attachments.
@@ -32,8 +32,8 @@ MailAtlas can store:
 MailAtlas does not provide:
 
 - Hosted storage.
-- Hosted mailbox sync.
-- Background mailbox sync as a managed service.
+- Hosted mailbox receive.
+- Background mailbox receive as a managed service.
 - Hidden mailbox receive.
 - Automatic publication of private inbox data.
 - Autonomous background sending.
@@ -69,7 +69,7 @@ Recommended `.gitignore` entry:
 .mailatlas/
 ```
 
-## IMAP sync privacy
+## IMAP Receive Privacy
 
 IMAP receive stores cursor state, not mailbox credentials.
 

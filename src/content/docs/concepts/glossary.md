@@ -1,6 +1,6 @@
 ---
 title: Glossary
-description: Definitions for MailAtlas concepts, including .eml, mbox, Gmail receive, IMAP sync, workspace root, document, asset, export, outbound record, provider, and parser cleaning.
+description: Definitions for MailAtlas concepts, including .eml, mbox, Gmail receive, IMAP receive, workspace root, document, asset, export, outbound record, provider, and parser cleaning.
 slug: docs/concepts/glossary
 ---
 
@@ -10,11 +10,11 @@ A single email message file on disk. Use `mailatlas ingest` when you already hav
 
 ## `mbox`
 
-A mailbox file on disk that can contain many messages. Use `mailatlas ingest` when you already have an `mbox` archive locally. An `mbox` file is not the same thing as IMAP sync.
+A mailbox file on disk that can contain many messages. Use `mailatlas ingest` when you already have an `mbox` archive locally. An `mbox` file is not the same thing as IMAP receive.
 
-## IMAP sync
+## IMAP receive
 
-The MailAtlas workflow for connecting to a live mailbox over IMAP and fetching selected folders into the local workspace. Use `mailatlas receive --provider imap` for new integrations. `mailatlas sync` remains as a one-shot compatibility alias.
+The MailAtlas workflow for connecting to a live mailbox over IMAP and fetching selected folders into the local workspace. Use `mailatlas receive --provider imap`.
 
 ## Gmail receive
 
@@ -38,7 +38,7 @@ The local directory that holds raw email, normalized HTML, extracted assets, exp
 
 ## `store.db`
 
-The SQLite database inside the workspace root. It stores document metadata, lookup data, dedupe information, Gmail receive cursors, IMAP sync cursors, run history, and outbound records.
+The SQLite database inside the workspace root. It stores document metadata, lookup data, dedupe information, Gmail receive cursors, IMAP receive cursors, run history, and outbound records.
 
 ## Document
 

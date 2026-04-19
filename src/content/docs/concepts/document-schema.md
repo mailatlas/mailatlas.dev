@@ -1,6 +1,6 @@
 ---
 title: Document Schema
-description: Reference the normalized MailAtlas document schema, including core fields, asset records, parser metadata, source provenance, and IMAP sync metadata.
+description: Reference the normalized MailAtlas document schema, including core fields, asset records, parser metadata, source provenance, and IMAP receive metadata.
 slug: docs/concepts/document-schema
 ---
 

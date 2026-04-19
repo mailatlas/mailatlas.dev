@@ -96,7 +96,7 @@ MailAtlas is a step toward that future. It takes raw mailbox sources such as IMA
 ## Build from here
 
 - Use [Quickstart](/docs/getting-started/quickstart/) to ingest local files.
-- Use [IMAP Sync](/docs/getting-started/manual-imap-sync/) to fetch selected mailbox folders.
+- Use [IMAP Receive](/docs/getting-started/manual-imap-sync/) to fetch selected mailbox folders.
 - Use [Workspace Model](/docs/concepts/workspace-model/) to understand the local store.
 - Use [Outbound Email](/docs/providers/outbound-email/) to create audit records for sends.
 - Use [MCP Server](/docs/mcp/overview/) to expose local tools to compatible agents.

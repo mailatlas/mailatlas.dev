@@ -102,7 +102,7 @@ imap_result = atlas.receive(
 )
 ```
 
-Use `ReceiveConfig(provider="imap", ...)` when you want MailAtlas to connect to an IMAP mailbox over TLS, fetch folders incrementally, and store only non-secret cursor state in SQLite. `sync_imap(...)` and `ImapSyncConfig(...)` remain available for compatibility with older Python integrations.
+Use `ReceiveConfig(provider="imap", ...)` when you want MailAtlas to connect to an IMAP mailbox over TLS, fetch folders incrementally, and store only non-secret cursor state in SQLite.
 
 Treat MailAtlas as the OAuth consumer, not the OAuth client. Your application should obtain and refresh the access token, then pass it into `ReceiveConfig(provider="imap", imap_access_token=...)`.
 
@@ -233,7 +233,6 @@ Backend applications should store refresh tokens in their own encrypted credenti
 | `receive_status(...)` | Local receive accounts, cursors, recent runs, and last error. |
 | `list_receive_accounts(...)` | Configured local receive account records. |
 | `list_receive_runs(...)` | Recent receive run records. |
-| `sync_imap(...)` | Compatibility path for per-folder IMAP sync results and document refs. |
 | `export_document(...)` | Exported content or an output path string depending on the format and destination. |
 | `draft_email(...)` | A stored local outbound draft and rendered `.eml` snapshot. |
 | `send_email(...)` | A local outbound attempt, provider result unless dry run, and a `SendResult`. |

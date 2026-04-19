@@ -140,7 +140,7 @@ MailAtlas fails instead of silently dropping missing attachments.
 
 ## Duplicate messages
 
-MailAtlas deduplicates by `message_id` when present and falls back to a normalized content hash. A nonzero `duplicate_count` is expected if you ingest the same message twice or sync a mailbox that overlaps with existing documents.
+MailAtlas deduplicates by `message_id` when present and falls back to a normalized content hash. A nonzero `duplicate_count` is expected if you ingest the same message twice or receive from a mailbox that overlaps with existing documents.
 
 ## MCP send tool hidden
 

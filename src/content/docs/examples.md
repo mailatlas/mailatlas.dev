@@ -1,6 +1,6 @@
 ---
 title: Examples
-description: Example workflows for MailAtlas file ingest, mbox archives, Gmail receive, IMAP sync, exports, outbound sends, Python usage, and MCP server setup.
+description: Example workflows for MailAtlas file ingest, mbox archives, Gmail receive, IMAP receive, exports, outbound sends, Python usage, and MCP server setup.
 slug: docs/examples
 ---
 

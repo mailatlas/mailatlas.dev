@@ -43,7 +43,7 @@ provider response
 
 ## Workspace
 
-A workspace is the local root directory where MailAtlas writes files and metadata. It contains `store.db`, raw messages, HTML snapshots, extracted assets, exports, IMAP sync state, and outbound records.
+A workspace is the local root directory where MailAtlas writes files and metadata. It contains `store.db`, raw messages, HTML snapshots, extracted assets, exports, IMAP receive state, and outbound records.
 
 Start here if you want to know where MailAtlas stores data on disk.
 

@@ -1,6 +1,6 @@
 ---
 title: Command Reference
-description: Reference the current MailAtlas CLI commands and commonly used flags for ingest, sync, list, get, send, doctor, auth, receive, and MCP server workflows.
+description: Reference the current MailAtlas CLI commands and commonly used flags for ingest, receive, list, get, send, doctor, auth, and MCP server workflows.
 slug: docs/cli/commands
 ---
 
@@ -22,7 +22,6 @@ The top-level `--root` flag selects the workspace root. If it is omitted, MailAt
 | `get` | Read or export a stored document. |
 | `list` | List stored documents. |
 | `receive` | Receive Gmail or IMAP messages into the local workspace. |
-| `sync` | Compatibility alias for one-shot IMAP receive. |
 | `send` | Compose, send, and audit an outbound email. |
 | `auth` | Manage provider authentication. |
 | `mcp` | Run the MailAtlas MCP server. |
@@ -44,23 +43,6 @@ Parser-cleaning flags:
 - `--stop-at-footer` / `--no-stop-at-footer`
 - `--strip-invisible-chars` / `--no-strip-invisible-chars`
 - `--normalize-whitespace` / `--no-normalize-whitespace`
-
-## `mailatlas sync`
-
-```bash
-mailatlas sync [--root ROOT] [--host HOST] [--port PORT] [--username USERNAME] \
-  [--password PASSWORD | --access-token ACCESS_TOKEN] [--folder FOLDER]
-```
-
-Use `sync` for existing one-shot IMAP scripts. New integrations should use `mailatlas receive --provider imap`. Repeat `--folder` for multiple folders. If no folder is provided, MailAtlas uses `INBOX`.
-
-Environment variables:
-
-- `MAILATLAS_IMAP_HOST`
-- `MAILATLAS_IMAP_PORT`
-- `MAILATLAS_IMAP_USERNAME`
-- `MAILATLAS_IMAP_PASSWORD`
-- `MAILATLAS_IMAP_ACCESS_TOKEN`
 
 ## `mailatlas list`
 

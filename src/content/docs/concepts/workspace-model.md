@@ -1,6 +1,6 @@
 ---
 title: Workspace Model
-description: Understand the MailAtlas workspace root, including raw messages, HTML snapshots, extracted assets, exports, outbound audit files, SQLite metadata, dedupe, Gmail receive state, and IMAP sync state.
+description: Understand the MailAtlas workspace root, including raw messages, HTML snapshots, extracted assets, exports, outbound audit files, SQLite metadata, dedupe, Gmail receive state, and IMAP receive state.
 slug: docs/concepts/workspace-model
 ---
 
@@ -11,7 +11,7 @@ Think of the workspace as the durable boundary between MailAtlas and your applic
 The built-in workspace uses:
 
 - Files on disk for raw inbound messages, HTML snapshots, extracted assets, exports, and outbound audit artifacts.
-- SQLite for metadata, lookup, dedupe, receive accounts, receive cursors, receive runs, IMAP sync cursors, and outbound send records.
+- SQLite for metadata, lookup, dedupe, receive accounts, receive cursors, receive runs, IMAP receive cursors, and outbound send records.
 
 This is the default local storage layout. Applications can copy the resulting files and metadata into their own storage systems when needed.
 
@@ -33,7 +33,7 @@ This is the default local storage layout. Applications can copy the resulting fi
 
 | Path | Purpose |
 | --- | --- |
-| `store.db` | SQLite index for document metadata, lookup, dedupe, receive account state, receive cursors, receive run history, IMAP sync cursors, and outbound records. |
+| `store.db` | SQLite index for document metadata, lookup, dedupe, receive account state, receive cursors, receive run history, IMAP receive cursors, and outbound records. |
 | `raw/` | Original inbound email bytes, usually stored as `.eml` files. |
 | `html/` | Normalized HTML body snapshots with local asset references when an inbound message contains HTML. |
 | `assets/` | Extracted inline images and regular file attachments from inbound messages. |
@@ -50,12 +50,12 @@ The workspace is designed to be inspectable:
 - You can inspect every stage of the pipeline.
 - Raw messages stay linked to parsed records.
 - Assets stay next to the documents that reference them.
-- SQLite is enough for document listing, lookup, dedupe, receive state, sync state, and send records.
+- SQLite is enough for document listing, lookup, dedupe, receive state, cursor state, and send records.
 - Exported files are ordinary artifacts that can be reviewed, copied, archived, or indexed elsewhere.
 
 ## What MailAtlas stores
 
-MailAtlas can store raw email bytes, cleaned body text, normalized HTML, extracted inline files, extracted attachments, document metadata, parser notes, exported artifacts, receive account state, receive cursor state, receive run history, IMAP sync cursor state, outbound records, copied outbound attachments, and BCC recipients in SQLite for audit.
+MailAtlas can store raw email bytes, cleaned body text, normalized HTML, extracted inline files, extracted attachments, document metadata, parser notes, exported artifacts, receive account state, receive cursor state, receive run history, IMAP receive cursor state, outbound records, copied outbound attachments, and BCC recipients in SQLite for audit.
 
 MailAtlas omits BCC from local raw MIME snapshots while preserving BCC in SQLite for audit.
 

@@ -34,7 +34,6 @@ The default workspace contains `store.db`, `raw/`, `html/`, `assets/`, `exports/
 | --- | --- |
 | `mailatlas ingest` | Ingest `.eml` files or `mbox` archives from disk. |
 | `mailatlas receive` | Receive Gmail or IMAP messages into the local workspace. |
-| `mailatlas sync` | Compatibility alias for one-shot IMAP receive. |
 | `mailatlas list` | List stored document references. |
 | `mailatlas get` | Read or export one stored document. |
 | `mailatlas send` | Render, store, and optionally send outbound email. |
@@ -93,8 +92,6 @@ mailatlas receive watch \
   --folder INBOX \
   --interval 60
 ```
-
-`mailatlas sync` remains available for existing one-shot IMAP scripts and prints the older per-folder JSON shape.
 
 ## Receive Gmail
 
@@ -255,7 +252,7 @@ Mailbox receive tools are hidden unless `MAILATLAS_MCP_ALLOW_RECEIVE=1` is set b
 
 ## Parser cleaning flags
 
-The `ingest`, `receive --provider imap`, and `sync` commands accept parser-cleaning flags such as:
+The `ingest` and `receive --provider imap` commands accept parser-cleaning flags such as:
 
 - `--strip-forwarded-headers`
 - `--strip-boilerplate`
@@ -270,7 +267,6 @@ Each also supports a `--no-...` form. Use [Parser Cleaning](/docs/config/parser-
 
 - `ingest` prints a JSON summary with counts and created document refs.
 - `receive` prints a JSON result with counts, document IDs, cursor state, run ID, and provider-specific details when available.
-- `sync` prints per-folder IMAP results as JSON for compatibility.
 - `receive watch` prints one compact JSON object per line.
 - `receive status` prints accounts, cursors, recent runs, and the last error when one exists.
 - `list` prints stored document refs as JSON.

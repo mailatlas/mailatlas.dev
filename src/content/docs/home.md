@@ -1,6 +1,6 @@
 ---
 title: MailAtlas Docs
-description: Learn how to ingest, receive, inspect, export, sync, and send email with MailAtlas using the CLI, Python API, MCP server, and configured providers.
+description: Learn how to ingest, receive, inspect, export, and send email with MailAtlas using the CLI, Python API, MCP server, and configured providers.
 slug: docs
 ---
 
@@ -33,7 +33,7 @@ Choose the path that matches where the email lives now. Each path writes to the 
     <span class="docs-route-kicker">Mailbox</span>
     <span>
       <span class="docs-route-title">Mailbox</span>
-      <p>Use IMAP Sync when MailAtlas should connect to a live mailbox, fetch selected folders, and keep the same local workspace current.</p>
+      <p>Use IMAP receive when MailAtlas should connect to a live mailbox, fetch selected folders, and keep the same local workspace current.</p>
     </span>
     <span class="docs-route-meta">IMAP</span>
   </a>
@@ -111,7 +111,6 @@ mailatlas list
 <ul class="docs-choice-list">
   <li><code>ingest</code><span>Use <code>mailatlas ingest</code> when you already have <code>.eml</code> files or an <code>mbox</code> mailbox file on disk.</span></li>
   <li><code>receive</code><span>Use <code>mailatlas receive</code> when MailAtlas should fetch Gmail or IMAP messages from a live mailbox and store them locally.</span></li>
-  <li><code>sync</code><span>Use <code>mailatlas sync</code> only for compatibility with older one-shot IMAP scripts.</span></li>
   <li><code>get</code><span>Use <code>mailatlas list</code> to find documents, then <code>mailatlas get</code> to inspect or export one document as JSON, Markdown, HTML, or PDF.</span></li>
   <li><code>send</code><span>Use <code>mailatlas send</code> when MailAtlas should render a local outbound audit record and send through a configured provider.</span></li>
 </ul>
@@ -155,7 +154,7 @@ outbound record + provider status
     <span class="docs-route-kicker">Workspace</span>
     <span>
       <span class="docs-route-title">Workspace Model</span>
-      <p>Understand the local workspace root: <code>store.db</code>, raw messages, HTML snapshots, assets, exports, IMAP sync state, and outbound records.</p>
+      <p>Understand the local workspace root: <code>store.db</code>, raw messages, HTML snapshots, assets, exports, IMAP receive state, and outbound records.</p>
     </span>
     <span class="docs-route-meta">workspace</span>
   </a>
@@ -232,4 +231,4 @@ outbound record + provider status
 
 ## Next step
 
-New users should start with [Installation](/docs/getting-started/installation/), then [Quickstart](/docs/getting-started/quickstart/). After that, move to [IMAP Sync](/docs/getting-started/manual-imap-sync/), [Outbound Email](/docs/providers/outbound-email/), or the [Python API](/docs/python/overview/) depending on how you plan to use MailAtlas.
+New users should start with [Installation](/docs/getting-started/installation/), then [Quickstart](/docs/getting-started/quickstart/). After that, move to [IMAP Receive](/docs/getting-started/manual-imap-sync/), [Outbound Email](/docs/providers/outbound-email/), or the [Python API](/docs/python/overview/) depending on how you plan to use MailAtlas.

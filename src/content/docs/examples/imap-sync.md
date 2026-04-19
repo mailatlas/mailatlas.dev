@@ -1,5 +1,5 @@
 ---
-title: "Example: Sync IMAP Folders"
+title: "Example: Receive IMAP Folders"
 description: Receive selected IMAP folders into a local MailAtlas workspace and inspect the stored documents.
 slug: docs/examples/imap-sync
 ---
@@ -51,6 +51,6 @@ Received IMAP documents use `source_kind: "imap"` and include IMAP folder and UI
 
 ## Next step
 
-- Use [IMAP Sync](/docs/getting-started/manual-imap-sync/) for the complete guide.
+- Use [IMAP Receive](/docs/getting-started/manual-imap-sync/) for the complete guide.
 - Use [Workspace Model](/docs/concepts/workspace-model/) to understand cursor state.
 - Use [Security and Privacy](/docs/marketing/security-and-privacy/) before sharing a workspace.

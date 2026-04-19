@@ -122,5 +122,5 @@ make help
 
 - Use [Quickstart](/docs/getting-started/quickstart/) if your email is already on disk as `.eml` files.
 - Use [Mbox Ingest](/docs/examples/mbox-ingest/) if you have a mailbox archive on disk.
-- Use [IMAP Sync](/docs/getting-started/manual-imap-sync/) if MailAtlas should connect to a live mailbox.
+- Use [IMAP Receive](/docs/getting-started/manual-imap-sync/) if MailAtlas should connect to a live mailbox.
 - Use [Outbound Email](/docs/providers/outbound-email/) if your application needs send records and provider delivery.
