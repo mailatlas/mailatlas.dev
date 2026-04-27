@@ -3,8 +3,8 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
 ---
 
 <MarketingLayout
-  title="MailAtlas: Local Email Infrastructure for Agents and Data Apps"
-  description="MailAtlas turns email into inspectable local data. Ingest messages from files or IMAP, export structured documents, and send provider-backed email with a local audit trail."
+  title="MailAtlas: Email Access for AI Agents"
+  description="MailAtlas turns complex email into clean, agent-readable data. It gives agents a copy of the inbox and outbox they can query, while handling HTML, attachments, embedded images, metadata, exports, and provenance."
 >
   <header class="topbar">
     <a class="brand" href="/" aria-label="MailAtlas home">
@@ -22,39 +22,14 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
 
   <main class="landing-main">
     <section class="hero" id="overview">
-      <div class="hero-artifact" aria-hidden="true">
-        <span>Subject:</span>
-        <span>From: alice@example.com</span>
-        <span>$ mailatlas ingest</span>
-        <span>Content-Type: text/html</span>
-        <span>attachment.pdf</span>
-        <span>Message-ID:</span>
-        <span>mbox://archive.2024</span>
-        <span>outbound/raw</span>
-      </div>
-
       <div class="hero-inner">
-        <p class="eyebrow">Open-source email infrastructure</p>
-        <h1>Make email usable as local data.</h1>
+        <p class="eyebrow">Email tools for AI agents</p>
+        <h1>MailAtlas makes email accessible to AI agents.</h1>
         <p class="lede">
-          MailAtlas ingests email from files and selected IMAP folders into a local workspace you
-          can inspect from the CLI, Python, or MCP-compatible tools. Each document stays linked to
-          its raw source, HTML, attachments, metadata, and exports, so software can search, review,
-          and process email without scraping a web inbox.
+          It turns complex email into clean, agent-readable data. Connect your mailbox, import
+          archives, export HTML, PDF, or Markdown, and let MailAtlas keep track of embedded images,
+          attachments, metadata, and provenance.
         </p>
-        <p class="lede lede-tight">
-          For outbound workflows, MailAtlas can render a message, store a local audit record, and
-          send through a configured provider.
-        </p>
-        <div class="hero-actions" aria-label="Primary actions">
-          <a class="button button-primary" href="/docs/getting-started/quickstart/">Start with files</a>
-          <a class="button button-secondary" href="/docs/">Read the docs</a>
-        </div>
-        <div class="hero-actions hero-actions-secondary" aria-label="Secondary actions">
-          <a class="button button-secondary" href="/docs/getting-started/manual-imap-sync/">Connect IMAP</a>
-          <a class="button button-secondary" href="/docs/providers/outbound-email/">Configure sending</a>
-          <a class="button button-secondary" href="https://github.com/mailatlas/mailatlas">View GitHub</a>
-        </div>
         <p class="hero-command"><code>python -m pip install mailatlas</code></p>
       </div>
     </section>
@@ -62,17 +37,17 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
     <section class="section-block" id="why">
       <div class="section-heading">
         <p class="eyebrow">Why MailAtlas</p>
-        <h2>Email is useful application data, but inboxes were built for people.</h2>
+        <h2>Current email interfaces serve humans, not agents.</h2>
         <p>
-          Email can contain plain text, HTML, inline images, attachments, forwarded chains, delivery
-          headers, provider metadata, and context that matters later. If an application flattens all
-          of that into text, it loses structure. If it relies on a mailbox UI, the workflow is hard
-          to inspect, test, or automate reliably.
+          Email looks great in an inbox because it was designed for people. Give the same message to
+          an agent as raw source or provider API output and it has to deal with MIME structure,
+          rendered HTML, attachments, thread context, and provider-specific metadata.
         </p>
         <p>
-          MailAtlas stores email as local artifacts plus structured metadata. Your application can
-          use the cleaned representation when that is enough, then fall back to raw messages, HTML
-          snapshots, attachments, and parser notes when it needs more context.
+          Agents need structured, clean email access that does not pollute their context window.
+          MailAtlas gives them an interface for reading email in the cleanest possible way, while
+          preserving body content, HTML, attachments, embedded images, metadata, provenance, and the
+          overall structure of each message.
         </p>
       </div>
 
@@ -80,11 +55,10 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
         <article>
           <h3>Use MailAtlas when you need to</h3>
           <ul>
-            <li>Build an email corpus for retrieval, analytics, AI agent workflows, or audits.</li>
-            <li>Keep raw messages, cleaned text, HTML, attachments, and metadata linked together.</li>
-            <li>Process <code>.eml</code> files or <code>mbox</code> archives without running a hosted service.</li>
-            <li>Fetch selected IMAP folders into a local workspace.</li>
-            <li>Send email through configured providers while keeping a local audit trail.</li>
+            <li>Turn complex email into clean text, HTML, Markdown, PDF, and structured metadata.</li>
+            <li>Track embedded images, attachments, source messages, and provenance together.</li>
+            <li>Import email from mailboxes, <code>.eml</code> files, or <code>mbox</code> archives.</li>
+            <li>Create a copy of the inbox and outbox your agent can query and send from.</li>
           </ul>
         </article>
       </div>
@@ -93,49 +67,47 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
     <section class="section-block section-muted" id="story">
       <div class="section-heading">
         <p class="eyebrow">How it works</p>
-        <h2>One workspace for inbound mail, exports, and outbound records.</h2>
+        <h2>Clean email data in a workspace your agent can query.</h2>
       </div>
 
       <ol class="step-list">
         <li>
           <span class="step-index">01</span>
           <div>
-            <h3>Ingest or sync messages</h3>
+            <h3>An email workspace for every agent</h3>
             <p>
-              Start from <code>.eml</code> files, an <code>mbox</code> archive, or selected folders
-              in an IMAP mailbox. File ingest is useful for local fixtures, archives, tests, and
-              one-off processing. Manual IMAP sync is useful when messages still live in a mailbox.
+              Use the same workspace from the CLI, Python code, or MCP tools, depending on how your
+              agent works.
             </p>
           </div>
         </li>
         <li>
           <span class="step-index">02</span>
           <div>
-            <h3>Store linked artifacts</h3>
+            <h3>Bring email in</h3>
             <p>
-              MailAtlas stores the raw message, cleaned text, normalized HTML, extracted assets,
-              source metadata, and parser notes together. The stored document remains traceable back
-              to the input that produced it.
+              Import from <code>.eml</code> files, <code>mbox</code> archives, Gmail, or selected
+              IMAP folders. Use whichever source matches where your email already lives.
             </p>
           </div>
         </li>
         <li>
           <span class="step-index">03</span>
           <div>
-            <h3>Inspect, export, or build</h3>
+            <h3>Clean and export the email</h3>
             <p>
-              Use the CLI, Python API, or MCP server to list documents, inspect a message, export
-              JSON, Markdown, HTML, or PDF, or connect the workspace to your own workflow.
+              MailAtlas gives agents clean body text, HTML, Markdown, PDF, JSON, attachments,
+              embedded images, metadata, and links back to the original message.
             </p>
           </div>
         </li>
         <li>
           <span class="step-index">04</span>
           <div>
-            <h3>Send with an audit trail</h3>
+            <h3>Send through your provider</h3>
             <p>
-              For outbound email, MailAtlas can render the message, copy attachments, store local
-              audit records, and send through SMTP, Cloudflare Email Service, or Gmail API OAuth.
+              When your agent needs to reply or follow up, MailAtlas sends through SMTP, Cloudflare
+              Email Service, or Gmail API OAuth.
             </p>
           </div>
         </li>
@@ -144,17 +116,26 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
 
     <section class="section-block" id="sources">
       <div class="section-heading">
-        <p class="eyebrow">Sources and sinks</p>
-        <h2>Choose the path that matches your email source.</h2>
+        <p class="eyebrow">Sources and outputs</p>
+        <h2>Bring email in. Give agents clean data back.</h2>
         <p>
-          Start with one path and add others later. File ingest, IMAP sync, exports, and outbound
-          sends all operate against the same local workspace.
+          Connect a live mailbox and keep the agent's email workspace current with watch mode. You
+          can also import archived email, export clean documents, and send through your existing
+          provider from the same workspace.
         </p>
       </div>
 
       <div class="source-list">
+        <a class="source-row" href="/docs/getting-started/manual-imap-sync/">
+          <strong>Live mailboxes</strong>
+          <span>
+            Use Gmail or IMAP receive when messages still live in a mailbox. Run watch mode when
+            your agent needs the workspace to stay current.
+          </span>
+          <code>sync</code>
+        </a>
         <a class="source-row" href="/docs/getting-started/quickstart/">
-          <strong>Files</strong>
+          <strong>Email files</strong>
           <span>
             Use file ingest when you already have individual <code>.eml</code> files, directories
             of exported messages, or test fixtures.
@@ -162,75 +143,31 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
           <code>.eml</code>
         </a>
         <a class="source-row" href="/docs/examples/mbox-ingest/">
-          <strong>Archive</strong>
+          <strong>Mailbox archives</strong>
           <span>
             Use <code>mbox</code> ingest when you have a mailbox export on disk and want each
             message stored as a document.
           </span>
           <code>mbox</code>
         </a>
-        <a class="source-row" href="/docs/getting-started/manual-imap-sync/">
-          <strong>Mailbox</strong>
-          <span>
-            Use manual IMAP sync when messages still live in a mailbox and you want to fetch
-            selected folders on demand.
-          </span>
-          <code>sync</code>
-        </a>
         <a class="source-row" href="/docs/providers/outbound-email/">
-          <strong>Outbound</strong>
+          <strong>Outbound email</strong>
           <span>
-            Use outbound email when your application needs to render, store, send, and audit
-            messages through a configured provider.
+            Send email through a configured provider when your agent needs to reply, notify, or
+            follow up.
           </span>
           <code>send</code>
         </a>
       </div>
     </section>
 
-    <section class="section-block section-muted" id="try">
-      <div class="section-heading">
-        <p class="eyebrow">Try it</p>
-        <h2>Verify the workflow with one message.</h2>
-        <p>Start with a local workspace, ingest one message, then list the stored document.</p>
-      </div>
-
-      <div class="terminal">
-        <div class="terminal-bar">
-          <span></span>
-          <span></span>
-          <span></span>
-          <code>~/work</code>
-        </div>
-        <pre><code>python3.12 -m venv .venv
-source .venv/bin/activate
-python -m pip install mailatlas
-
-export MAILATLAS_HOME="$PWD/.mailatlas"
-mailatlas ingest path/to/message.eml
-mailatlas list</code></pre>
-      </div>
-
-      <div class="terminal terminal-secondary">
-        <div class="terminal-bar">
-          <span></span>
-          <span></span>
-          <span></span>
-          <code>sample fixtures</code>
-        </div>
-        <pre><code>git clone https://github.com/mailatlas/sample-data.git
-mailatlas ingest sample-data/fixtures/eml/atlas-market-map.eml
-mailatlas list</code></pre>
-      </div>
-    </section>
-
     <section class="section-block" id="stores">
       <div class="section-heading">
-        <p class="eyebrow">What MailAtlas stores</p>
-        <h2>Local files, SQLite metadata, and provider-safe audit records.</h2>
+        <p class="eyebrow">Email workspace</p>
+        <h2>Everything your agent needs to read and work with email.</h2>
         <p>
-          MailAtlas writes ordinary local artifacts into a workspace root and uses SQLite for lookup,
-          dedupe, sync state, and outbound records.
+          MailAtlas stores clean email outputs as ordinary files and uses SQLite for lookup, dedupe,
+          exports, provenance, mailbox sync state, and message records.
         </p>
       </div>
 
@@ -266,46 +203,15 @@ mailatlas list</code></pre>
       </div>
 
       <p class="section-note">
-        Provider credentials are read at runtime. MailAtlas does not write SMTP passwords,
-        Cloudflare API tokens, IMAP passwords, Gmail tokens, or OAuth access tokens into the
-        workspace database, raw snapshots, logs, or JSON send results.
+        MailAtlas receives from Gmail API or IMAP, including IMAP password or OAuth-token auth. For
+        outbound email, it sends through SMTP, Cloudflare Email Service, or Gmail API OAuth.
       </p>
-    </section>
-
-    <section class="section-block section-fit" id="fit">
-      <div class="section-heading">
-        <p class="eyebrow">Is MailAtlas for you?</p>
-        <h2>Use it when local email artifacts matter. Use something else for hosted mail products.</h2>
-      </div>
-
-      <div class="fit-stack">
-        <article>
-          <h3>Reach for MailAtlas when</h3>
-          <ul>
-            <li>You are feeding email into an AI agent, retrieval system, notebook, test suite, or data app.</li>
-            <li>You need raw, cleaned, structured, and visual views of the same message.</li>
-            <li>You want to script over <code>.eml</code> files or <code>mbox</code> archives without a hosted service.</li>
-            <li>You need selected-folder IMAP sync into a local store.</li>
-            <li>You need a local audit trail for email your application sends.</li>
-          </ul>
-        </article>
-
-        <article>
-          <h3>Use something else when</h3>
-          <ul>
-            <li>You need a hosted inbox product or full webmail client.</li>
-            <li>You need background mailbox sync as a managed service.</li>
-            <li>You need deliverability management, campaign analytics, suppression lists, bounce processing, or marketing automation.</li>
-            <li>You only need a low-level MIME parser and do not care about storage, exports, or provenance.</li>
-          </ul>
-        </article>
-      </div>
     </section>
 
     <section class="section-block section-muted" id="next">
       <div class="section-heading">
         <p class="eyebrow">Next steps</p>
-        <h2>Pick the first workflow you need to prove.</h2>
+        <h2>Pick the first email workflow your agent needs.</h2>
       </div>
 
       <div class="source-list">
@@ -315,18 +221,18 @@ mailatlas list</code></pre>
           <code>install</code>
         </a>
         <a class="source-row" href="/docs/getting-started/quickstart/">
-          <strong>Run the Quickstart</strong>
-          <span>Ingest a local <code>.eml</code> file and export a stored document.</span>
+          <strong>Import a sample email</strong>
+          <span>Import a local <code>.eml</code> file and inspect what MailAtlas stores.</span>
           <code>files</code>
         </a>
         <a class="source-row" href="/docs/getting-started/manual-imap-sync/">
-          <strong>Sync a mailbox folder</strong>
-          <span>Fetch selected IMAP folders into the same local workspace.</span>
+          <strong>Connect a mailbox</strong>
+          <span>Bring Gmail or selected IMAP folders into the same agent-readable inbox copy.</span>
           <code>imap</code>
         </a>
         <a class="source-row" href="/docs/providers/outbound-email/">
-          <strong>Configure sending</strong>
-          <span>Render, store, and send messages through a configured provider.</span>
+          <strong>Set up outbound email</strong>
+          <span>Send messages through your existing provider.</span>
           <code>send</code>
         </a>
       </div>
@@ -338,11 +244,7 @@ mailatlas list</code></pre>
           <span class="brand-mark" aria-hidden="true"></span>
           <span>MailAtlas</span>
         </a>
-        <p>MailAtlas is open-source email infrastructure for local workspaces. Read the docs, install it, and keep your mail where you can inspect it.</p>
-        <div class="hero-actions">
-          <a class="button button-primary" href="/docs/">Read the docs</a>
-          <a class="button button-secondary" href="mailto:hello@mailatlas.dev">hello@mailatlas.dev</a>
-        </div>
+        <p>MailAtlas makes email accessible to AI agents by turning complex messages into clean, source-linked data.</p>
       </div>
 
       <nav class="footer-links" aria-label="Footer">
