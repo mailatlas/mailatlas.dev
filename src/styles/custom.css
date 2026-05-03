@@ -282,7 +282,6 @@ main,
   color: var(--sl-color-gray-2);
 }
 
-.pagination-links a,
 .card {
   border: 1px solid var(--sl-color-hairline);
   border-radius: var(--mailatlas-radius);

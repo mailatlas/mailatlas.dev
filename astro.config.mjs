@@ -7,8 +7,10 @@ export default defineConfig({
     starlight({
       title: "MailAtlas",
       description: "Open-source email infrastructure for local workspaces, AI agents, retrieval systems, and Python workflows.",
+      pagination: false,
       customCss: ["./src/styles/custom.css"],
       components: {
+        Pagination: "./src/components/EmptyPagination.astro",
         ThemeProvider: "./src/components/DocsThemeProvider.astro",
         ThemeSelect: "./src/components/EmptyThemeSelect.astro",
       },
