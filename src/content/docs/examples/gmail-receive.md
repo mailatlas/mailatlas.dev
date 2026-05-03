@@ -114,4 +114,4 @@ rm -rf "$MAILATLAS_HOME"
 
 - Use [Gmail Receive Watch](/docs/examples/gmail-receive-watch/) for foreground polling.
 - Use [Gmail Provider](/docs/providers/gmail/) for token storage and capability details.
-- Use [Security and Privacy](/docs/marketing/security-and-privacy/) before using a real mailbox workspace.
+- Use [Security and Privacy](/docs/product/security-and-privacy/) before using a real mailbox workspace.

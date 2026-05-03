@@ -35,7 +35,7 @@ export default defineConfig({
             "docs/examples/gmail-receive",
             {
               label: "When to Use MailAtlas",
-              link: "/docs/marketing/why-not-connectors/",
+              link: "/docs/product/why-not-connectors/",
             },
           ],
         },
@@ -106,10 +106,10 @@ export default defineConfig({
           items: [
             {
               label: "Product Vision",
-              link: "/docs/marketing/product-vision/",
+              link: "/docs/product/product-vision/",
             },
-            "docs/marketing/security-and-privacy",
-            "docs/marketing/roadmap",
+            "docs/product/security-and-privacy",
+            "docs/product/roadmap",
           ],
         },
         {

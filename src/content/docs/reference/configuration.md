@@ -135,5 +135,5 @@ Live sending and mailbox receive are hidden by default. Keep the MCP server loca
 ## Next step
 
 - Use [CLI Overview](/docs/cli/overview/) for commands that consume these values.
-- Use [Security and Privacy](/docs/marketing/security-and-privacy/) for handling workspaces and credentials.
+- Use [Security and Privacy](/docs/product/security-and-privacy/) for handling workspaces and credentials.
 - Use [Troubleshooting](/docs/support/troubleshooting/) for common setup failures.

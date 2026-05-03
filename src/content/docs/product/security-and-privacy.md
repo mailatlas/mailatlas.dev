@@ -1,7 +1,7 @@
 ---
 title: Security and Privacy
 description: Understand what MailAtlas stores, what it avoids storing, how provider credentials are handled, and how to operate local email workspaces safely.
-slug: docs/marketing/security-and-privacy
+slug: docs/product/security-and-privacy
 ---
 
 MailAtlas stores data on the local filesystem and in SQLite by default. The core CLI commands and Python APIs operate on files you point at, Gmail messages you receive explicitly, IMAP folders you receive explicitly, and outbound messages you ask MailAtlas to draft or send.

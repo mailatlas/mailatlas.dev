@@ -97,4 +97,4 @@ Start here if your application sends email and needs a local audit trail.
 - [Parser Cleaning](/docs/config/parser-cleaning/)
 - [Export Formats](/docs/reference/export-formats/)
 - [Outbound Email](/docs/providers/outbound-email/)
-- [Security and Privacy](/docs/marketing/security-and-privacy/)
+- [Security and Privacy](/docs/product/security-and-privacy/)

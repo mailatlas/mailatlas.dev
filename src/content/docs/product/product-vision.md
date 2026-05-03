@@ -1,7 +1,7 @@
 ---
 title: Email Access for AI Agents
 description: MailAtlas gives AI agents clean, structured access to email without forcing them through human inbox interfaces, raw MIME, or provider-specific API output.
-slug: docs/marketing/product-vision
+slug: docs/product/product-vision
 ---
 
 Email looks great in Gmail, Outlook, and other inboxes because those interfaces were designed for people. AI agents need something different: structured, clean email access that does not pollute their context window.

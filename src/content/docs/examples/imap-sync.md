@@ -53,4 +53,4 @@ Received IMAP documents use `source_kind: "imap"` and include IMAP folder and UI
 
 - Use [IMAP Receive](/docs/getting-started/manual-imap-sync/) for the complete guide.
 - Use [Workspace Model](/docs/concepts/workspace-model/) to understand cursor state.
-- Use [Security and Privacy](/docs/marketing/security-and-privacy/) before sharing a workspace.
+- Use [Security and Privacy](/docs/product/security-and-privacy/) before sharing a workspace.

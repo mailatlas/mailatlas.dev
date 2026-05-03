@@ -120,5 +120,5 @@ Treat the workspace as sensitive source data. It can contain raw email, attachme
 ## Next step
 
 - Use [Document Schema](/docs/concepts/document-schema/) for the stored fields.
-- Use [Security and Privacy](/docs/marketing/security-and-privacy/) for operational guidance.
+- Use [Security and Privacy](/docs/product/security-and-privacy/) for operational guidance.
 - Use [CLI Overview](/docs/cli/overview/) to work with the workspace from a shell.

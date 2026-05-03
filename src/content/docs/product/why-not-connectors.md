@@ -1,7 +1,7 @@
 ---
 title: When to Use MailAtlas
 description: Decide whether MailAtlas is the right tool for your email workflow. Compare local email I/O with hosted inbox connectors, generic MIME parsers, background sync services, and deliverability platforms.
-slug: docs/marketing/why-not-connectors
+slug: docs/product/why-not-connectors
 ---
 
 MailAtlas is useful when you need email to become local, inspectable software state. It parses and stores inbound email, exports documents, and keeps local audit records for outbound email sent through providers you configure.

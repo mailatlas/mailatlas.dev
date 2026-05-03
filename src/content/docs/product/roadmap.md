@@ -1,7 +1,7 @@
 ---
 title: Roadmap
 description: See the current MailAtlas roadmap, including parser quality, export structure, examples, MCP support, mailbox adapters, outbound providers, and packaging improvements.
-slug: docs/marketing/roadmap
+slug: docs/product/roadmap
 ---
 
 This roadmap describes current direction, not a delivery guarantee. Priorities may change as the project matures, user feedback arrives, and the API stabilizes.

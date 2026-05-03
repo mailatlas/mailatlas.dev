@@ -219,4 +219,4 @@ Confirm you are using the same `MAILATLAS_HOME` or `--root` as the earlier recei
 - Use [CLI Overview](/docs/cli/overview/) for the rest of the command surface.
 - Use [Document Schema](/docs/concepts/document-schema/) to inspect stored fields.
 - Use [Workspace Model](/docs/concepts/workspace-model/) to understand local cursor state.
-- Use [Security and Privacy](/docs/marketing/security-and-privacy/) for storage and sharing guidance.
+- Use [Security and Privacy](/docs/product/security-and-privacy/) for storage and sharing guidance.
