@@ -12,7 +12,7 @@ The goal is not to build another mail client. The goal is to make email accessib
 
 ## Agents need more than flattened text
 
-Email is not just plain text. Newsletters, transactional emails, reports, and forwarded threads can carry meaning in layout, hierarchy, tables, images, attachments, and sender context.
+Email carries more than plain text. Newsletters, transactional emails, reports, and forwarded threads can carry meaning in layout, hierarchy, tables, images, attachments, and sender context.
 
 A human can usually tell the difference between the main message, a forwarded wrapper, legal boilerplate, and an ad block. An agent reading a flattened blob of text may not. Reducing every message to one simplified format can remove information the agent needs.
 

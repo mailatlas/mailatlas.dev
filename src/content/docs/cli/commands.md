@@ -12,7 +12,7 @@ This page summarizes the current command surface from the MailAtlas CLI. Use `ma
 mailatlas [--root ROOT] <command> ...
 ```
 
-The top-level `--root` flag selects the workspace root. If it is omitted, MailAtlas checks `MAILATLAS_HOME`, project config, then falls back to `./.mailatlas`.
+The top-level `--root` flag selects the email workspace directory. If it is omitted, MailAtlas checks `MAILATLAS_HOME`, project config, then falls back to `./.mailatlas`.
 
 ## Commands
 

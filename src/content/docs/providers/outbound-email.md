@@ -1,30 +1,30 @@
 ---
 title: Outbound Email
-description: Compose, render, store, and send outbound email with MailAtlas. Use dry runs, SMTP, Cloudflare Email Service, or Gmail API OAuth while keeping local audit records.
+description: Compose, render, store, and send email with MailAtlas. Use dry runs, SMTP, Cloudflare Email Service, or Gmail API OAuth while keeping sent messages in the email workspace.
 slug: docs/providers/outbound-email
 ---
 
-MailAtlas can compose, render, store, and send outbound email through providers you configure at runtime. Use this workflow when your application needs a local audit record for messages it sends.
+MailAtlas can compose, render, store, and send email through providers you configure. Use this workflow when your application or agent needs sent messages to live in the same email workspace as received messages.
 
-Outbound email uses the same local-first design as inbound ingest: MailAtlas writes inspectable artifacts first, then contacts the provider unless the message is a dry run.
+Send uses the same workspace model as receive and ingest: MailAtlas writes inspectable artifacts first, then contacts the provider unless the message is a dry run.
 
-MailAtlas is not a hosted deliverability service. It does not manage reputation, suppression lists, campaign analytics, bounce processing, or provider accounts.
+For deliverability operations such as reputation, suppression lists, campaign analytics, bounce processing, or provider account management, use the email provider or deliverability platform that MailAtlas sends through.
 
-Every outbound message gets a local record before provider delivery. That record can include:
+Every sent or drafted message gets a local record before provider delivery. That record can include:
 
 - A rendered raw `.eml` snapshot.
 - Plain-text body files.
 - HTML body files.
 - Copied attachments.
 - Recipient metadata.
-- BCC metadata in SQLite.
+- BCC recipient metadata in SQLite.
 - Provider name.
 - Status.
 - Error details.
 - Retry metadata.
 - Provider response metadata.
 
-Provider secrets and OAuth tokens are read at runtime. MailAtlas does not write SMTP passwords, Cloudflare API tokens, Gmail access tokens, or Gmail refresh tokens into `store.db`, raw snapshots, logs, or JSON send results.
+Configure provider credentials through environment variables, CLI flags, Python config, or the Gmail auth helper. MailAtlas uses those credentials for the send command that needs them.
 
 ## Start with a dry run
 
@@ -39,7 +39,7 @@ mailatlas send \
   --text "The build passed."
 ```
 
-The command prints JSON with the outbound record ID and stores rendered files under `outbound/` in the workspace root.
+The command prints JSON with the sent-message record ID and stores rendered files under `outbound/` in the email workspace.
 
 Use dry runs when testing message rendering, generated content, attachments, headers, review workflows, or provider setup.
 
@@ -141,7 +141,7 @@ MailAtlas validates sender and recipient fields, rejects CR/LF header injection,
 
 ## BCC behavior
 
-BCC recipients are stored in SQLite for audit and are included in provider delivery. They are omitted from local raw MIME snapshots.
+BCC recipients are included in provider delivery and stored in SQLite for explicit detail views. They are omitted from local raw MIME snapshots.
 
 Provider behavior:
 
@@ -149,7 +149,7 @@ Provider behavior:
 - Cloudflare sends BCC through the provider payload.
 - Gmail API sends use a provider-only transient MIME payload that includes BCC for delivery while keeping the saved local raw snapshot Bcc-free.
 
-Default list views should not include BCC recipients. Use explicit detail views or audit options when BCC visibility is required.
+Default list views omit BCC recipients. Use explicit detail views when BCC visibility is required.
 
 ## Idempotency
 
@@ -165,7 +165,7 @@ mailatlas send \
   --idempotency-key gmail-api-test-1
 ```
 
-If the same key already exists, MailAtlas returns the existing outbound record instead of sending a second message.
+If the same key already exists, MailAtlas returns the existing sent-message record instead of sending a second message.
 
 ## Status lifecycle
 
@@ -213,4 +213,4 @@ Use the authenticated Gmail address or a Gmail send-as alias configured in Gmail
 
 ### Duplicate send avoided
 
-If you reuse an idempotency key, MailAtlas returns the existing outbound record instead of sending again. Use a new key only when you intentionally want a new send.
+If you reuse an idempotency key, MailAtlas returns the existing sent-message record instead of sending again. Use a new key only when you intentionally want a new send.

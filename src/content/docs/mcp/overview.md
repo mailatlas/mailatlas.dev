@@ -4,9 +4,9 @@ description: Run the optional MailAtlas MCP server over STDIO so compatible loca
 slug: docs/mcp/overview
 ---
 
-MailAtlas ships an optional MCP server for local AI tools that need to inspect email records, export documents, review outbound records, prepare outbound messages, or run explicitly enabled mailbox receive passes.
+MailAtlas ships an optional MCP server for local AI tools that need to inspect email records, export documents, review sent-message records, prepare drafts, or run explicitly enabled mailbox receive passes.
 
-The MCP server runs against the same MailAtlas workspace root as the CLI and Python API. It does not create a hosted service.
+The MCP server runs against the same MailAtlas email workspace as the CLI and Python API.
 
 STDIO is the only supported MCP transport in MailAtlas right now.
 
@@ -22,7 +22,7 @@ python -m pip install "mailatlas[mcp]"
 mailatlas mcp --root .mailatlas
 ```
 
-Use the same workspace root that you use with the CLI:
+Use the same email workspace that you use with the CLI:
 
 ```bash
 export MAILATLAS_HOME="$PWD/.mailatlas"
@@ -151,7 +151,7 @@ IMAP receive:
 - `MAILATLAS_IMAP_PASSWORD`
 - `MAILATLAS_IMAP_ACCESS_TOKEN`
 
-Provider secrets and Gmail tokens are consumed at runtime. MailAtlas does not write them to `store.db`, raw snapshots, logs, or JSON receive/send results.
+Configure provider secrets and Gmail tokens through environment variables or the local Gmail auth helper before starting the MCP server.
 
 ## Gmail with MCP
 
@@ -172,7 +172,7 @@ Backend MCP hosts should store provider credentials in their own secret store an
 
 ## BCC behavior
 
-Default outbound list views do not include BCC recipients. `mailatlas_get_outbound` accepts `include_bcc=true` when an MCP client needs explicit audit details.
+Default sent-message list views omit BCC recipients. `mailatlas_get_outbound` accepts `include_bcc=true` when an MCP client needs explicit detail fields.
 
 Raw outbound MIME snapshots remain Bcc-free.
 
@@ -183,4 +183,4 @@ Raw outbound MIME snapshots remain Bcc-free.
 - Do not enable `MAILATLAS_MCP_ALLOW_RECEIVE=1` unless the client is allowed to contact Gmail and store private email locally.
 - Leave `MAILATLAS_MCP_RECEIVE_ON_READ` and `MAILATLAS_MCP_RECEIVE_BACKGROUND` unset unless those side effects are expected.
 - Use dry runs and drafts for generated or agent-authored content before enabling live sends.
-- Treat the workspace root as sensitive data.
+- Treat the email workspace as sensitive data.

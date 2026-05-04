@@ -1,19 +1,56 @@
 ---
-title: Workspace Model
-description: Understand the MailAtlas workspace root, including raw messages, HTML snapshots, extracted assets, exports, outbound audit files, SQLite metadata, dedupe, Gmail receive state, and IMAP receive state.
+title: Email Workspace
+description: "Understand the MailAtlas email workspace: documents, source email, HTML views, assets, exports, receive state, sent-message records, and SQLite lookup."
 slug: docs/concepts/workspace-model
 ---
 
-MailAtlas stores email artifacts in one local workspace root. The default workspace root is `.mailatlas` in the current directory unless you set `MAILATLAS_HOME`, pass `--root`, or configure a project root.
+The email workspace is the copy of email MailAtlas creates for your agent. It contains clean documents, source email, HTML views, extracted files, exports, receive state, and sent-message records.
 
-Think of the workspace as the durable boundary between MailAtlas and your application. The CLI, Python API, MCP server, exports, and outbound send workflow all read from or write to this local root.
+Read this page when you want to inspect stored files, back up a workspace, debug receive state, or understand what your agent can query.
 
-The built-in workspace uses:
+By default, MailAtlas writes the workspace to `.mailatlas` in the current directory. You can choose a different workspace with `MAILATLAS_HOME`, `--root`, or project config.
 
-- Files on disk for raw inbound messages, HTML snapshots, extracted assets, exports, and outbound audit artifacts.
-- SQLite for metadata, lookup, dedupe, receive accounts, receive cursors, receive runs, IMAP receive cursors, and outbound send records.
+```bash
+export MAILATLAS_HOME="$PWD/.mailatlas"
+mailatlas list
+mailatlas --root ./other-mailatlas list
+```
 
-This is the default local storage layout. Applications can copy the resulting files and metadata into their own storage systems when needed.
+## How the workspace works
+
+The CLI, Python API, and MCP server all read from and write to the same workspace.
+
+The workspace has three layers:
+
+- Files: source email, HTML views, extracted assets, exports, and sent-message artifacts.
+- SQLite: document lookup, metadata, dedupe, receive cursors, receive runs, and sent-message records.
+- Interfaces: CLI commands, Python APIs, and MCP tools that read the same stored email.
+
+This gives your agent a queryable email workspace without losing the source files and rendered artifacts needed for inspection or export.
+
+## What MailAtlas stores
+
+MailAtlas stores related email data together:
+
+- Message content: raw email bytes, clean body text, and normalized HTML.
+- Message structure: document metadata, parser notes, cleaning details, and source provenance.
+- Assets: embedded images and regular attachments.
+- Provider metadata: Gmail IDs, IMAP folder and UID details, provider message IDs, and provider status.
+- Receive state: accounts, cursors, run history, and errors from mailbox receive.
+- Sent-message state: drafts, dry runs, rendered bodies, copied attachments, recipients, status, errors, and retry metadata.
+- Exports: JSON, Markdown, HTML, or PDF outputs created from stored documents.
+
+BCC recipients are included in provider delivery and stored in SQLite for explicit detail views. They are omitted from local raw MIME snapshots.
+
+## What each workflow adds
+
+| Workflow | What gets added to the workspace |
+| --- | --- |
+| File ingest | Documents, source email, HTML views, assets, metadata, and dedupe state. |
+| IMAP receive | The same document artifacts as file ingest, plus IMAP account and folder cursor state. |
+| Gmail receive | The same document artifacts as file ingest, plus Gmail message metadata and receive cursor state. |
+| Export | JSON, Markdown, HTML, or PDF outputs derived from stored documents. |
+| Send | Sent-message records, rendered bodies, copied attachments, provider status, errors, and retry metadata. |
 
 ## Directory layout
 
@@ -33,92 +70,59 @@ This is the default local storage layout. Applications can copy the resulting fi
 
 | Path | Purpose |
 | --- | --- |
-| `store.db` | SQLite index for document metadata, lookup, dedupe, receive account state, receive cursors, receive run history, IMAP receive cursors, and outbound records. |
-| `raw/` | Original inbound email bytes, usually stored as `.eml` files. |
-| `html/` | Normalized HTML body snapshots with local asset references when an inbound message contains HTML. |
-| `assets/` | Extracted inline images and regular file attachments from inbound messages. |
+| `store.db` | SQLite index for document metadata, lookup, dedupe, receive state, run history, and sent-message records. |
+| `raw/` | Original received email bytes, usually stored as `.eml` files. |
+| `html/` | Normalized HTML views with local asset references when a message contains HTML. |
+| `assets/` | Extracted embedded images and regular file attachments. |
 | `exports/` | Default destination for file-based outputs such as PDF exports when `--out` is omitted. |
-| `outbound/raw/` | Rendered outbound `.eml` snapshots. |
-| `outbound/text/` | Plain-text outbound body files. |
-| `outbound/html/` | HTML outbound body files. |
-| `outbound/attachments/` | Copied outbound attachments. |
+| `outbound/raw/` | Rendered sent-message `.eml` snapshots. |
+| `outbound/text/` | Plain-text sent-message body files. |
+| `outbound/html/` | HTML sent-message body files. |
+| `outbound/attachments/` | Copied sent-message attachments. |
 
-## Why this layout exists
+The `outbound/` directory name is the on-disk layout for sent-message artifacts.
 
-The workspace is designed to be inspectable:
+## Inspect a workspace
 
-- You can inspect every stage of the pipeline.
-- Raw messages stay linked to parsed records.
-- Assets stay next to the documents that reference them.
-- SQLite is enough for document listing, lookup, dedupe, receive state, cursor state, and send records.
-- Exported files are ordinary artifacts that can be reviewed, copied, archived, or indexed elsewhere.
+Use the CLI for normal inspection:
 
-## What MailAtlas stores
+```bash
+mailatlas list
+mailatlas get <document-id>
+mailatlas get <document-id> --format markdown --out ./message-export
+```
 
-MailAtlas can store raw email bytes, cleaned body text, normalized HTML, extracted inline files, extracted attachments, document metadata, parser notes, exported artifacts, receive account state, receive cursor state, receive run history, IMAP receive cursor state, outbound records, copied outbound attachments, and BCC recipients in SQLite for audit.
+Use shell tools when you want to inspect the files directly:
 
-MailAtlas omits BCC from local raw MIME snapshots while preserving BCC in SQLite for audit.
+```bash
+find .mailatlas -maxdepth 2 -type f
+sqlite3 .mailatlas/store.db ".tables"
+```
 
-## Document lifecycle
-
-### File ingest
-
-1. MailAtlas reads an `.eml` file or `mbox` archive.
-2. It parses each message.
-3. It stores raw bytes in `raw/`.
-4. It stores normalized HTML in `html/` when available.
-5. It extracts inline images and attachments into `assets/`.
-6. It writes document metadata to `store.db`.
-7. It returns document references with IDs.
-
-### IMAP receive
-
-1. MailAtlas connects to selected IMAP folders.
-2. It fetches messages not already covered by cursor state when possible.
-3. It runs the same parsing and storage path as file ingest.
-4. It stores per-folder cursor state in SQLite.
-5. It does not store mailbox passwords or OAuth access tokens.
-
-### Gmail receive
-
-1. MailAtlas reads a short-lived Gmail access token from a flag, environment variable, or the local Gmail token store.
-2. It lists Gmail message candidates by label, query, or incremental history cursor.
-3. It fetches full raw messages through the Gmail API.
-4. It decodes Gmail raw payloads into RFC 2822 bytes.
-5. It runs the same parsing and storage path as file ingest.
-6. It stores Gmail provider metadata on the document, including message ID, thread ID, label IDs, history ID, internal date, and receive account ID.
-7. It updates the receive cursor after a successful pass.
-8. It stores receive account, cursor, and run records in SQLite.
-
-Receive is read-only. MailAtlas does not mark Gmail messages read, archive them, delete them, or change labels.
-
-### Export
-
-1. You request an export with `mailatlas get <document-id> --format ...` or the Python API.
-2. MailAtlas reads the stored document and local artifacts.
-3. It writes or returns JSON, Markdown, HTML, or PDF depending on the format.
-4. It writes to `--out` if provided.
-5. For PDF without `--out`, it writes to `exports/<document-id>.pdf`.
-
-### Outbound send
-
-1. MailAtlas validates the outbound message fields.
-2. It renders a raw `.eml` snapshot and body files.
-3. It copies attachments into `outbound/attachments/`.
-4. It stores an outbound record in SQLite.
-5. It contacts the configured provider unless the message is a dry run.
-6. It updates provider status, provider message ID, error details, timestamps, and retry metadata.
+Inspecting `store.db` directly is useful for debugging. Use the CLI, Python API, or MCP tools for application workflows instead of editing SQLite rows by hand.
 
 ## Dedupe
 
-MailAtlas deduplicates by `message_id` when present and falls back to a normalized content hash otherwise.
+MailAtlas deduplicates received messages by `message_id` when present. If a message does not have a usable `message_id`, MailAtlas falls back to a normalized content hash.
+
+## Back up or move a workspace
+
+The workspace is ordinary local files plus SQLite. To keep a workspace intact, copy the whole directory instead of copying `store.db` alone.
+
+Use the same workspace when you want future receive runs to continue from existing Gmail or IMAP cursor state.
 
 ## Security note
 
-Treat the workspace as sensitive source data. It can contain raw email, attachments, BCC recipients, outbound drafts, sent-message records, and exported files. Review workspace contents before committing, sharing, or uploading them.
+Do not commit `.mailatlas/` unless you intentionally created a synthetic fixture workspace. It can contain private email, attachments, embedded images, sent messages, BCC recipients, provider metadata, and exports.
+
+Recommended `.gitignore` entry:
+
+```text
+.mailatlas/
+```
 
 ## Next step
 
-- Use [Document Schema](/docs/concepts/document-schema/) for the stored fields.
-- Use [Security and Privacy](/docs/product/security-and-privacy/) for operational guidance.
+- Use [Document Schema](/docs/concepts/document-schema/) for stored document fields.
+- Use [Security and Privacy](/docs/product/security-and-privacy/) for workspace and credential guidance.
 - Use [CLI Overview](/docs/cli/overview/) to work with the workspace from a shell.

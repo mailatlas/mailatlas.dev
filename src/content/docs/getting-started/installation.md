@@ -1,23 +1,23 @@
 ---
 title: Install MailAtlas
-description: Install MailAtlas with pip, uv, Homebrew, or from source. Verify the CLI with mailatlas doctor and configure the local workspace root.
+description: Install MailAtlas and verify the CLI before connecting a mailbox, importing email files, using the Python API, or exposing MCP tools to an AI agent.
 slug: docs/getting-started/installation
 ---
 
-Install MailAtlas before running the Quickstart, syncing an IMAP folder, exporting documents, or sending outbound email.
+Install MailAtlas from PyPI to use the CLI, Python API, or MCP server locally.
 
-The recommended path is a Python virtual environment and PyPI. Use `uv`, Homebrew, or a source checkout only if those match your local workflow.
+This page shows the `pip`, `uv`, Homebrew, and source install paths. Start with `pip` unless you prefer one of the other tools.
 
 > MailAtlas is currently alpha. Expect CLI, schema, and packaging details to keep improving.
 
 ## Requirements
 
-- Python 3.12 is recommended. The package metadata currently allows Python 3.11 and newer.
-- A local directory where MailAtlas can create a workspace.
+- Python 3.12 is recommended.
+- A local directory where MailAtlas can write an email workspace.
 - Chrome or Chromium only if you want PDF export.
-- Provider credentials only if you plan to receive from IMAP or send outbound email.
+- Provider credentials only when you connect a live mailbox or send email.
 
-The core file-ingest path does not require a hosted MailAtlas service, an email provider account, or a cloud service.
+MailAtlas does not require a hosted MailAtlas service. For live mailboxes or sending, it uses the provider credentials you configure for IMAP, Gmail OAuth, SMTP, Cloudflare, or Gmail sending.
 
 ## Install with pip
 
@@ -25,14 +25,17 @@ The core file-ingest path does not require a hosted MailAtlas service, an email 
 python3.12 -m venv .venv
 source .venv/bin/activate
 python -m pip install mailatlas
+```
+
+Verify the installation:
+
+```bash
 mailatlas doctor
 ```
 
-`mailatlas doctor` creates a temporary store, ingests a synthetic message, and verifies basic storage and JSON export. If Chrome or Chromium is available, it also checks PDF export. If the browser is missing, the doctor command warns instead of failing unless PDF is explicitly required.
+`mailatlas doctor` verifies that MailAtlas can create a temporary workspace, ingest a sample message, read it back, and export JSON. PDF export is checked only when Chrome or Chromium is available.
 
 ## Optional extras
-
-Use extras only when you need them:
 
 ```bash
 python -m pip install "mailatlas[mcp]"
@@ -45,9 +48,9 @@ Use `mailatlas[keychain]` when you want the local Gmail OAuth helper to store to
 
 The Python API ships in the base package.
 
-## Configure a workspace root
+## Set the email workspace directory
 
-MailAtlas stores data in one workspace root. By default, the root is `.mailatlas` in the current directory.
+MailAtlas writes received messages, sent messages, exports, assets, and SQLite lookup data into a local email workspace. By default, the workspace is `.mailatlas` in the current directory.
 
 ```bash
 export MAILATLAS_HOME="$PWD/.mailatlas"
@@ -59,7 +62,7 @@ You can also pass a root per command:
 mailatlas --root .mailatlas list
 ```
 
-The workspace root contains local files and `store.db`. It can include raw email, HTML snapshots, extracted assets, exports, outbound records, and SQLite metadata.
+Use `MAILATLAS_HOME` when you want several commands to share the same workspace. Use `--root` when you want a one-off command to point somewhere else.
 
 ## Optional PDF export setup
 
@@ -120,7 +123,9 @@ make help
 
 ## Next step
 
-- Use [Quickstart](/docs/getting-started/quickstart/) if your email is already on disk as `.eml` files.
-- Use [Mbox Ingest](/docs/examples/mbox-ingest/) if you have a mailbox archive on disk.
-- Use [IMAP Receive](/docs/getting-started/manual-imap-sync/) if MailAtlas should connect to a live mailbox.
-- Use [Outbound Email](/docs/providers/outbound-email/) if your application needs send records and provider delivery.
+- Use [Manual IMAP Sync](/docs/getting-started/manual-imap-sync/) when your agent should read a live mailbox.
+- Use [Gmail Receive](/docs/examples/gmail-receive/) when your agent should read Gmail with OAuth.
+- Use [Quickstart](/docs/getting-started/quickstart/) when you want to try local `.eml` files.
+- Use [Python API](/docs/python/overview/) when you want to embed MailAtlas in an application or worker.
+- Use [MCP Server](/docs/mcp/overview/) when you want to expose email tools to an AI agent.
+- Use [Outbound Email](/docs/providers/outbound-email/) when your agent or application needs to send through a configured provider.

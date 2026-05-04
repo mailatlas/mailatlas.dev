@@ -1,6 +1,6 @@
 ---
 title: Roadmap
-description: See the current MailAtlas roadmap, including parser quality, export structure, examples, MCP support, mailbox adapters, outbound providers, and packaging improvements.
+description: See the current MailAtlas roadmap, including parser quality, export structure, examples, MCP support, mailbox adapters, send providers, and packaging improvements.
 slug: docs/product/roadmap
 ---
 
@@ -10,14 +10,14 @@ MailAtlas is currently alpha. Expect the CLI, schema, docs, packaging, and examp
 
 ## Current focus
 
-The current focus is making the core local email I/O workflow reliable and easy to understand.
+The current focus is making email access for AI agents reliable and easy to understand.
 
 Work includes:
 
 - Improving cleaning for common email layouts and newsletter HTML.
 - Strengthening attachment and inline asset extraction across more real-world fixtures.
 - Documenting Gmail and IMAP receive, receive status, foreground polling, and MCP receive gates.
-- Supporting outbound drafts, dry runs, SMTP sends, Cloudflare Email Service sends, Gmail sends, and local audit records.
+- Supporting drafts, dry runs, SMTP sends, Cloudflare Email Service sends, Gmail sends, and sent-message records.
 - Tightening docs and examples around quickstart, export behavior, integration paths, provider setup, and security guidance.
 - Improving the reliability of `mailatlas doctor` and local setup checks.
 
@@ -30,7 +30,7 @@ Planned areas include:
 - Better exported document structure for retrieval and indexing systems.
 - Expanded CLI reference coverage for common tasks.
 - Expanded Python API reference coverage.
-- More MCP tool documentation for document reads, exports, outbound drafts, outbound reads, and gated live sends.
+- More MCP tool documentation for document reads, exports, drafts, sent-message reads, and gated live sends.
 - More live receive guidance with Gmail and IMAP test mailbox examples.
 - More fixture-backed examples that show stored HTML and asset extraction.
 - A centralized configuration and environment-variable reference.
@@ -42,7 +42,7 @@ Later work may include:
 
 - Hosted mailbox receive beyond local foreground polling.
 - Broader mailbox adapter coverage beyond IMAP.
-- Additional outbound providers such as Resend, SendGrid, Postmark, or local `.eml` drop directories.
+- Additional send providers such as Resend, SendGrid, Postmark, or local `.eml` drop directories.
 - Packaging and distribution paths that reduce local setup friction as release channels mature.
 - Clear schema versioning and compatibility policy.
 - More production-oriented guidance for embedding MailAtlas in services.

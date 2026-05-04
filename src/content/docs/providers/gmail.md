@@ -86,7 +86,7 @@ Capability scopes:
 | `send` | `https://www.googleapis.com/auth/gmail.send` |
 | `receive` | `https://www.googleapis.com/auth/gmail.readonly` |
 
-MailAtlas does not write Gmail OAuth tokens to `store.db`, raw snapshots, logs, or JSON receive/send results.
+Local Gmail auth stores token material outside the email workspace. Use `mailatlas auth status gmail` to check configured accounts and capabilities.
 
 Check local status:
 
@@ -151,7 +151,7 @@ mailatlas send \
   --text "Sent with Gmail API OAuth."
 ```
 
-Use `--idempotency-key` when repeating tests so retries return the existing outbound record instead of sending another message:
+Use `--idempotency-key` when repeating tests so retries return the existing sent-message record instead of sending another message:
 
 ```bash
 mailatlas send \

@@ -1,100 +1,64 @@
 ---
 title: Core Concepts
-description: Understand MailAtlas workspaces, documents, assets, parser metadata, exports, and outbound records.
+description: Understand the email workspace, documents, assets, exports, provenance, and provider records MailAtlas creates for AI agents.
 slug: docs/concepts
 ---
 
-MailAtlas stores email as local artifacts plus structured metadata. The core model is intentionally small: a workspace contains documents, documents link to source artifacts and assets, parser metadata explains how content was cleaned, and outbound records capture messages your application prepares or sends.
+MailAtlas turns email into documents inside an email workspace. Your agent reads the clean document, while MailAtlas keeps the source email, HTML, attachments, embedded images, metadata, and provenance linked behind it.
 
-Use this page to understand how the pieces fit together before reading the workspace, schema, parser, export, or provider references.
+This model exists because raw email source is hard for AI agents to use directly. A message can contain MIME parts, alternative bodies, forwarded chains, embedded images, attachments, provider IDs, and transport headers. MailAtlas gives agents a cleaner way to read the message while preserving the structure and source material that matter later.
 
-## Concept map
-
-Inbound email:
+## The model
 
 ```text
-source message
-  |-- .eml file
-  |-- mbox message
-  `-- IMAP message
-        |
-document row in store.db
-        |
-linked artifacts
-  |-- raw message
-  |-- cleaned text
-  |-- normalized HTML
-  |-- inline assets
-  |-- attachments
-  `-- exports
+Mailbox or email files
+  -> MailAtlas receive or ingest
+  -> Email workspace
+  -> Documents, assets, exports, and source metadata
+  -> CLI, Python API, or MCP tools
 ```
 
-Outbound email:
+The email workspace is the copy of received and sent email that MailAtlas creates for your agent. It is queryable through the CLI, Python API, and MCP tools, and it keeps ordinary files on disk linked to SQLite records for lookup, dedupe, receive state, and send state.
 
-```text
-send request
-        |
-rendered message artifacts
-        |
-outbound record in store.db
-        |
-provider response
-```
+## What your agent reads
 
-## Workspace
+A document is the clean record for one email message. It includes the subject, sender, timestamps, clean body text, source kind, metadata, and links to the raw message, HTML view, and extracted files.
 
-A workspace is the local root directory where MailAtlas writes files and metadata. It contains `store.db`, raw messages, HTML snapshots, extracted assets, exports, IMAP receive state, and outbound records.
+Documents give agents the useful reading surface first: clean body text, message metadata, source links, HTML, and extracted files. The original source remains available for provenance and review.
 
-Start here if you want to know where MailAtlas stores data on disk.
+## What MailAtlas keeps linked
 
-[Workspace Model](/docs/concepts/workspace-model/)
+MailAtlas keeps the useful parts of a message together:
 
-## Document
+- Source email: the original `.eml`, `mbox` message, Gmail message, or IMAP message.
+- Clean body: the text view your agent can read without parsing raw MIME.
+- HTML view: the normalized HTML representation when the message has HTML content.
+- Assets: embedded images and attachments extracted from the message.
+- Metadata: sender, timestamps, provider IDs, parser notes, and cleaning details.
+- Provenance: where the message came from and how MailAtlas processed it.
+- Exports: JSON, Markdown, HTML, or PDF outputs created from the stored document.
 
-A document is the normalized record for one inbound email message. It stores fields such as subject, sender, timestamps, source kind, cleaned body text, raw path, HTML path, content hash, and metadata.
+That is the core product shape: clean access for the agent, with the original structure and source context still attached.
 
-Start here if you want to build against MailAtlas output.
+## How email enters the workspace
 
-[Document Schema](/docs/concepts/document-schema/)
+MailAtlas can create documents from:
 
-## Asset
+- Live IMAP folders.
+- Gmail messages fetched with read-only OAuth.
+- Individual `.eml` files.
+- `mbox` mailbox archives.
 
-An asset is a file extracted from a message. Assets include inline images referenced by HTML and regular file attachments.
+All of these inputs write to the same email workspace. Once the email is stored, your agent can use the same read, inspect, export, and send workflows regardless of where the message came from.
 
-Start here if you need to preserve attachments, render HTML accurately, or build export bundles.
+## How sent email fits
 
-[Document Schema](/docs/concepts/document-schema/)
+When MailAtlas sends email through a configured provider, it stores the sent message in the same email workspace. That gives your agent one place to inspect received email, generated drafts, sent messages, provider status, attachments, and retry metadata.
 
-## Provenance
+## Where to go next
 
-Provenance tells you where a document came from and how MailAtlas processed it. For IMAP messages, provenance can include host, folder, UID, and UIDVALIDITY. For parser output, metadata can include cleaning settings, forwarded-message detection, and dropped-line counts.
-
-Start here if you need auditability or repeatable parsing.
-
-- [Document Schema](/docs/concepts/document-schema/)
-- [Parser Cleaning](/docs/config/parser-cleaning/)
-
-## Export
-
-An export is a derived artifact created from a stored document. MailAtlas can return or write JSON, Markdown, HTML, and PDF outputs.
-
-Start here if another system needs files instead of direct API access.
-
-[Export Formats](/docs/reference/export-formats/)
-
-## Outbound record
-
-An outbound record is created when MailAtlas drafts, dry-runs, queues, sends, or fails to send a message. It links rendered bodies, raw `.eml` snapshots, copied attachments, provider status, timestamps, and retry metadata.
-
-Start here if your application sends email and needs a local audit trail.
-
-[Outbound Email](/docs/providers/outbound-email/)
-
-## Related pages
-
-- [Workspace Model](/docs/concepts/workspace-model/)
-- [Document Schema](/docs/concepts/document-schema/)
-- [Parser Cleaning](/docs/config/parser-cleaning/)
-- [Export Formats](/docs/reference/export-formats/)
-- [Outbound Email](/docs/providers/outbound-email/)
-- [Security and Privacy](/docs/product/security-and-privacy/)
+- Use [Workspace Model](/docs/concepts/workspace-model/) to understand the files and SQLite records MailAtlas writes.
+- Use [Document Schema](/docs/concepts/document-schema/) when you are building against stored document fields.
+- Use [Parser Cleaning](/docs/config/parser-cleaning/) to tune how message bodies are cleaned.
+- Use [Export Formats](/docs/reference/export-formats/) to choose JSON, Markdown, HTML, or PDF output.
+- Use [Security and Privacy](/docs/product/security-and-privacy/) to understand what workspace data can contain.

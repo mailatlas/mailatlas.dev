@@ -15,9 +15,9 @@ The MailAtlas CLI provides a local workflow for email I/O:
 
 Across all ingest paths, MailAtlas preserves raw messages, cleaned text, normalized HTML, extracted inline images, regular attachments, metadata, and source provenance.
 
-## Root and defaults
+## Email workspace
 
-MailAtlas stores data in one workspace root. The default is `.mailatlas` in the current directory.
+MailAtlas stores email documents, assets, exports, receive state, and sent-message records in one email workspace. The default is `.mailatlas` in the current directory.
 
 Root resolution order:
 
@@ -26,7 +26,7 @@ Root resolution order:
 3. Project config from `.mailatlas.toml` or `pyproject.toml`
 4. Fallback `.mailatlas`
 
-The default workspace contains `store.db`, `raw/`, `html/`, `assets/`, `exports/`, and `outbound/`. Receive account state, cursors, and run history live in `store.db`.
+The default workspace contains `store.db`, `raw/`, `html/`, `assets/`, `exports/`, and `outbound/`. Receive account state, cursors, run history, and sent-message records live in `store.db`.
 
 ## Command summary
 
@@ -82,7 +82,7 @@ export MAILATLAS_IMAP_ACCESS_TOKEN=oauth-access-token
 mailatlas receive --provider imap --folder INBOX
 ```
 
-MailAtlas consumes the token but does not run a browser login flow or manage refresh tokens for IMAP.
+Your auth layer provides the IMAP OAuth token. MailAtlas uses that token to open the mailbox connection.
 
 Run foreground polling when you want selected folders to stay current:
 
@@ -234,7 +234,7 @@ Mailbox receive tools are hidden unless `MAILATLAS_MCP_ALLOW_RECEIVE=1` is set b
 
 | Flag | Purpose |
 | --- | --- |
-| `--root` | Select the MailAtlas workspace root. |
+| `--root` | Select the MailAtlas email workspace directory. |
 | `--query` | Optional substring search for `list`. |
 | `--folder` | Repeatable folder selector for IMAP receive. Defaults to `INBOX`. |
 | `--label` | Gmail label for receive. Defaults to `INBOX`. |

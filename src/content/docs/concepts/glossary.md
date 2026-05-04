@@ -1,6 +1,6 @@
 ---
 title: Glossary
-description: Definitions for MailAtlas concepts, including .eml, mbox, Gmail receive, IMAP receive, workspace root, document, asset, export, outbound record, provider, and parser cleaning.
+description: Definitions for MailAtlas concepts, including .eml, mbox, Gmail receive, IMAP receive, email workspace, document, asset, export, sent-message record, provider, and parser cleaning.
 slug: docs/concepts/glossary
 ---
 
@@ -32,17 +32,17 @@ The Gmail checkpoint MailAtlas stores in SQLite to avoid reprocessing the same m
 
 One receive attempt. A run stores status, counts, errors, and links to documents created or skipped as duplicates.
 
-## Workspace root
+## Email workspace
 
-The local directory that holds raw email, normalized HTML, extracted assets, exports, outbound records, and `store.db`.
+The local directory that holds raw email, normalized HTML, extracted assets, exports, sent-message records, and `store.db`.
 
 ## `store.db`
 
-The SQLite database inside the workspace root. It stores document metadata, lookup data, dedupe information, Gmail receive cursors, IMAP receive cursors, run history, and outbound records.
+The SQLite database inside the email workspace. It stores document metadata, lookup data, dedupe information, Gmail receive cursors, IMAP receive cursors, run history, and sent-message records.
 
 ## Document
 
-The normalized MailAtlas record created from one email message. A document is stored in SQLite and linked to files in the workspace root.
+The normalized MailAtlas record created from one email message. A document is stored in SQLite and linked to files in the email workspace.
 
 ## Asset
 
@@ -80,9 +80,9 @@ Metadata that explains where a document came from and how it was processed, incl
 
 The input type that produced a document, such as `eml`, `mbox`, `gmail`, or `imap`.
 
-## Outbound record
+## Sent-message record
 
-A local audit record created when MailAtlas drafts, dry-runs, queues, sends, or fails to send an outbound message.
+A local record created when MailAtlas drafts, dry-runs, queues, sends, or fails to send an email.
 
 ## Dry run
 
@@ -94,11 +94,11 @@ An outbound delivery backend configured at runtime, such as SMTP, Cloudflare Ema
 
 ## Provider credentials
 
-Secrets used to authenticate with a provider, such as SMTP passwords, Cloudflare API tokens, or Gmail OAuth tokens. MailAtlas reads these at runtime and does not write them to `store.db`, raw snapshots, logs, or JSON receive/send results.
+Secrets used to authenticate with a provider, such as SMTP passwords, Cloudflare API tokens, or Gmail OAuth tokens.
 
 ## Idempotency key
 
-A caller-provided key used to make retrying outbound sends safer. If the same key already exists, MailAtlas returns the existing outbound record instead of sending a second message.
+A caller-provided key used to make retrying sends safer. If the same key already exists, MailAtlas returns the existing sent-message record instead of sending a second message.
 
 ## MCP server
 

@@ -33,10 +33,6 @@ export default defineConfig({
             "docs/getting-started/quickstart",
             "docs/getting-started/manual-imap-sync",
             "docs/examples/gmail-receive",
-            {
-              label: "When to Use MailAtlas",
-              link: "/docs/product/why-not-connectors/",
-            },
           ],
         },
         {

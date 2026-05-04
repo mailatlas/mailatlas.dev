@@ -64,10 +64,10 @@ Use these examples when you want a task-focused path instead of a conceptual ref
   </a>
   <a class="docs-route-row" href="/docs/providers/outbound-email/">
     <span class="docs-route-kicker">Send</span>
-    <span>
-      <span class="docs-route-title">SMTP and Cloudflare sends</span>
-      <p>Use dry runs, provider credentials, attachments, idempotency keys, and audit records.</p>
-    </span>
+      <span>
+        <span class="docs-route-title">SMTP and Cloudflare sends</span>
+      <p>Use dry runs, provider credentials, attachments, idempotency keys, and sent-message records.</p>
+      </span>
     <span class="docs-route-meta">send</span>
   </a>
   <a class="docs-route-row" href="/docs/examples/gmail-oauth-send/">

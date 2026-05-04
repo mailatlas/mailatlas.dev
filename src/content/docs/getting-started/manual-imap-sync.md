@@ -1,159 +1,103 @@
 ---
-title: IMAP Receive
-description: Receive selected IMAP folders into a local MailAtlas workspace. Configure password or OAuth token authentication, run one-shot receive, run foreground polling, inspect results, and understand incremental cursor behavior.
+title: Read Email with IMAP
+description: Connect a live IMAP mailbox, fetch selected folders, and store clean email documents in a MailAtlas workspace for your agent.
 slug: docs/getting-started/manual-imap-sync
 ---
 
-Use IMAP receive when messages are still in a live mailbox and you want MailAtlas to fetch selected folders into a local workspace.
+Use IMAP when your agent needs to read email from a live mailbox that supports IMAP. MailAtlas fetches selected folders, cleans each message, and stores it in the email workspace so your agent can query, inspect, and export the email.
 
-If you already have `.eml` files or an `mbox` file on disk, use file ingest instead.
-
-The canonical live-mailbox command is `mailatlas receive`. Use `--provider imap` for IMAP. Run `mailatlas receive watch --provider imap` when you want a foreground polling process, or run one bounded pass when you want a manual backfill or script step. MailAtlas stores per-folder IMAP cursors in SQLite so later runs can continue incrementally when possible.
+If you already have `.eml` files or an `mbox` archive on disk, use [file ingest](/docs/getting-started/quickstart/) instead.
 
 ## Before you start
 
 You need:
 
-- A working MailAtlas install.
-- An IMAP host.
-- A mailbox username.
-- One credential type: password or OAuth access token.
-- One or more folder names to receive. `INBOX` is the default.
-- A workspace root where MailAtlas can store documents and cursor state.
+- MailAtlas installed.
+- A mailbox provider with IMAP enabled.
+- The IMAP host and mailbox username.
+- Either an app password or an OAuth access token.
 
-MailAtlas does not persist mailbox passwords or OAuth access tokens in the workspace.
+`INBOX` is the default folder. You can add other folders when you run the receive command.
 
-## Choose an auth mode
+## Provider setup
 
-### Password auth
+IMAP setup depends on the mailbox provider.
 
-Use password auth when your provider allows IMAP passwords or app passwords.
+For Gmail, confirm whether your account can use IMAP with an app password or whether it needs OAuth. Google has separate docs for [app passwords](https://support.google.com/mail/answer/185833) and [IMAP access for Google Workspace accounts](https://support.google.com/a/answer/12103).
+
+For Microsoft 365 or Outlook.com, OAuth is usually the right path. Microsoft documents [OAuth for IMAP, POP, and SMTP](https://learn.microsoft.com/en-us/exchange/client-developer/legacy-protocols/how-to-authenticate-an-imap-pop-smtp-application-by-using-oauth).
+
+For a custom mail server, use the host, port, username, password, and folder names from your provider or mail administrator.
+
+## Set the email workspace
+
+Choose where MailAtlas should store the received email documents and IMAP cursor state:
+
+```bash
+export MAILATLAS_HOME=.mailatlas-imap
+```
+
+Use the same `MAILATLAS_HOME` for later receives if you want MailAtlas to continue from the previous IMAP cursor.
+
+## Set IMAP credentials
+
+Set the mailbox host and username:
 
 ```bash
 export MAILATLAS_IMAP_HOST=imap.example.com
 export MAILATLAS_IMAP_USERNAME=user@example.com
+```
+
+Use password auth when your provider allows IMAP passwords or app passwords:
+
+```bash
 export MAILATLAS_IMAP_PASSWORD=app-password
 ```
 
-### OAuth token auth
-
-Use OAuth token auth when your provider or application stack already uses OAuth.
+Use OAuth token auth when your provider or application stack already obtains an IMAP access token:
 
 ```bash
-export MAILATLAS_IMAP_HOST=imap.example.com
-export MAILATLAS_IMAP_USERNAME=user@example.com
 export MAILATLAS_IMAP_ACCESS_TOKEN=oauth-access-token
 ```
 
-MailAtlas is OAuth-compatible, but it is not your IMAP OAuth client. The intended setup is:
+Set either `MAILATLAS_IMAP_PASSWORD` or `MAILATLAS_IMAP_ACCESS_TOKEN`, not both.
 
-1. Your application, tool, or token broker obtains an access token.
-2. You pass the access token to MailAtlas at runtime.
-3. MailAtlas uses XOAUTH2 to authenticate the IMAP session.
-4. Your application remains responsible for login UX, consent, token refresh, and secure token storage.
+MailAtlas can authenticate to IMAP with XOAUTH2, but it does not create or refresh IMAP OAuth tokens for you. Your application, tool, or token broker gets the access token and passes it to MailAtlas.
 
-## Keep folders current
+## Fetch messages once
 
-Run foreground polling for the default folder:
+Fetch a small batch from `INBOX`:
 
 ```bash
-mailatlas receive watch --provider imap
+mailatlas receive --provider imap --folder INBOX --limit 10
 ```
 
-Run foreground polling for specific folders:
-
-```bash
-mailatlas receive watch \
-  --provider imap \
-  --folder INBOX \
-  --folder Newsletters \
-  --interval 60
-```
-
-`watch` runs one receive pass immediately, sleeps for the interval, then repeats until you stop it. Use `--max-runs` when a script needs a bounded polling loop.
-
-## Run one bounded pass
-
-Receive the default folder once:
-
-```bash
-mailatlas receive --provider imap
-```
-
-Receive specific folders once:
+Fetch multiple folders:
 
 ```bash
 mailatlas receive \
   --provider imap \
   --folder INBOX \
-  --folder Newsletters
+  --folder Newsletters \
+  --limit 25
 ```
 
-Command-line credential overrides are available for local tests or controlled scripts:
-
-```bash
-mailatlas receive --provider imap --folder INBOX --password "$MAILATLAS_IMAP_PASSWORD"
-mailatlas receive --provider imap --folder INBOX --access-token "$MAILATLAS_IMAP_ACCESS_TOKEN"
-```
-
-## Read the receive summary
-
-`receive --provider imap` prints one JSON object summarizing the run, local receive account, cursor, and folder details:
+The command prints a JSON summary:
 
 ```json
 {
   "status": "ok",
   "provider": "imap",
-  "account_id": "imap:user@example.com:imap.example.com:INBOX",
   "fetched_count": 12,
   "ingested_count": 11,
   "duplicate_count": 1,
-  "error_count": 0,
-  "document_ids": ["<document-id>"],
-  "cursor": {
-    "host": "imap.example.com",
-    "port": 993,
-    "username": "user@example.com",
-    "folders": [
-      {
-        "folder": "INBOX",
-        "status": "ok",
-        "uidvalidity": "11",
-        "last_uid": 4812,
-        "error": null
-      }
-    ]
-  },
-  "run_id": "<run-id>",
-  "error": null,
-  "details": {
-    "status": "ok",
-    "folder_count": 1,
-    "folders": [
-      {
-        "folder": "INBOX",
-        "status": "ok",
-        "fetched_count": 12,
-        "ingested_count": 11,
-        "duplicate_count": 1,
-        "document_refs": [
-          {
-            "id": "<document-id>",
-            "subject": "Daily market digest",
-            "source_kind": "imap",
-            "created_at": "<timestamp>"
-          }
-        ],
-        "error": null
-      }
-    ]
-  }
+  "document_ids": ["<document-id>"]
 }
 ```
 
 Use `document_ids[]` with `mailatlas get`.
 
-## Inspect received documents
+## Inspect received email
 
 ```bash
 mailatlas list
@@ -161,19 +105,34 @@ mailatlas get <document-id>
 mailatlas get <document-id> --format markdown --out ./received-message
 ```
 
+IMAP messages become MailAtlas documents. Each document keeps the clean body, HTML view, attachments, embedded images, metadata, exports, and source reference together in the email workspace.
+
 For IMAP-received documents, `source_kind` is `imap` and `metadata.source.*` records the mailbox folder and UID that produced the stored document.
 
-## Incremental reruns
+## Keep folders current
 
-When you receive from the same workspace root, MailAtlas uses stored IMAP cursor state to fetch only newer messages when possible.
+Run foreground polling when you want MailAtlas to keep checking a folder:
 
-If you point the command at a different workspace root, MailAtlas starts a fresh receive history.
+```bash
+mailatlas receive watch \
+  --provider imap \
+  --folder INBOX \
+  --interval 60
+```
 
-When a provider reports changed `UIDVALIDITY`, MailAtlas starts from the beginning of the folder for that cursor because previous UIDs can no longer be treated as stable.
+`watch` runs one receive pass immediately, sleeps for the interval, then repeats until you stop it. Use `--max-runs` when a script needs a bounded polling loop.
 
-## Parser cleaning during IMAP receive
+## How reruns work
 
-`receive --provider imap` accepts the same parser-cleaning flags as file ingest, including:
+MailAtlas stores IMAP cursor state in the email workspace. When you receive from the same workspace again, MailAtlas fetches newer messages when the provider cursor is still valid.
+
+If you use a different `MAILATLAS_HOME` or `--root`, MailAtlas starts a fresh receive history.
+
+If the provider reports changed `UIDVALIDITY`, MailAtlas starts from the beginning of the folder for that cursor because the previous IMAP UIDs can no longer be treated as stable. Existing messages are still deduplicated when possible.
+
+## Clean the received messages
+
+`receive --provider imap` accepts the same message-cleaning flags as file ingest, including:
 
 - `--strip-forwarded-headers`
 - `--strip-boilerplate`
@@ -184,13 +143,13 @@ When a provider reports changed `UIDVALIDITY`, MailAtlas starts from the beginni
 
 Use [Parser Cleaning](/docs/config/parser-cleaning/) for behavior and tradeoffs.
 
-## IMAP Receive Versus Mbox Ingest
+## IMAP versus mbox
 
 Use `mailatlas receive --provider imap` when messages are still in a live mailbox and MailAtlas should fetch them over IMAP.
 
 Use `mailatlas ingest path/to/archive.mbox` when you already have a mailbox export on disk.
 
-An `mbox` file is not an IMAP folder. It is a local file format.
+An `mbox` file is not an IMAP folder. It is a local archive file.
 
 ## Troubleshooting
 
@@ -198,13 +157,17 @@ An `mbox` file is not an IMAP folder. It is a local file format.
 
 Check that only one credential mode is active. Use either password auth or OAuth token auth.
 
-For password auth, confirm your provider allows IMAP app passwords.
+For password auth, confirm your provider allows IMAP app passwords. Gmail and Google Workspace accounts may require OAuth or app-password setup depending on account type and administrator policy.
 
-For OAuth, confirm the access token is valid, not expired, and authorized for IMAP access.
+For OAuth, confirm the access token is valid, not expired, and authorized for IMAP access. Microsoft 365 and Outlook.com use the `https://outlook.office.com/IMAP.AccessAsUser.All` scope for delegated IMAP access.
+
+### IMAP is disabled
+
+Some providers disable IMAP by default or restrict it for managed accounts. Check the provider's mailbox settings or administrator console before changing MailAtlas configuration.
 
 ### Folder not found
 
-Confirm the exact folder name with your provider. Some providers use localized or nested folder names.
+Confirm the exact folder name with your provider. Some providers use localized names, nested folder paths, or labels that do not match what you see in the web UI.
 
 ### Receive returns duplicates
 
@@ -212,10 +175,11 @@ Duplicates can occur when messages already exist in the workspace. MailAtlas ded
 
 ### Later runs do not fetch expected messages
 
-Confirm you are using the same `MAILATLAS_HOME` or `--root` as the earlier receive run. IMAP cursor state is stored per workspace.
+Confirm you are using the same `MAILATLAS_HOME` or `--root` as the earlier receive run. IMAP cursor state is stored in the email workspace.
 
 ## Next step
 
+- Use [Gmail Receive](/docs/examples/gmail-receive/) if you want MailAtlas to read Gmail through the Gmail API instead of IMAP.
 - Use [CLI Overview](/docs/cli/overview/) for the rest of the command surface.
 - Use [Document Schema](/docs/concepts/document-schema/) to inspect stored fields.
 - Use [Workspace Model](/docs/concepts/workspace-model/) to understand local cursor state.

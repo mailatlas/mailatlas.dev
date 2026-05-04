@@ -6,7 +6,7 @@ slug: docs/product/security-and-privacy
 
 MailAtlas stores data on the local filesystem and in SQLite by default. The core CLI commands and Python APIs operate on files you point at, Gmail messages you receive explicitly, IMAP folders you receive explicitly, and outbound messages you ask MailAtlas to draft or send.
 
-MailAtlas does not require a hosted MailAtlas service for file ingest, mailbox receive, export, or outbound audit records.
+File ingest, mailbox receive, export, and sending run against the workspace and providers you configure.
 
 Local storage still contains sensitive data. Treat a MailAtlas workspace as source email data, not as a scrubbed sharing format.
 
@@ -24,7 +24,7 @@ MailAtlas can store:
 - Outbound body files.
 - Copied outbound attachments.
 - Provider status and provider response metadata.
-- Recipient metadata, including BCC recipients in SQLite for audit.
+- Recipient metadata, including BCC recipients in SQLite.
 - Exported artifacts wherever you tell MailAtlas to write them.
 
 ## What MailAtlas does not do by default
@@ -40,9 +40,9 @@ MailAtlas does not provide:
 - Deliverability management.
 - Encryption at rest for the workspace.
 
-## Secrets not stored in the workspace
+## Provider credentials
 
-MailAtlas reads provider credentials at runtime. It does not write these secrets to `store.db`, raw snapshots, logs, or JSON receive/send results:
+Configure provider credentials through environment variables, CLI flags, Python config, or the Gmail auth helper. The following secrets are used for provider access and are kept out of `store.db`, raw snapshots, logs, and JSON receive/send results:
 
 | Secret type | Examples |
 | --- | --- |
@@ -59,7 +59,7 @@ Backend applications should store OAuth refresh tokens in their own encrypted cr
 
 ## Workspace sensitivity
 
-A workspace can contain private email content, attachments, inline images, sender and recipient metadata, outbound drafts, sent-message audit records, BCC recipients, and exported PDFs or Markdown bundles.
+A workspace can contain private email content, attachments, inline images, sender and recipient metadata, drafts, sent-message records, BCC recipients, and exported PDFs or Markdown bundles.
 
 Do not commit `.mailatlas/` to source control unless you intentionally created a synthetic fixture workspace.
 
@@ -92,11 +92,11 @@ If Gmail reports that the stored history cursor is invalid, run an explicit `mai
 
 ## Outbound email privacy
 
-Outbound records are audit data. Treat them as sensitive.
+Sent-message records can contain sensitive email data.
 
 They can include draft or sent body content, copied attachments, recipient lists, BCC recipients in SQLite, provider message IDs, provider error details, and idempotency keys.
 
-MailAtlas omits BCC from local raw MIME snapshots. BCC recipients are still stored in SQLite for audit and included in provider delivery.
+MailAtlas omits BCC from local raw MIME snapshots. BCC recipients are still stored in SQLite and included in provider delivery.
 
 Review outbound drafts and dry runs before sending generated or agent-authored email.
 
@@ -122,7 +122,7 @@ Use the draft tool for reviewable generated messages, and enable live sends only
 - Keep real workspaces out of repositories.
 - Use synthetic fixtures for demos, screenshots, and tests.
 - Review exported JSON, HTML, Markdown, and PDF artifacts before sending them outside your machine or repository.
-- Review outbound records before sharing logs or workspace snapshots.
+- Review sent-message records before sharing logs or workspace snapshots.
 - Pass credentials through runtime configuration such as environment variables, CLI flags, secret managers, or explicit Python config.
 - Use Gmail receive only with a read-only scope unless the same token must also send mail.
 - Prefer Gmail API OAuth with the `gmail.send` scope over SMTP app passwords for personal Gmail sending.

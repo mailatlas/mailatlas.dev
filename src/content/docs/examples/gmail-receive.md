@@ -1,16 +1,54 @@
 ---
-title: "Example: Gmail Receive"
-description: Authorize Gmail receive access, run one bounded MailAtlas receive pass, inspect stored documents, and review local receive status.
+title: "Read Gmail with MailAtlas"
+description: Connect Gmail with OAuth, fetch messages from a label, and store them as clean MailAtlas documents your agent can inspect.
 slug: docs/examples/gmail-receive
 ---
 
-This example shows the local Gmail receive path.
+Use Gmail receive when your agent needs to read Gmail messages through OAuth and store them in the MailAtlas email workspace as clean, source-linked documents.
 
-Use it when you want MailAtlas to fetch Gmail messages with a read-only OAuth token and store them as ordinary MailAtlas documents.
+This page shows how to:
 
-## Use a test workspace
+- Authorize read-only Gmail access.
+- Fetch a bounded set of messages from a Gmail label.
+- Store Gmail messages as MailAtlas documents.
+- Inspect the fetched messages with `list` and `get`.
 
-Start with a separate workspace when testing against a real mailbox:
+## Before you start
+
+You need:
+
+- MailAtlas installed.
+- A Gmail account you can authorize.
+- A terminal where you can run `mailatlas`.
+
+Install keychain support if you have not already:
+
+```bash
+python -m pip install "mailatlas[keychain]"
+```
+
+## Set up Google OAuth
+
+MailAtlas uses Google's OAuth flow to ask for read-only Gmail access. If you have not set up a Google app before, follow Google's Gmail API quickstart through the steps that create a Google Cloud project, enable the Gmail API, configure the OAuth consent screen, and create OAuth credentials:
+
+- [Gmail API Python quickstart](https://developers.google.com/gmail/api/quickstart/python)
+- [Create Google Workspace access credentials](https://developers.google.com/workspace/guides/create-credentials)
+- [Gmail API scopes](https://developers.google.com/workspace/gmail/api/auth/scopes)
+
+When Google asks for the application type, choose `Desktop app`.
+
+## Set Gmail credentials
+
+After Google creates the credential, export the client ID and client secret:
+
+```bash
+export MAILATLAS_GMAIL_CLIENT_ID="..."
+export MAILATLAS_GMAIL_CLIENT_SECRET="..."
+```
+
+## Set the email workspace
+
+Use a separate workspace while testing with a real mailbox:
 
 ```bash
 export MAILATLAS_HOME="$PWD/.mailatlas-gmail-test"
@@ -18,11 +56,7 @@ export MAILATLAS_HOME="$PWD/.mailatlas-gmail-test"
 
 ## Authorize read-only Gmail access
 
-Create a Google OAuth desktop client with the Gmail API enabled, then run:
-
 ```bash
-python -m pip install "mailatlas[keychain]"
-
 mailatlas auth gmail \
   --client-id "$MAILATLAS_GMAIL_CLIENT_ID" \
   --client-secret "$MAILATLAS_GMAIL_CLIENT_SECRET" \
@@ -30,15 +64,15 @@ mailatlas auth gmail \
   --capability receive
 ```
 
-Check that the local token has receive capability:
+Check that Gmail receive is configured:
 
 ```bash
 mailatlas auth status gmail
 ```
 
-The status output should include `receive` in `capabilities`. It should not print access tokens, refresh tokens, client secrets, or authorization codes.
+`mailatlas auth status gmail` shows configured accounts and capabilities without displaying token material. The output should include `receive` in `capabilities`.
 
-## Run one receive pass
+## Fetch Gmail messages
 
 ```bash
 mailatlas receive \
@@ -47,18 +81,15 @@ mailatlas receive \
   --limit 10
 ```
 
-The command prints JSON with counts, document IDs, cursor data, and a run ID.
+`--label INBOX` reads from Gmail's Inbox label. Change it to another Gmail label when needed.
 
-Expected statuses:
+The command prints JSON with counts, document IDs, cursor data, and a run ID. Common statuses:
 
 | Status | Meaning |
 | --- | --- |
 | `ok` | Receive completed. New documents may or may not have been ingested. |
 | `duplicate` | All fetched messages already existed in the workspace. |
 | `not_configured` | Gmail auth or required config is missing. |
-| `cursor_reset_required` | Gmail rejected the stored history cursor. Run an explicit full sync. |
-| `partial` | At least one fetched message failed, but some messages were ingested or skipped as duplicates. |
-| `error` | Provider or storage work failed before useful progress. |
 
 ## Inspect stored email
 
@@ -67,7 +98,7 @@ mailatlas list
 mailatlas get <document-id>
 ```
 
-Received Gmail documents use the same local storage layout as file ingest and IMAP receive. Raw messages go under `raw/`; HTML and assets are stored when present.
+Gmail messages become MailAtlas documents. Your agent can read them the same way it reads imported `.eml` files.
 
 ## Inspect receive status
 
@@ -82,7 +113,9 @@ Status output includes:
 - recent receive runs
 - the most recent error when one exists
 
-## Recover from a cursor reset
+## Troubleshooting
+
+### `cursor_reset_required`
 
 If Gmail reports that the stored history cursor is invalid, run an explicit full sync:
 
@@ -96,6 +129,10 @@ mailatlas receive \
 
 Full sync may return duplicates if messages are already stored. That is expected.
 
+### `partial` or `error`
+
+Use `mailatlas receive status` to inspect recent receive runs and the most recent error.
+
 ## Cleanup
 
 Remove local Gmail auth:
@@ -104,7 +141,7 @@ Remove local Gmail auth:
 mailatlas auth logout gmail
 ```
 
-Remove the test workspace when you no longer need it:
+Remove the test workspace when you no longer need it. The workspace may contain real mailbox data.
 
 ```bash
 rm -rf "$MAILATLAS_HOME"
@@ -112,6 +149,8 @@ rm -rf "$MAILATLAS_HOME"
 
 ## Next step
 
-- Use [Gmail Receive Watch](/docs/examples/gmail-receive-watch/) for foreground polling.
-- Use [Gmail Provider](/docs/providers/gmail/) for token storage and capability details.
+- Use [Gmail Receive Watch](/docs/examples/gmail-receive-watch/) to poll Gmail in the foreground.
+- Use [Gmail Provider](/docs/providers/gmail/) to understand OAuth token storage and capabilities.
+- Use [MCP Server](/docs/mcp/overview/) to expose email tools to an AI agent.
+- Use [Export Formats](/docs/reference/export-formats/) to export fetched messages.
 - Use [Security and Privacy](/docs/product/security-and-privacy/) before using a real mailbox workspace.

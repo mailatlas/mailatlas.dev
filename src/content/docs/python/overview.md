@@ -1,6 +1,6 @@
 ---
 title: Python API
-description: Embed MailAtlas in Python applications. Parse email without storage, use a storage-backed MailAtlas instance, receive Gmail or IMAP messages, export documents, and send outbound email with audit records.
+description: Embed MailAtlas in Python applications. Parse email without storage, use a storage-backed MailAtlas instance, receive Gmail or IMAP messages, export documents, and send email through configured providers.
 slug: docs/python/overview
 ---
 
@@ -167,7 +167,7 @@ result = atlas.send_email(
 )
 ```
 
-A dry run validates, renders, and stores the outbound record without contacting a provider.
+A dry run validates, renders, and stores the sent-message record without contacting a provider.
 
 ## Send through SMTP
 
@@ -197,7 +197,7 @@ result = atlas.send_email(
 )
 ```
 
-MailAtlas validates sender and recipient addresses, rejects header injection, copies attachments into the outbound audit area, and omits BCC from local raw MIME snapshots while preserving BCC in SQLite for audit.
+MailAtlas validates sender and recipient addresses, rejects header injection, copies attachments into the sent-message area, and omits BCC from local raw MIME snapshots while preserving BCC in SQLite for explicit detail views.
 
 ## Send through Gmail API
 
@@ -236,8 +236,8 @@ Backend applications should store refresh tokens in their own encrypted credenti
 | `export_document(...)` | Exported content or an output path string depending on the format and destination. |
 | `draft_email(...)` | A stored local outbound draft and rendered `.eml` snapshot. |
 | `send_email(...)` | A local outbound attempt, provider result unless dry run, and a `SendResult`. |
-| `list_outbound(...)` | Outbound audit records. |
-| `get_outbound(...)` | One outbound audit record. |
+| `list_outbound(...)` | Sent-message and draft records. |
+| `get_outbound(...)` | One sent-message or draft record. |
 
 ## Error handling
 

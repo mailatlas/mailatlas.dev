@@ -1,6 +1,6 @@
 ---
 title: "Example: Gmail OAuth Send"
-description: Authorize Gmail API OAuth locally, send a test message with MailAtlas, and keep a local outbound audit record.
+description: Authorize Gmail API OAuth locally, send a test message with MailAtlas, and store the sent message in the email workspace.
 slug: docs/examples/gmail-oauth-send
 ---
 
@@ -49,7 +49,7 @@ mailatlas send \
   --idempotency-key gmail-api-test-1
 ```
 
-The idempotency key makes retries return the existing outbound record instead of sending a duplicate message.
+The idempotency key makes retries return the existing sent-message record instead of sending a duplicate message.
 
 ## Cleanup
 

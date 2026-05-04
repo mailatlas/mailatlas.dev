@@ -1,16 +1,16 @@
 ---
 title: Configuration Reference
-description: Configure MailAtlas workspace roots, PDF browser discovery, mailbox receive, outbound providers, Gmail token storage, and MCP runtime gates.
+description: Configure the MailAtlas email workspace, PDF browser discovery, mailbox receive, send providers, Gmail token storage, and MCP gates.
 slug: docs/reference/configuration
 ---
 
 This page collects the configuration surfaces used by the CLI, Python API, and MCP server.
 
-Provider credentials are read at runtime. MailAtlas does not write IMAP passwords, OAuth access tokens, SMTP passwords, Cloudflare API tokens, Gmail access tokens, or Gmail refresh tokens into the workspace database, raw snapshots, logs, or JSON receive/send results.
+Configure provider credentials through environment variables, CLI flags, Python config, or the Gmail auth helper. MailAtlas uses those credentials for the receive or send command that needs them.
 
-## Workspace root resolution
+## Email workspace resolution
 
-MailAtlas stores data in one workspace root.
+MailAtlas stores email documents, assets, exports, receive state, and sent-message records in one email workspace.
 
 Resolution order:
 
@@ -59,6 +59,8 @@ export MAILATLAS_PDF_BROWSER="/path/to/chrome-or-chromium"
 | `MAILATLAS_IMAP_ACCESS_TOKEN` | OAuth access token for XOAUTH2 auth. |
 
 Use either password auth or OAuth token auth, not both.
+
+IMAP credentials are used to open the mailbox connection for the receive command. MailAtlas stores receive cursor state in the workspace so later runs can continue from the same mailbox.
 
 ## SMTP variables
 
@@ -130,7 +132,7 @@ Local CLI workflows can use `mailatlas auth gmail --capability receive`. Backend
 | `MAILATLAS_MCP_RECEIVE_BACKGROUND` | Set to `1` to start a background receive loop with the MCP server process. |
 | `MAILATLAS_MCP_AUTO_RECEIVE` | Convenience alias for receive-on-read. Prefer the explicit receive variables above. |
 
-Live sending and mailbox receive are hidden by default. Keep the MCP server local unless a future transport is explicitly designed for remote use.
+The MCP server starts with read/export/draft tools. Set the send or receive gates only for clients that are allowed to contact providers.
 
 ## Next step
 
