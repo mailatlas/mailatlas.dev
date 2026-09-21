@@ -13,7 +13,7 @@ MailAtlas makes email accessible to AI agents. It imports email from live mailbo
 Start with the source you already have. Live mailboxes, individual email files, and mailbox archives all write to the same email workspace.
 
 <div class="docs-route-list">
-  <a class="docs-route-row" href="/docs/getting-started/manual-imap-sync/">
+  <a class="docs-route-row" href="/docs/getting-started/manual-imap-receive/">
     <span class="docs-route-kicker">Mailbox</span>
     <span>
       <span class="docs-route-title">Live mailbox</span>
@@ -207,4 +207,4 @@ MailAtlas stores email in a workspace your agent can query. Each message keeps i
 
 ## Next step
 
-New users should start with [Installation](/docs/getting-started/installation/). Then use [Manual IMAP Sync](/docs/getting-started/manual-imap-sync/) for a live mailbox or [Quickstart](/docs/getting-started/quickstart/) for sample email files. After that, use [Outbound Email](/docs/providers/outbound-email/), [Python API](/docs/python/overview/), or [MCP Server](/docs/mcp/overview/) depending on how your agent will use MailAtlas.
+New users should start with [Installation](/docs/getting-started/installation/). Then use [IMAP Receive](/docs/getting-started/manual-imap-receive/) for a live mailbox or [Quickstart](/docs/getting-started/quickstart/) for sample email files. After that, use [Outbound Email](/docs/providers/outbound-email/), [Python API](/docs/python/overview/), or [MCP Server](/docs/mcp/overview/) depending on how your agent will use MailAtlas.

@@ -98,7 +98,7 @@ brew install mailatlas/mailatlas/mailatlas
 
 ## Install from source
 
-Use a source checkout when you want shipped fixtures, examples, the demo API, or editable development.
+Use a source checkout when you want to contribute to the core package or test an unreleased core change.
 
 ```bash
 git clone https://github.com/mailatlas/mailatlas.git
@@ -109,11 +109,12 @@ make bootstrap-python
 mailatlas doctor
 ```
 
-If you are changing the docs site too:
+Sample fixtures and runnable examples live in separate repositories:
 
-```bash
-make bootstrap-docs
-```
+- [mailatlas/sample-data](https://github.com/mailatlas/sample-data) contains synthetic `.eml` and `mbox` fixtures.
+- [mailatlas/examples](https://github.com/mailatlas/examples) contains CLI, Python, Gmail, and FastAPI examples.
+
+The documentation source also has its own repository at [mailatlas/mailatlas.dev](https://github.com/mailatlas/mailatlas.dev). Use `npm ci` there before running or building the site.
 
 Run the local command list:
 
@@ -123,7 +124,7 @@ make help
 
 ## Next step
 
-- Use [Manual IMAP Sync](/docs/getting-started/manual-imap-sync/) when your agent should read a live mailbox.
+- Use [IMAP Receive](/docs/getting-started/manual-imap-receive/) when your agent should read a live mailbox.
 - Use [Gmail Receive](/docs/examples/gmail-receive/) when your agent should read Gmail with OAuth.
 - Use [Quickstart](/docs/getting-started/quickstart/) when you want to try local `.eml` files.
 - Use [Python API](/docs/python/overview/) when you want to embed MailAtlas in an application or worker.

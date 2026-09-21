@@ -6,7 +6,7 @@ slug: docs/getting-started/quickstart
 
 Use this quickstart to import sample `.eml` files, inspect the clean email record MailAtlas creates, and export the message as Markdown or JSON.
 
-This page uses MailAtlas sample data. To use your own email, replace the sample path with a local `.eml` file. If you want MailAtlas to connect to a live mailbox, use [Manual IMAP Sync](/docs/getting-started/manual-imap-sync/) instead.
+This page uses MailAtlas sample data. To use your own email, replace the sample path with a local `.eml` file. If you want MailAtlas to connect to a live mailbox, use [IMAP Receive](/docs/getting-started/manual-imap-receive/) instead.
 
 By the end, you will have:
 
@@ -164,7 +164,7 @@ Only delete a workspace when you are sure it does not contain real mailbox data 
 
 ## Next step
 
-- Use [Manual IMAP Sync](/docs/getting-started/manual-imap-sync/) to connect a live mailbox.
+- Use [IMAP Receive](/docs/getting-started/manual-imap-receive/) to connect a live mailbox.
 - Use [Python API](/docs/python/overview/) to use MailAtlas from an application or worker.
 - Use [MCP Server](/docs/mcp/overview/) to expose email tools to an AI agent.
 - Use [Document Schema](/docs/concepts/document-schema/) to understand stored fields.

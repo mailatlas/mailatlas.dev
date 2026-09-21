@@ -57,7 +57,22 @@ mailatlas get <document-id> \
   --out ./document.html
 ```
 
-Use HTML when layout, hierarchy, or visual structure matters. HTML exports can rewrite asset references for the output destination.
+Use HTML when layout, hierarchy, or visual structure matters. Default HTML exports embed known
+allowlisted local raster inline images as data URLs instead of linking back to the workspace.
+
+MailAtlas treats stored email HTML as untrusted. The raw HTML snapshot stays in the email workspace
+for source fidelity, but the default HTML export is rebuilt as inert, presentation-oriented HTML.
+The export:
+
+- removes executable elements and unsupported markup, event handlers, forms, and unsafe URL schemes;
+- removes automatically loaded remote subresources and unsafe CSS;
+- omits source-provided `data:` images, SVG, and unsupported or spoofed assets;
+- embeds only known allowlisted local raster inline images recorded for that document; and
+- may preserve ordinary `http`, `https`, and `mailto` links.
+
+Those links are not fetched during export, but following one can contact an external site. HTML
+sanitization does not make the message trustworthy or non-sensitive: misleading text, phishing
+links, and private email content can remain.
 
 ## PDF
 
@@ -67,7 +82,20 @@ mailatlas get <document-id> \
   --out ./document.pdf
 ```
 
-PDF export uses local Chrome or Chromium.
+PDF export uses local Chrome or Chromium to render a separately sanitized copy of the stored HTML.
+MailAtlas embeds only known allowlisted local raster inline images, applies a restrictive content
+security policy, disables JavaScript, keeps the browser sandbox enabled, and runs Chrome with an
+isolated temporary profile plus outbound host and proxy denial. A failed render does not replace
+an existing destination PDF.
+
+These controls reduce the attack surface; they are not a claim that Chrome is invulnerable. Keep
+Chrome or Chromium current, continue to treat the source message as untrusted, and review the PDF
+before sharing it. Preserved links can still contact external sites when someone follows them from
+the finished PDF.
+
+This inert transformation applies only to default HTML export and PDF rendering. JSON, Markdown,
+raw snapshots, extracted attachments, and other assets remain source data. Markdown consumers may
+render embedded raw HTML differently, so treat those outputs as untrusted too.
 
 If MailAtlas cannot find the browser:
 
@@ -92,7 +120,9 @@ Supported formats are `json`, `markdown`, `html`, and `pdf`.
 
 ## Security note
 
-Exports can contain raw email content, attachments, inline images, BCC-related audit metadata, or rendered PDFs. Review exports before sharing them outside your machine or repository.
+Exports can contain private email content, attachments, inline images, BCC-related audit metadata,
+links, or rendered PDFs. Sanitizing HTML and PDF rendering behavior does not remove sensitive or
+misleading content. Review exports before sharing them outside your machine or repository.
 
 ## Next step
 

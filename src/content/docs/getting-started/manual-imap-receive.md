@@ -1,7 +1,7 @@
 ---
 title: Read Email with IMAP
 description: Connect a live IMAP mailbox, fetch selected folders, and store clean email documents in a MailAtlas workspace for your agent.
-slug: docs/getting-started/manual-imap-sync
+slug: docs/getting-started/manual-imap-receive
 ---
 
 Use IMAP when your agent needs to read email from a live mailbox that supports IMAP. MailAtlas fetches selected folders, cleans each message, and stores it in the email workspace so your agent can query, inspect, and export the email.

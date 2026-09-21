@@ -1,113 +1,139 @@
 ---
 title: Glossary
-description: Definitions for MailAtlas concepts, including .eml, mbox, Gmail receive, IMAP receive, email workspace, document, asset, export, sent-message record, provider, and parser cleaning.
+description: Definitions for the MailAtlas terms developers see across the docs, including email workspace, document, asset, parser cleaning, providers, receive, send, and exports.
 slug: docs/concepts/glossary
 ---
 
-## `.eml`
+Use this page when a MailAtlas docs page mentions a term you want to decode.
+
+## Core model
+
+### Email workspace
+
+The local copy of email MailAtlas creates for your agent. It contains clean documents, source email, HTML views, extracted files, exports, receive state, sent-message records, and SQLite lookup.
+
+Use [Email Workspace](/docs/concepts/workspace-model/) for the storage layout.
+
+### Document
+
+The clean email record your agent reads. A document contains fields such as subject, sender, timestamps, `body_text`, source metadata, linked HTML, raw email, and extracted assets.
+
+Use [Email Document Schema](/docs/concepts/document-schema/) for the field reference.
+
+### `body_text`
+
+The clean plain-text view of an email body. Agents usually read `body_text` first because it removes raw MIME structure and can strip repeated boilerplate, forwarded wrappers, footers, invisible characters, and noisy spacing.
+
+Use [Clean Email Text](/docs/config/parser-cleaning/) for cleaning controls.
+
+### Metadata
+
+Extra information stored with a document. Metadata can describe where an email came from, which provider IDs produced it, how the body was cleaned, and what message structure MailAtlas detected.
+
+### Provenance
+
+The source and processing trail for a document. Provenance helps you trace a clean document back to the original file, Gmail message, IMAP folder, or parser result that produced it.
+
+## Email inputs
+
+### `.eml`
 
 A single email message file on disk. Use `mailatlas ingest` when you already have one or more `.eml` files locally.
 
-## `mbox`
+### `mbox`
 
-A mailbox file on disk that can contain many messages. Use `mailatlas ingest` when you already have an `mbox` archive locally. An `mbox` file is not the same thing as IMAP receive.
+A mailbox archive file on disk that can contain many messages. Use `mailatlas ingest` when you already have an `mbox` export.
 
-## IMAP receive
+### Gmail receive
 
-The MailAtlas workflow for connecting to a live mailbox over IMAP and fetching selected folders into the local workspace. Use `mailatlas receive --provider imap`.
+The MailAtlas receive path for fetching Gmail messages with the Gmail API and storing them as clean documents in the email workspace.
 
-## Gmail receive
+Use [Read Gmail with MailAtlas](/docs/examples/gmail-receive/) for the setup flow.
 
-The MailAtlas command and API path for fetching Gmail messages with the Gmail API and storing them as local documents. Use `mailatlas receive` for one bounded pass or `mailatlas receive watch` for foreground polling.
+### IMAP receive
 
-## Receive account
+The MailAtlas receive path for connecting to a live mailbox over IMAP and fetching selected folders into the email workspace.
 
-A local record for a mailbox receive configuration. It stores provider identity and non-secret options such as label, query, or folder selection.
+Use [Read Email with IMAP](/docs/getting-started/manual-imap-receive/) for the setup flow.
 
-## Receive cursor
+## Stored files
 
-The Gmail checkpoint MailAtlas stores in SQLite to avoid reprocessing the same messages on incremental receive runs.
+### Asset
 
-## Receive run
+A file MailAtlas extracted from an email. Assets include embedded images used by HTML email and regular attachments such as PDFs, spreadsheets, calendar files, and images.
 
-One receive attempt. A run stores status, counts, errors, and links to documents created or skipped as duplicates.
+### Inline asset
 
-## Email workspace
+An asset embedded in HTML email, often referenced by content ID. Logos, charts, and inline screenshots are common examples.
 
-The local directory that holds raw email, normalized HTML, extracted assets, exports, sent-message records, and `store.db`.
+### Attachment
 
-## `store.db`
+A regular file attached to an email and extracted into the email workspace.
 
-The SQLite database inside the email workspace. It stores document metadata, lookup data, dedupe information, Gmail receive cursors, IMAP receive cursors, run history, and sent-message records.
+### HTML view
 
-## Document
+The normalized HTML representation of an email body when the message contains HTML. It stays linked
+to the document so agents and exports can use more than plain text when needed. The stored snapshot
+is preserved source data and remains untrusted; default HTML export creates a separate sanitized
+view.
 
-The normalized MailAtlas record created from one email message. A document is stored in SQLite and linked to files in the email workspace.
+### Raw email
 
-## Asset
+The original email bytes stored by MailAtlas, usually as an `.eml` file. Raw email remains available when you need exact source inspection.
 
-A file extracted from a message, such as an inline image or a regular attachment.
+## Cleaning and exports
 
-## Inline asset
+### Parser cleaning
 
-An asset embedded in an HTML email, often referenced by content ID.
+The process MailAtlas uses to create `body_text`. Cleaning can remove or normalize forwarded headers, boilerplate, link-only lines, footers, invisible characters, and repeated whitespace.
 
-## Attachment
+### Export
 
-A regular file attached to an email and extracted into the workspace.
+A JSON, Markdown, HTML, or PDF output produced from a stored document and its linked files.
 
-## Export
+Use [Export Formats](/docs/reference/export-formats/) for format details.
 
-A derived JSON, Markdown, HTML, or PDF artifact produced from a stored document.
+### Markdown bundle
 
-## Markdown bundle
+A Markdown export directory that contains `document.md` plus an `assets/` directory with copied files referenced by the Markdown.
 
-A directory export that contains `document.md` plus an `assets/` directory with copied assets referenced by the Markdown file.
+### PDF export
 
-## PDF export
+A PDF rendered by local Chrome or Chromium from a sanitized copy of the stored HTML view when
+available, or from generated HTML based on cleaned text.
 
-A PDF artifact rendered with local Chrome or Chromium from stored HTML when available, or generated HTML based on cleaned text.
+## Sending
 
-## Parser cleaning
+### Sent-message record
 
-Configurable transformations that remove or normalize noisy email body content, such as boilerplate, forwarded headers, footers, link-only lines, invisible characters, and whitespace.
+A local record created when MailAtlas drafts, dry-runs, queues, sends, or fails to send an email. It can include rendered bodies, copied attachments, recipients, provider status, errors, and retry metadata.
 
-## Provenance
+### Dry run
 
-Metadata that explains where a document came from and how it was processed, including source type, IMAP folder and UID when available, forwarded-chain information, and parser notes.
+A send workflow that validates, renders, and stores a message without contacting an email provider.
 
-## Source kind
+### Provider
 
-The input type that produced a document, such as `eml`, `mbox`, `gmail`, or `imap`.
+An email service MailAtlas uses for receive or send operations. Examples include Gmail, IMAP, SMTP, and Cloudflare Email Service.
 
-## Sent-message record
-
-A local record created when MailAtlas drafts, dry-runs, queues, sends, or fails to send an email.
-
-## Dry run
-
-An outbound workflow that validates, renders, and stores a message without contacting an email provider.
-
-## Provider
-
-An outbound delivery backend configured at runtime, such as SMTP, Cloudflare Email Service, or Gmail API.
-
-## Provider credentials
+### Provider credentials
 
 Secrets used to authenticate with a provider, such as SMTP passwords, Cloudflare API tokens, or Gmail OAuth tokens.
 
-## Idempotency key
+### Idempotency key
 
 A caller-provided key used to make retrying sends safer. If the same key already exists, MailAtlas returns the existing sent-message record instead of sending a second message.
 
-## MCP server
+## Agent interfaces
 
-The optional Model Context Protocol server that exposes local MailAtlas tools to MCP-compatible clients over STDIO.
+### CLI
 
-## Send gate
+The `mailatlas` command-line interface for ingesting, receiving, listing, reading, exporting, and sending email.
 
-The explicit runtime configuration required before the MCP server exposes live outbound sending. Draft tools remain available without the live send gate.
+### Python API
 
-## Receive gate
+The MailAtlas Python interface for embedding parsing, receive, document lookup, export, and send workflows in application code.
 
-The explicit runtime configuration required before the MCP server exposes mailbox receive tools.
+### MCP server
+
+The optional Model Context Protocol server that exposes local MailAtlas tools to MCP-compatible AI clients over STDIO.

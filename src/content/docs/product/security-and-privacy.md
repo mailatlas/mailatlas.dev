@@ -100,19 +100,38 @@ MailAtlas omits BCC from local raw MIME snapshots. BCC recipients are still stor
 
 Review outbound drafts and dry runs before sending generated or agent-authored email.
 
-## PDF export note
+## Untrusted email HTML and exports
 
-PDF export uses a local Chrome or Chromium process to render stored HTML. Set `MAILATLAS_PDF_BROWSER` if you need to override the browser executable path.
+Treat raw stored HTML snapshots as untrusted source data. MailAtlas preserves them in the email
+workspace so the original message structure remains available; preservation is not sanitization,
+and you should not serve or open those snapshots as trusted application HTML.
 
-The resulting PDF may contain sensitive email content and assets. Review it before sharing.
+Default HTML export does not copy the stored snapshot verbatim. MailAtlas rebuilds it as inert,
+presentation-oriented HTML and removes executable elements and unsupported markup, event handlers,
+forms, unsafe link schemes, automatically loaded remote subresources, unsafe CSS, and unrecognized
+local files. It omits source-provided `data:` images, SVG, and unsupported or spoofed assets, then
+embeds known allowlisted local raster inline images recorded for the document as data URLs.
+Ordinary `http`, `https`, and `mailto` links may remain, so following a link can still contact an
+external site.
+
+PDF export re-sanitizes the HTML and embeds only known allowlisted local raster inline images before
+launching local Chrome or Chromium. The renderer uses a restrictive content security policy,
+disables JavaScript, keeps Chrome's normal sandbox enabled, runs with an isolated temporary
+profile, and denies outbound hosts and proxy connections. A failed render leaves any existing
+destination PDF unchanged.
+
+These controls narrow the rendering boundary; they do not make Chrome invulnerable or make email
+content safe to trust. HTML and PDF exports can still contain private text, deceptive content, and
+clickable links. Keep the browser current and review every export before sharing it. Set
+`MAILATLAS_PDF_BROWSER` only when you need to override the browser executable path.
 
 ## MCP security note
 
 The MCP server exposes local workspace tools to MCP-compatible clients over STDIO.
 
-Live sending is disabled by default. The live send tool is only exposed when `MAILATLAS_MCP_ALLOW_SEND=1` is set before the server starts.
+Live sending is disabled by default. The live send tool is only exposed when the server starts with `--allow-send` or `MAILATLAS_MCP_ALLOW_SEND=1`.
 
-Mailbox receive tools are also disabled by default. They are only exposed when `MAILATLAS_MCP_ALLOW_RECEIVE=1` is set before the server starts. Receive-on-read is off unless `MAILATLAS_MCP_RECEIVE_ON_READ=1` is set.
+Mailbox receive tools are also disabled by default. They are only exposed when the server starts with `--allow-receive` or `MAILATLAS_MCP_ALLOW_RECEIVE=1`. Receive-on-read is off unless `MAILATLAS_MCP_RECEIVE_ON_READ=1` is set.
 
 Use the draft tool for reviewable generated messages, and enable live sends only in environments where the client is allowed to send email.
 
@@ -121,6 +140,7 @@ Use the draft tool for reviewable generated messages, and enable live sends only
 - Treat the workspace as sensitive source data.
 - Keep real workspaces out of repositories.
 - Use synthetic fixtures for demos, screenshots, and tests.
+- Treat stored raw HTML as untrusted even though default HTML and PDF exports are sanitized.
 - Review exported JSON, HTML, Markdown, and PDF artifacts before sending them outside your machine or repository.
 - Review sent-message records before sharing logs or workspace snapshots.
 - Pass credentials through runtime configuration such as environment variables, CLI flags, secret managers, or explicit Python config.

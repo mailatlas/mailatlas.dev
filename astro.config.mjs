@@ -3,10 +3,23 @@ import starlight from "@astrojs/starlight";
 
 export default defineConfig({
   site: "https://mailatlas.dev",
+  redirects: {
+    "/docs/getting-started/manual-imap-sync": "/docs/getting-started/manual-imap-receive",
+    "/docs/examples/imap-sync": "/docs/examples/imap-receive",
+  },
   integrations: [
     starlight({
       title: "MailAtlas",
       description: "Open-source email infrastructure for local workspaces, AI agents, retrieval systems, and Python workflows.",
+      head: [
+        {
+          tag: "meta",
+          attrs: {
+            name: "twitter:card",
+            content: "summary",
+          },
+        },
+      ],
       pagination: false,
       customCss: ["./src/styles/custom.css"],
       components: {
@@ -31,7 +44,7 @@ export default defineConfig({
             },
             "docs/getting-started/installation",
             "docs/getting-started/quickstart",
-            "docs/getting-started/manual-imap-sync",
+            "docs/getting-started/manual-imap-receive",
             "docs/examples/gmail-receive",
           ],
         },
@@ -91,7 +104,7 @@ export default defineConfig({
             },
             "docs/examples/eml-ingest",
             "docs/examples/mbox-ingest",
-            "docs/examples/imap-sync",
+            "docs/examples/imap-receive",
             "docs/examples/gmail-receive",
             "docs/examples/gmail-receive-watch",
             "docs/examples/gmail-oauth-send",

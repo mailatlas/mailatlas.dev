@@ -126,13 +126,13 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
       </div>
 
       <div class="source-list">
-        <a class="source-row" href="/docs/getting-started/manual-imap-sync/">
+        <a class="source-row" href="/docs/getting-started/manual-imap-receive/">
           <strong>Live mailboxes</strong>
           <span>
             Use Gmail or IMAP receive when messages still live in a mailbox. Run watch mode when
             your agent needs the workspace to stay current.
           </span>
-          <code>sync</code>
+          <code>receive</code>
         </a>
         <a class="source-row" href="/docs/getting-started/quickstart/">
           <strong>Email files</strong>
@@ -167,7 +167,7 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
         <h2>Everything your agent needs to read and work with email.</h2>
         <p>
           MailAtlas stores clean email outputs as ordinary files and uses SQLite for lookup, dedupe,
-          exports, provenance, mailbox sync state, and message records.
+          exports, provenance, mailbox receive state, and message records.
         </p>
       </div>
 
@@ -188,8 +188,8 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
           <code>exports/</code>
         </div>
         <div class="source-row">
-          <strong>Mailbox sync</strong>
-          <span>IMAP sync cursors for manual selected-folder sync.</span>
+          <strong>Mailbox receive</strong>
+          <span>Gmail and IMAP cursors for explicit receive runs.</span>
           <code>store.db</code>
         </div>
         <div class="source-row">
@@ -225,7 +225,7 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
           <span>Import a local <code>.eml</code> file and inspect what MailAtlas stores.</span>
           <code>files</code>
         </a>
-        <a class="source-row" href="/docs/getting-started/manual-imap-sync/">
+        <a class="source-row" href="/docs/getting-started/manual-imap-receive/">
           <strong>Connect a mailbox</strong>
           <span>Bring Gmail or selected IMAP folders into the same agent-readable inbox copy.</span>
           <code>imap</code>
@@ -251,7 +251,7 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
         <div>
           <h2>Docs</h2>
           <a href="/docs/getting-started/quickstart/">Quickstart</a>
-          <a href="/docs/getting-started/manual-imap-sync/">Manual IMAP Sync</a>
+          <a href="/docs/getting-started/manual-imap-receive/">IMAP Receive</a>
           <a href="/docs/providers/outbound-email/">Outbound Email</a>
           <a href="/docs/concepts/workspace-model/">Workspace Model</a>
         </div>

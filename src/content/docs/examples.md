@@ -25,7 +25,7 @@ Use these examples when you want a task-focused path instead of a conceptual ref
     </span>
     <span class="docs-route-meta">mbox</span>
   </a>
-  <a class="docs-route-row" href="/docs/examples/imap-sync/">
+  <a class="docs-route-row" href="/docs/examples/imap-receive/">
     <span class="docs-route-kicker">Mailbox</span>
     <span>
       <span class="docs-route-title">Receive IMAP folders</span>

@@ -56,6 +56,11 @@ export MAILATLAS_PDF_BROWSER="/path/to/chrome-or-chromium"
 
 Use `mailatlas doctor --skip-pdf` when you do not need PDF export.
 
+If the PDF differs from the original email, confirm whether the message relied on automatically
+loaded remote images, embedded executable content, unsafe CSS, SVG, or an unrecognized local file.
+MailAtlas intentionally removes those inputs before HTML export and PDF rendering. Known
+allowlisted local raster inline images recorded for the document should remain.
+
 ## IMAP authentication fails
 
 Use either password auth or OAuth token auth.
@@ -147,22 +152,20 @@ MailAtlas deduplicates by `message_id` when present and falls back to a normaliz
 Live send is hidden by default. To expose the live send tool:
 
 ```bash
-export MAILATLAS_MCP_ALLOW_SEND=1
-mailatlas mcp --root .mailatlas
+mailatlas mcp --root .mailatlas --allow-send
 ```
 
-Set this variable only where the MCP client is allowed to send email. Draft and read tools remain available without the send gate.
+Use this flag only where the MCP client is allowed to send email. Draft and read tools remain available without the send gate. `MAILATLAS_MCP_ALLOW_SEND=1` is still supported for MCP hosts that prefer environment-based server configuration.
 
 ## MCP receive tools hidden
 
 Mailbox receive tools are hidden by default. To expose them:
 
 ```bash
-export MAILATLAS_MCP_ALLOW_RECEIVE=1
-mailatlas mcp --root .mailatlas
+mailatlas mcp --root .mailatlas --allow-receive
 ```
 
-Set this variable only where the MCP client is allowed to contact a mailbox provider and write private email into the local workspace.
+Use this flag only where the MCP client is allowed to contact a mailbox provider and write private email into the local workspace. `MAILATLAS_MCP_ALLOW_RECEIVE=1` is still supported for MCP hosts that prefer environment-based server configuration.
 
 ## Still stuck
 

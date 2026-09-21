@@ -36,11 +36,11 @@ Common methods:
 - `list_receive_accounts()`
 - `list_receive_runs(account_id=None, limit=20)`
 - `get_document(document_id)`
-- `list_documents(query=None)`
+- `list_documents(query=None, limit=None, offset=0)`
 - `export_document(document_id, format="json", out_path=None)`
 - `draft_email(message)`
 - `send_email(message, config)`
-- `list_outbound(query=None)`
+- `list_outbound(query=None, limit=None, offset=0)`
 - `get_outbound(outbound_id)`
 
 ## `ParserConfig`

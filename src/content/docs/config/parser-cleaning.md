@@ -206,4 +206,4 @@ Use [Email Document Schema](/docs/concepts/document-schema/) for how this metada
 
 - Use [Email Document Schema](/docs/concepts/document-schema/) to inspect cleaning metadata.
 - Use [Quickstart](/docs/getting-started/quickstart/) to run cleaning against local files.
-- Use [IMAP Receive](/docs/getting-started/manual-imap-sync/) to apply cleaning during mailbox receive.
+- Use [IMAP Receive](/docs/getting-started/manual-imap-receive/) to apply cleaning during mailbox receive.

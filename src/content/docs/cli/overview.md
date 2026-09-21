@@ -226,9 +226,16 @@ python -m pip install "mailatlas[mcp]"
 mailatlas mcp --root .mailatlas
 ```
 
-The MCP server exposes document, export, outbound-list, outbound-get, and draft tools over MCP. The live send tool is hidden unless `MAILATLAS_MCP_ALLOW_SEND=1` is set before the server starts.
+The MCP server exposes document, export, outbound-list, outbound-get, and draft tools over MCP. The live send and mailbox receive tools are hidden unless you explicitly enable them before the server starts.
 
-Mailbox receive tools are hidden unless `MAILATLAS_MCP_ALLOW_RECEIVE=1` is set before server startup.
+Prefer explicit capability flags for MCP startup:
+
+```bash
+mailatlas mcp --root .mailatlas --allow-receive
+mailatlas mcp --root .mailatlas --allow-send
+```
+
+`--allow-receive` exposes mailbox receive tools. `--allow-send` exposes the live send tool. The `MAILATLAS_MCP_ALLOW_RECEIVE=1` and `MAILATLAS_MCP_ALLOW_SEND=1` environment variables are still supported for MCP hosts that prefer environment-based server configuration.
 
 ## Common flags
 
@@ -249,6 +256,8 @@ Mailbox receive tools are hidden unless `MAILATLAS_MCP_ALLOW_RECEIVE=1` is set b
 | `--attach` | Attach a file to outbound email. |
 | `--header` | Add a custom outbound header. |
 | `--transport` | MCP transport. Currently `stdio`. |
+| `--allow-send` | Expose the live MCP send tool. |
+| `--allow-receive` | Expose MCP mailbox receive tools. |
 
 ## Parser cleaning flags
 

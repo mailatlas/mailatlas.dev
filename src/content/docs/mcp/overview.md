@@ -44,7 +44,7 @@ Use this pattern for local MCP clients that launch tools over STDIO:
 }
 ```
 
-Adapt the configuration format to your MCP client.
+Add `--allow-receive` or `--allow-send` to `args` only for clients that need those capabilities. Put provider tokens and secrets in the MCP server entry's environment block instead of exporting them globally in your shell. Adapt the configuration format to your MCP client.
 
 ## Tools
 
@@ -57,6 +57,14 @@ Adapt the configuration format to your MCP client.
 - `mailatlas_get_outbound`
 
 Use these tools when an MCP client needs to inspect local MailAtlas state without sending email.
+
+`mailatlas_list_documents` and `mailatlas_list_outbound` accept:
+
+- `query`: optional substring filter.
+- `limit`: page size. Defaults to `50`; valid range is `1` through `500`.
+- `offset`: zero-based result offset. Defaults to `0`.
+
+List responses include the page of results plus `limit`, `offset`, `count`, and `has_more`.
 
 ### Draft tool
 
@@ -86,11 +94,10 @@ Live sends are disabled by default. This lets MCP clients draft and inspect emai
 To expose the live send tool:
 
 ```bash
-export MAILATLAS_MCP_ALLOW_SEND=1
-mailatlas mcp --root .mailatlas
+mailatlas mcp --root .mailatlas --allow-send
 ```
 
-Set this variable only in environments where the client is allowed to send email.
+Use this flag only in environments where the client is allowed to send email. `MAILATLAS_MCP_ALLOW_SEND=1` is still supported when an MCP client prefers environment-based server configuration.
 
 ## Receive gate
 
@@ -99,19 +106,19 @@ Mailbox receive is disabled by default. This keeps MCP read tools local to the w
 To expose receive tools:
 
 ```bash
-export MAILATLAS_MCP_ALLOW_RECEIVE=1
-mailatlas mcp --root .mailatlas
+mailatlas mcp --root .mailatlas --allow-receive
 ```
 
 To run one receive pass before `mailatlas_list_documents`:
 
 ```bash
-export MAILATLAS_MCP_ALLOW_RECEIVE=1
 export MAILATLAS_MCP_RECEIVE_ON_READ=1
-mailatlas mcp --root .mailatlas
+mailatlas mcp --root .mailatlas --allow-receive
 ```
 
 Use receive-on-read only when the client should be allowed to contact a mailbox provider during read operations. It can be slower than ordinary reads and writes new private email into the workspace.
+
+`MAILATLAS_MCP_ALLOW_RECEIVE=1` is still supported when an MCP client prefers environment-based server configuration.
 
 `MAILATLAS_MCP_RECEIVE_BACKGROUND=1` starts a local background receive loop with the MCP server process. Keep it off unless the MCP process lifecycle is the intended receive lifecycle.
 
@@ -179,8 +186,8 @@ Raw outbound MIME snapshots remain Bcc-free.
 ## Safety guidance
 
 - Keep the MCP server local unless a future transport is explicitly designed for remote use.
-- Do not enable `MAILATLAS_MCP_ALLOW_SEND=1` in environments where the client should only draft or inspect.
-- Do not enable `MAILATLAS_MCP_ALLOW_RECEIVE=1` unless the client is allowed to contact Gmail and store private email locally.
+- Do not start the server with `--allow-send` in environments where the client should only draft or inspect.
+- Do not start the server with `--allow-receive` unless the client is allowed to contact Gmail and store private email locally.
 - Leave `MAILATLAS_MCP_RECEIVE_ON_READ` and `MAILATLAS_MCP_RECEIVE_BACKGROUND` unset unless those side effects are expected.
 - Use dry runs and drafts for generated or agent-authored content before enabling live sends.
 - Treat the email workspace as sensitive data.

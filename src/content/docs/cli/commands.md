@@ -177,12 +177,12 @@ mailatlas auth logout gmail
 ## `mailatlas mcp`
 
 ```bash
-mailatlas mcp [--root ROOT] [--transport stdio]
+mailatlas mcp [--root ROOT] [--transport stdio] [--allow-send] [--allow-receive]
 ```
 
 STDIO is the only supported MCP transport.
 
-Mailbox receive tools are exposed only when `MAILATLAS_MCP_ALLOW_RECEIVE=1` is set before server startup.
+`--allow-send` exposes the live `mailatlas_send_email` MCP tool. `--allow-receive` exposes `mailatlas_receive` and `mailatlas_receive_status`. Leave both off when an MCP client should only read stored email, export documents, inspect sent-message records, and create drafts.
 
 ## Next step
 

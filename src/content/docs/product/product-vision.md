@@ -40,7 +40,7 @@ Email access is also a retrieval problem. Agents and applications rarely care ab
 - Which documents match this condition?
 - Which message records relate to this task?
 
-MailAtlas creates an email workspace: a queryable copy of the inbox and outbox for your agent. The workspace stores cleaned email outputs, source links, assets, metadata, mailbox sync state, exports, and message records.
+MailAtlas creates an email workspace: a queryable copy of the inbox and outbox for your agent. The workspace stores cleaned email outputs, source links, assets, metadata, mailbox receive state, exports, and message records.
 
 The same workspace can be used from the CLI, Python code, or MCP tools, depending on how your agent works.
 
@@ -73,7 +73,7 @@ MailAtlas is a step toward that future. It connects to live mailboxes, imports a
 
 ## Build from here
 
-- Use [IMAP Receive](/docs/getting-started/manual-imap-sync/) to connect live mailbox folders.
+- Use [IMAP Receive](/docs/getting-started/manual-imap-receive/) to connect live mailbox folders.
 - Use [Quickstart](/docs/getting-started/quickstart/) to import local files.
 - Use [Workspace Model](/docs/concepts/workspace-model/) to understand the email workspace.
 - Use [Outbound Email](/docs/providers/outbound-email/) to send through your existing provider.

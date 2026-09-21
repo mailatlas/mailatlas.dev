@@ -6,7 +6,7 @@ slug: docs/reference/configuration
 
 This page collects the configuration surfaces used by the CLI, Python API, and MCP server.
 
-Configure provider credentials through environment variables, CLI flags, Python config, or the Gmail auth helper. MailAtlas uses those credentials for the receive or send command that needs them.
+Configure provider credentials through environment variables, CLI flags, Python config, or the Gmail auth helper. MailAtlas uses those credentials for the receive or send command that needs them. For MCP capability gates, prefer `mailatlas mcp --allow-send` and `mailatlas mcp --allow-receive`; use environment variables when an MCP host passes configuration through an environment block.
 
 ## Email workspace resolution
 
@@ -47,6 +47,10 @@ PDF export uses local Chrome or Chromium. If MailAtlas cannot find the browser o
 ```bash
 export MAILATLAS_PDF_BROWSER="/path/to/chrome-or-chromium"
 ```
+
+MailAtlas renders a sanitized copy rather than the raw stored HTML snapshot. See [Export
+Formats](/docs/reference/export-formats/) for the rendering boundary and the security limits that
+still apply to untrusted email.
 
 ## IMAP receive variables
 
@@ -123,6 +127,15 @@ Local CLI workflows can use `mailatlas auth gmail --capability receive`. Backend
 | `MAILATLAS_RECEIVE_MAX_RUNS` | Optional max run count for watch mode. |
 
 ## MCP variables
+
+Prefer command flags for local MCP startup:
+
+```bash
+mailatlas mcp --root .mailatlas --allow-receive
+mailatlas mcp --root .mailatlas --allow-send
+```
+
+Use these variables when an MCP host manages server configuration through an environment block.
 
 | Variable | Purpose |
 | --- | --- |
